@@ -1,0 +1,581 @@
+/* ═══════════════════════════════════════════════════════════════
+   JudgeHome.css  —  Competition Selection + Scoring List
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Competition Selection Screen ─────────────────────────────── */
+.jh-select-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding-bottom: 80px;
+}
+
+.jh-select-header {
+  text-align: center;
+  margin-bottom: 48px;
+  padding-top: 24px;
+}
+
+.jh-select-eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--pageant-primary);
+  margin-bottom: 12px;
+}
+
+.jh-select-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+  line-height: 1;
+}
+
+.jh-select-sub {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Two big competition cards ───────────────────────────────── */
+.jh-comp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 620px) {
+  .jh-comp-grid { grid-template-columns: 1fr; }
+}
+
+.jh-comp-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 36px 32px 28px;
+  border: 1px solid rgba(46,125,50,0.15);
+  background: #FFFFFF;
+  border-radius: 16px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 8px 24px rgba(46,125,50,0.06);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.jh-comp-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(46,125,50,0.40);
+  box-shadow: 0 12px 36px rgba(46,125,50,0.14), 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Glow blob behind card */
+.jh-comp-card-glow {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.jh-comp-card:hover .jh-comp-card-glow { opacity: 1; }
+.jh-glow-cheer   { background: radial-gradient(circle, rgba(46,125,50,0.12) 0%, transparent 70%); }
+.jh-glow-pageant { background: radial-gradient(circle, rgba(46,125,50,0.12) 0%, transparent 70%); }
+
+/* Left accent bar */
+.jh-comp-cheer  { border-left: 4px solid #2E7D32; }
+.jh-comp-pageant{ border-left: 4px solid #F2B705; }
+
+.jh-comp-icon {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 8px rgba(46,125,50,0.25));
+}
+
+.jh-comp-name {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.jh-comp-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+/* ── Progress stats row ─────────────────────────────────────── */
+.jh-comp-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.jh-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.jh-stat-num {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.jh-stat-num.jh-stat-done  { color: var(--locked-color); }
+.jh-stat-num.jh-stat-draft { color: var(--pageant-primary); }
+
+.jh-stat-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.jh-stat-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ── Progress bar ───────────────────────────────────────────── */
+.jh-comp-progress {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.jh-comp-progress-fill {
+  height: 100%;
+  transition: width 0.6s ease;
+}
+.jh-fill-cheer   { background: var(--locked-color); }
+.jh-fill-pageant { background: var(--locked-color); }
+
+/* ── CTA label ──────────────────────────────────────────────── */
+.jh-comp-cta {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--pageant-primary);
+  transition: letter-spacing 0.2s ease;
+}
+.jh-comp-card:hover .jh-comp-cta { letter-spacing: 0.16em; }
+
+/* ── Back button + active competition header ─────────────────── */
+.jh-back-btn {
+  margin-bottom: 4px;
+}
+
+.jh-active-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Scoring list ────────────────────────────────────────── */
+.comp-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 28px;
+  background: #F3EFE3;
+  padding: 5px;
+  border-radius: 12px;
+  border: 1px solid rgba(46,125,50,0.14);
+  width: fit-content;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+.comp-tab {
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+  transition: all var(--transition);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.comp-tab:hover { color: var(--text-primary); background: rgba(255,255,255,0.70); }
+.comp-tab.active-cheer {
+  background: linear-gradient(135deg, #2E7D32, #388E3C);
+  color: #FFFFFF;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(46,125,50,0.25);
+}
+.comp-tab.active-pageant {
+  background: linear-gradient(135deg, #F2B705, #F5C842);
+  color: #1A1A1A;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(242,183,5,0.25);
+}
+
+.judge-team-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 600px) {
+  .judge-team-list {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.judge-team-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 1px solid rgba(46,125,50,0.14);
+  background: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  transition: all var(--transition);
+}
+.judge-team-card:hover:not(.card-locked) {
+  border-color: rgba(46,125,50,0.40);
+  box-shadow: 0 4px 16px rgba(46,125,50,0.12);
+  transform: translateX(4px);
+}
+.judge-team-card.card-locked {
+  border-left: 3px solid var(--locked-color);
+  background: rgba(192, 57, 43, 0.04);
+  opacity: 0.85;
+  cursor: default;
+}
+
+.judge-team-avatar {
+  width: 48px; height: 48px;
+  border-radius: 12px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(46,125,50,0.20);
+}
+.cheer-avatar  {
+  background: linear-gradient(135deg, #2E7D32, #66BB6A);
+  border-color: #2E7D32;
+}
+.ginoo-avatar  {
+  background: linear-gradient(135deg, #1B5E20, #388E3C);
+  border-color: #1B5E20;
+}
+.bini-avatar   {
+  background: linear-gradient(135deg, #C0392B, #E53935);
+  border-color: #C0392B;
+}
+
+.judge-team-info { flex: 1; }
+.judge-team-name { font-weight: 700; font-size: 1rem; }
+
+.judge-arrow {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  transition: transform var(--transition);
+}
+.judge-team-card:hover .judge-arrow { color: var(--text-secondary); transform: translateX(3px); }
+
+.judge-team-group {
+  margin-bottom: 24px;
+}
+.judge-team-group-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  padding-left: 4px;
+  font-family: var(--font-display);
+}
+.judge-candidate-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.judge-candidate-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(46,125,50,0.14);
+  background: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  transition: all var(--transition);
+}
+.judge-candidate-card:hover:not(.card-locked) {
+  border-color: rgba(46,125,50,0.40);
+  box-shadow: 0 4px 16px rgba(46,125,50,0.12);
+  transform: translateX(4px);
+}
+.judge-candidate-card.card-locked {
+  border-left: 3px solid var(--locked-color);
+  background: rgba(192, 57, 43, 0.04);
+  opacity: 0.85;
+  cursor: default;
+}
+.judge-candidate-avatar {
+  width: 44px; height: 44px;
+  border-radius: 10px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #fff;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(46,125,50,0.20);
+  background: linear-gradient(135deg, #2E7D32, #66BB6A);
+}
+
+/* ── Scored section divider & empty states ─────────────────── */
+.jh-scored-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px dashed rgba(46,125,50,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jh-scored-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.jh-scored-count {
+  font-size: 0.78rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-weight: 600;
+}
+
+.jh-section-empty {
+  text-align: center;
+  padding: 36px 20px;
+  background: rgba(46,125,50,0.04);
+  border: 1px dashed rgba(46,125,50,0.25);
+  border-radius: var(--radius-md);
+  color: var(--pageant-primary);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+@media (max-width: 540px) {
+  .judge-candidate-row { grid-template-columns: 1fr; }
+}
+
+/* ── Pageant Stage Picker Cards ─────────────────────────────── */
+.jh-stage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 16px;
+}
+
+.jh-stage-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s ease,
+              border-color 0.2s ease;
+  overflow: hidden;
+}
+
+.jh-stage-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(46, 125, 50, 0.4);
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.10), 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.jh-stage-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.jh-stage-icon-wrap {
+  display: inline-flex;
+  padding: 8px;
+  background: rgba(242, 183, 5, 0.12);
+  border-radius: 10px;
+  border: 1px solid rgba(242, 183, 5, 0.28);
+}
+
+.jh-stage-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.70rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.jh-stage-status-badge.completed {
+  background: rgba(46, 125, 50, 0.10);
+  color: #15803D;
+  border: 1px solid rgba(46, 125, 50, 0.25);
+}
+
+.jh-stage-status-badge.inprogress {
+  background: rgba(245, 158, 11, 0.12);
+  color: #B45309;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+
+.jh-stage-status-badge.ready {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.jh-stage-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 3px;
+  line-height: 1.25;
+}
+
+.jh-stage-subtitle {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.jh-stage-progress-bar-bg {
+  width: 100%;
+  height: 5px;
+  background: var(--bg-elevated);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.jh-stage-progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #16A34A, #22C55E);
+  transition: width 0.3s ease;
+}
+
+.jh-stage-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  background: var(--bg-elevated);
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.jh-stage-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.jh-stage-stat-val {
+  font-size: 1.05rem;
+  font-weight: 900;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.jh-stage-stat-lbl {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.jh-stage-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--pageant-primary);
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.jh-stage-card:hover .jh-stage-footer {
+  color: #15803D;
+}
+
+.jh-stage-card:hover .jh-stage-footer svg {
+  transform: translateX(4px);
+  transition: transform 0.2s ease;
+}
+
+

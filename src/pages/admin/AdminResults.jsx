@@ -1,0 +1,1211 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+import {
+  FileText,
+  FileSpreadsheet,
+  Trophy,
+  Award,
+  Filter,
+  Users,
+  Layers,
+  Crown,
+  Megaphone,
+  AlertTriangle,
+  CheckCircle2,
+  Sparkles,
+  User
+} from 'lucide-react'
+import {
+  printCheerdanceTabulation,
+  printCheerdanceRankings,
+  printPageantStageTabulation,
+  printPageantOverallRankings,
+  printPageantOverallTabulation
+} from '../../lib/printReports'
+
+export default function AdminResults() {
+  const [results, setResults]         = useState({ cheerdance: [], pageant: { ginoo: [], binibini: [], ginooAwards: [], binibiniAwards: [] } })
+  const [rawScores, setRawScores]     = useState([])
+  const [rawCriteria, setRawCriteria] = useState([])
+  const [judgesList, setJudgesList]   = useState([])
+  const [teamsData, setTeamsData]     = useState([])
+  const [candidatesData, setCandidatesData] = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [tab, setTab]                 = useState('cheerdance')
+
+  // Report Controls State
+  const [selectedJudgeId, setSelectedJudgeId]   = useState('all')
+  const [selectedStageId, setSelectedStageId]   = useState('')
+
+  // Warning modal state
+  const [warningModal, setWarningModal] = useState(null) // { issues, onProceed }
+
+  // All scores (locked + draft) for completeness checks
+  const [allScoresRaw, setAllScoresRaw] = useState([])
+
+  useEffect(() => {
+    async function load() {
+      const [
+        { data: rankData },
+        { data: entries },
+        { data: candidates },
+        { data: scoresData },
+        { data: criteriaData },
+        { data: judgesData },
+        { data: allScores }
+      ] = await Promise.all([
+        supabase.from('rankings').select('team_entry_id, candidate_id, final_score, judges_scored'),
+        supabase.from('team_entries').select('id, competition_type, team:teams(id, name)'),
+        supabase.from('candidates').select('id, category, name, candidate_number, team_entry:team_entry_id(id, team:teams(name))'),
+        supabase.from('scores').select('candidate_id, team_entry_id, criterion_id, value, is_locked, judge_id').eq('is_locked', true),
+        supabase.from('criteria').select('id, key, label, max_score, parent_id, display_order, competition_type').order('display_order'),
+        supabase.from('profiles').select('id, name, username, allowed_competitions').eq('role', 'judge').order('name'),
+        supabase.from('scores').select('candidate_id, team_entry_id, criterion_id, judge_id, is_locked')
+      ])
+
+      if (!rankData || !entries) { setLoading(false); return }
+
+      setRawScores(scoresData || [])
+      setRawCriteria(criteriaData || [])
+      setJudgesList(judgesData || [])
+      setTeamsData(entries || [])
+      setCandidatesData(candidates || [])
+      setAllScoresRaw(allScores || [])
+
+      // Set default selected stage ID for Pageant reports (defaults to overall combined)
+      setSelectedStageId('overall')
+
+      // Build judge permission sets — only count judges allowed for each competition
+      const cheerJudgeIds   = new Set((judgesData || []).filter(j => (j.allowed_competitions || ['cheerdance', 'pageant']).includes('cheerdance')).map(j => j.id))
+      const pageantJudgeIds = new Set((judgesData || []).filter(j => (j.allowed_competitions || ['cheerdance', 'pageant']).includes('pageant')).map(j => j.id))
+
+      // Build cheerdance score per team_entry — only from cheer-allowed judges
+      const cheerScoresByEntry = {}
+      scoresData?.forEach(s => {
+        if (!s.team_entry_id || s.candidate_id) return
+        if (!cheerJudgeIds.has(s.judge_id)) return  // skip non-cheer judges
+        if (!cheerScoresByEntry[s.team_entry_id]) {
+          cheerScoresByEntry[s.team_entry_id] = { total: 0, judges: new Set() }
+        }
+        cheerScoresByEntry[s.team_entry_id].total += Number(s.value) || 0
+        cheerScoresByEntry[s.team_entry_id].judges.add(s.judge_id)
+      })
+
+      // Map cheerdance — average across judges
+      const cheer = (entries || [])
+        .filter(e => e.competition_type === 'cheerdance')
+        .map(e => {
+          const stats = cheerScoresByEntry[e.id]
+          const rankInfo = rankData?.find(r => r.team_entry_id === e.id && !r.candidate_id)
+          const judgeCount = stats?.judges.size || rankInfo?.judges_scored || 1
+          const finalScore = stats
+            ? (stats.total / (judgeCount || 1))
+            : (rankInfo?.final_score || 0)
+          return {
+            team_entry_id: e.id,
+            team: e.team?.name || '?',
+            competition: 'Cheerdance',
+            final_score: finalScore,
+            judges_scored: judgeCount
+          }
+        })
+        .filter(r => r.final_score > 0)
+        .sort((a, b) => b.final_score - a.final_score)
+
+      // Build parent/child criteria structure
+      const pageantCrit = (criteriaData || []).filter(c => c.competition_type === 'pageant')
+      const parents = pageantCrit.filter(c => !c.parent_id).sort((a,b) => (a.display_order || 0) - (b.display_order || 0))
+      const children = pageantCrit.filter(c => c.parent_id).sort((a,b) => (a.display_order || 0) - (b.display_order || 0))
+
+      // Build criterion_id -> parentId map (no weighting needed — scores are direct)
+      const criterionParentMap = {}
+      parents.forEach(parent => {
+        const stageKids = children.filter(c => c.parent_id === parent.id)
+        stageKids.forEach(kid => {
+          criterionParentMap[kid.id] = parent.id
+        })
+      })
+
+      // Accumulate candidate scores + per-stage sub-totals — only from pageant-allowed judges
+      const pageantScoresByCand = {}
+      scoresData?.forEach(s => {
+        if (!s.candidate_id) return
+        if (!pageantJudgeIds.has(s.judge_id)) return  // skip non-pageant judges
+        if (!pageantScoresByCand[s.candidate_id]) {
+          pageantScoresByCand[s.candidate_id] = { total: 0, judges: new Set(), stageScores: {}, stageJudges: {} }
+        }
+
+        const directVal = Number(s.value) || 0
+        const parentId  = criterionParentMap[s.criterion_id]
+
+        pageantScoresByCand[s.candidate_id].total += directVal
+        pageantScoresByCand[s.candidate_id].judges.add(s.judge_id)
+
+        if (parentId) {
+          const prev = pageantScoresByCand[s.candidate_id].stageScores[parentId] || 0
+          pageantScoresByCand[s.candidate_id].stageScores[parentId] = prev + directVal
+
+          if (!pageantScoresByCand[s.candidate_id].stageJudges[parentId]) {
+            pageantScoresByCand[s.candidate_id].stageJudges[parentId] = new Set()
+          }
+          pageantScoresByCand[s.candidate_id].stageJudges[parentId].add(s.judge_id)
+        }
+      })
+
+      // Helper: build ranked candidate list for a category
+      function buildCategoryList(category) {
+        return (candidates || [])
+          .filter(c => c.category === category)
+          .map(c => {
+            const stats = pageantScoresByCand[c.id]
+            const rankInfo = rankData?.find(r => r.candidate_id === c.id)
+            const judgeCount = stats?.judges.size || rankInfo?.judges_scored || 1
+            const finalScore = stats ? (stats.total / (judgeCount || 1)) : (rankInfo?.final_score || 0)
+            return {
+              candidate_id: c.id,
+              candidate: c.name || '?',
+              candidate_number: c.candidate_number,
+              team: c.team_entry?.team?.name || '?',
+              category: c.category,
+              final_score: finalScore,
+              judges_scored: judgeCount,
+              stageScores: stats?.stageScores || {}
+            }
+          })
+          .filter(r => r.final_score > 0)
+          .sort((a,b) => b.final_score - a.final_score)
+      }
+
+      const ginoo = buildCategoryList('ginoo')
+      const binibini = buildCategoryList('binibini')
+
+      // Find winner and full candidate rankings per stage
+      function buildStageAwards(category) {
+        const catCands = (candidates || []).filter(c => c.category === category)
+        return parents.map(parent => {
+          const rankedCandidates = catCands
+            .map(c => {
+              const rec = pageantScoresByCand[c.id]
+              const stageJudgeCount = rec?.stageJudges?.[parent.id]?.size || 0
+              const stageSum = rec?.stageScores?.[parent.id] || 0
+              // stage_avg = average total score for this stage per judge
+              const stageAvg = stageJudgeCount > 0 ? (stageSum / stageJudgeCount) : 0
+              return {
+                candidate_id: c.id,
+                candidate: c.name || '?',
+                candidate_number: c.candidate_number,
+                team: c.team_entry?.team?.name || '?',
+                category: c.category,
+                stage_avg: stageAvg,
+                stage_judge_count: stageJudgeCount
+              }
+            })
+            .sort((a, b) => {
+              if (b.stage_avg !== a.stage_avg) return b.stage_avg - a.stage_avg
+              if (a.candidate_number != null && b.candidate_number != null) return a.candidate_number - b.candidate_number
+              return (a.candidate || '').localeCompare(b.candidate || '')
+            })
+
+          const winner = rankedCandidates.find(c => c.stage_avg > 0) || null
+          return {
+            id: parent.id,
+            label: parent.label,
+            winner,
+            rankings: rankedCandidates
+          }
+        })
+      }
+
+      const ginooAwards    = buildStageAwards('ginoo')
+      const binibiniAwards = buildStageAwards('binibini')
+
+      setResults({ cheerdance: cheer, pageant: { ginoo, binibini, ginooAwards, binibiniAwards } })
+      setLoading(false)
+    }
+    load()
+  }, [])
+
+  const cheerJudges   = (judgesList || []).filter(j => (j.allowed_competitions || ['cheerdance', 'pageant']).includes('cheerdance'))
+  const pageantJudges = (judgesList || []).filter(j => (j.allowed_competitions || ['cheerdance', 'pageant']).includes('pageant'))
+
+  /* ── Completeness checks ────────────────────────────────────── */
+
+  function scoreStatus(judgeId, filterFn, expectedCount) {
+    const all    = allScoresRaw.filter(s => s.judge_id === judgeId && filterFn(s))
+    const locked = all.filter(s => s.is_locked)
+    if (all.length === 0)           return 'Not Started'
+    if (locked.length >= expectedCount) return null
+    if (locked.length > 0)          return 'Partially Locked'
+    return 'Draft (Not Locked)'
+  }
+
+  function buildCheerdanceWarnings(targetJudgeId = selectedJudgeId) {
+    const cheerCrit    = rawCriteria.filter(c => c.competition_type === 'cheerdance')
+    const cheerEntries = teamsData.filter(e => e.competition_type === 'cheerdance')
+    const targetJudges = targetJudgeId && targetJudgeId !== 'all'
+      ? cheerJudges.filter(j => j.id === targetJudgeId)
+      : cheerJudges
+
+    const issues = []
+    targetJudges.forEach(judge => {
+      cheerEntries.forEach(entry => {
+        const status = scoreStatus(
+          judge.id,
+          s => s.team_entry_id === entry.id,
+          cheerCrit.length
+        )
+        if (status) issues.push({
+          judge: judge.name,
+          target: entry.team?.name || '?',
+          stage: 'Cheerdance',
+          status
+        })
+      })
+    })
+    return issues
+  }
+
+  function buildPageantStageWarnings(stageId, category, targetJudgeId = selectedJudgeId) {
+    const stageObj  = rawCriteria.find(c => c.id === stageId)
+    if (!stageObj) return []
+    const stageKids = rawCriteria.filter(c => c.parent_id === stageId)
+    const catCands  = candidatesData.filter(c => c.category === category)
+    const targetJudges = targetJudgeId && targetJudgeId !== 'all'
+      ? pageantJudges.filter(j => j.id === targetJudgeId)
+      : pageantJudges
+
+    const issues    = []
+    targetJudges.forEach(judge => {
+      catCands.forEach(cand => {
+        const status = scoreStatus(
+          judge.id,
+          s => s.candidate_id === cand.id && stageKids.some(k => k.id === s.criterion_id),
+          stageKids.length
+        )
+        if (status) issues.push({
+          judge:  judge.name,
+          target: `${cand.name} (${cand.category === 'ginoo' ? 'Ginoo' : 'Binibini'})`,
+          stage:  stageObj.label,
+          status
+        })
+      })
+    })
+    return issues
+  }
+
+  function buildPageantOverallWarnings(category, targetJudgeId = selectedJudgeId) {
+    const pageantKids = rawCriteria.filter(c => c.competition_type === 'pageant' && c.parent_id)
+    const catCands    = candidatesData.filter(c => c.category === category)
+    const targetJudges = targetJudgeId && targetJudgeId !== 'all'
+      ? pageantJudges.filter(j => j.id === targetJudgeId)
+      : pageantJudges
+
+    const issues      = []
+    targetJudges.forEach(judge => {
+      catCands.forEach(cand => {
+        const status = scoreStatus(
+          judge.id,
+          s => s.candidate_id === cand.id,
+          pageantKids.length
+        )
+        if (status) issues.push({
+          judge:  judge.name,
+          target: `${cand.name} (${cand.category === 'ginoo' ? 'Ginoo' : 'Binibini'})`,
+          stage:  'All Stages (Overall)',
+          status
+        })
+      })
+    })
+    return issues
+  }
+
+  function generateWithCheck(issues, generateFn) {
+    if (issues.length > 0) {
+      setWarningModal({ issues, onProceed: generateFn })
+    } else {
+      generateFn()
+    }
+  }
+
+  /* ── Report Generation Handlers ─────────────────────────────── */
+
+  function handleGenerateCheerdanceTabulation() {
+    const cheerCriteria = rawCriteria.filter(c => c.competition_type === 'cheerdance')
+    const cheerTeams = (teamsData || [])
+      .filter(e => e.competition_type === 'cheerdance')
+      .map(e => ({ team_entry_id: e.id, team: e.team?.name || '?' }))
+
+    generateWithCheck(buildCheerdanceWarnings(selectedJudgeId), () => printCheerdanceTabulation({
+      teams: cheerTeams,
+      criteria: cheerCriteria,
+      scores: rawScores.filter(s => cheerJudges.some(j => j.id === s.judge_id)),
+      judges: cheerJudges,
+      selectedJudgeId
+    }))
+  }
+
+  function handleGenerateCheerdanceRankings() {
+    generateWithCheck(buildCheerdanceWarnings('all'), () => printCheerdanceRankings({
+      rankedTeams: results.cheerdance,
+      judges: cheerJudges
+    }))
+  }
+
+  function handleGeneratePageantStageTabulation() {
+    const currentCategory = tab // 'ginoo' or 'binibini'
+    const pageantCandidates = (candidatesData || []).map(c => ({
+      candidate_id: c.id,
+      candidate: c.name || '?',
+      candidate_number: c.candidate_number,
+      category: c.category,
+      team: c.team_entry?.team?.name || '?'
+    }))
+
+    const pageantScores = rawScores.filter(s => pageantJudges.some(j => j.id === s.judge_id))
+
+    if (selectedStageId === 'overall') {
+      generateWithCheck(buildPageantOverallWarnings(currentCategory, selectedJudgeId), () =>
+        printPageantOverallTabulation({
+          category: currentCategory,
+          candidates: pageantCandidates,
+          criteria: rawCriteria,
+          scores: pageantScores,
+          judges: pageantJudges,
+          selectedJudgeId
+        })
+      )
+      return
+    }
+
+    const stageObj = rawCriteria.find(c => c.id === selectedStageId || c.key === selectedStageId)
+    if (!stageObj) return
+
+    generateWithCheck(buildPageantStageWarnings(selectedStageId, currentCategory, selectedJudgeId), () =>
+      printPageantStageTabulation({
+        stage: stageObj,
+        category: currentCategory,
+        candidates: pageantCandidates,
+        criteria: rawCriteria,
+        scores: pageantScores,
+        judges: pageantJudges,
+        selectedJudgeId
+      })
+    )
+  }
+
+  function handleGenerateGinooRankings() {
+    generateWithCheck(buildPageantOverallWarnings('ginoo', 'all'), () => printPageantOverallRankings({
+      category: 'ginoo',
+      topCandidates: results.pageant.ginoo,
+      judges: pageantJudges
+    }))
+  }
+
+  function handleGenerateBinibiniRankings() {
+    generateWithCheck(buildPageantOverallWarnings('binibini', 'all'), () => printPageantOverallRankings({
+      category: 'binibini',
+      topCandidates: results.pageant.binibini,
+      judges: pageantJudges
+    }))
+  }
+
+  const pageantParents = rawCriteria.filter(c => c.competition_type === 'pageant' && !c.parent_id)
+
+  return (
+    <div style={{ width: '100%' }}>
+      {/* ── Page Header ───────────────────────────────────────── */}
+      <div className="page-header" style={{ marginBottom: 24 }}>
+        <div className="page-header-left">
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(242,183,5,0.1)', borderRadius: 6, border: '1px solid rgba(242,183,5,0.3)', marginBottom: 8 }}>
+            <Trophy size={13} color="#D97706" />
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Official Tabulation &amp; Standings
+            </span>
+          </div>
+          <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            Final Results &amp; Reports
+          </h1>
+          <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
+            Official ranked summaries based on certified judge scores
+          </p>
+        </div>
+      </div>
+
+      {/* ── Main Competition Tabs (Sticky Floating Bar) ──────────────────────── */}
+      <div style={{
+        position: 'sticky',
+        top: -40,
+        zIndex: 100,
+        background: 'rgba(250, 247, 239, 0.95)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        padding: '12px 0 16px',
+        marginBottom: 24,
+        borderBottom: '1px solid var(--border)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 12
+      }}>
+        <div style={{
+          display: 'inline-flex',
+          background: 'var(--bg-elevated)',
+          padding: 4,
+          borderRadius: 10,
+          border: '1px solid var(--border)',
+          gap: 4,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+        }}>
+          {[
+            { key: 'cheerdance', label: 'Cheerdance', icon: Megaphone },
+            { key: 'ginoo',      label: 'Ginoo Division', icon: Crown },
+            { key: 'binibini',   label: 'Binibini Division', icon: Sparkles },
+          ].map(t => {
+            const Icon = t.icon
+            const isActive = tab === t.key
+            return (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => {
+                  setTab(t.key)
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 18px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: isActive ? 'var(--pageant-primary)' : 'transparent',
+                  color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
+                  fontWeight: isActive ? 700 : 600,
+                  fontSize: '0.88rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Icon size={16} strokeWidth={isActive ? 2.2 : 1.8} />
+                {t.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── Official Reports & Verification Toolbar ─────────────── */}
+      <div className="card" style={{
+        padding: 0,
+        marginBottom: 32,
+        borderRadius: 12,
+        border: '1px solid var(--border)',
+        background: 'var(--bg-surface)',
+        overflow: 'hidden'
+      }}>
+        {/* Toolbar Header */}
+        <div style={{
+          padding: '12px 18px',
+          background: 'var(--bg-elevated)',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 8
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <FileText size={15} color="#D97706" strokeWidth={2.2} />
+            <span style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-primary)' }}>
+              Official Print &amp; PDF Report Generation
+            </span>
+          </div>
+        </div>
+
+        {/* Toolbar Body — Cheerdance */}
+        {tab === 'cheerdance' && (
+          <div style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+            {/* Judge Filter */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Filter size={14} color="var(--text-muted)" />
+              <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)' }}>Judge Verification:</span>
+              <select
+                value={selectedJudgeId}
+                onChange={e => setSelectedJudgeId(e.target.value)}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: 6,
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-elevated)',
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">All Scoring Judges (Official Sheet)</option>
+                {cheerJudges.map(j => (
+                  <option key={j.id} value={j.id}>{j.name} (@{j.username})</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={handleGenerateCheerdanceTabulation}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-primary)',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  padding: '7px 14px',
+                  borderRadius: 6
+                }}
+              >
+                <FileSpreadsheet size={14} color="#D97706" />
+                Tabulation Sheet (PDF)
+              </button>
+              <button
+                type="button"
+                className="btn btn-gold btn-sm"
+                onClick={handleGenerateCheerdanceRankings}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: '0.82rem',
+                  padding: '7px 14px',
+                  borderRadius: 6
+                }}
+              >
+                <Trophy size={14} color="#78350F" />
+                Champion Rankings (PDF)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Toolbar Body — Pageant (Ginoo & Binibini) */}
+        {(tab === 'ginoo' || tab === 'binibini') && (
+          <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {/* Stage Tabulation Controls */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 12,
+              paddingBottom: 14,
+              borderBottom: '1px solid var(--border)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                {/* Active Division Indicator */}
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '5px 12px',
+                  borderRadius: 6,
+                  background: tab === 'ginoo' ? 'rgba(46,125,50,0.12)' : 'rgba(217,119,6,0.12)',
+                  color: tab === 'ginoo' ? 'var(--pageant-primary)' : '#b45309',
+                  border: `1px solid ${tab === 'ginoo' ? 'rgba(46,125,50,0.25)' : 'rgba(217,119,6,0.25)'}`,
+                  fontSize: '0.82rem',
+                  fontWeight: 800
+                }}>
+                  {tab === 'ginoo' ? <Crown size={14} /> : <Sparkles size={14} />}
+                  <span>{tab === 'ginoo' ? 'Ginoo Division' : 'Binibini Division'}</span>
+                </div>
+
+                {/* Stage Selector */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Layers size={14} color="var(--text-muted)" />
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Stage:</span>
+                  <select
+                    value={selectedStageId}
+                    onChange={e => setSelectedStageId(e.target.value)}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      background: 'var(--bg-elevated)',
+                      fontSize: '0.84rem',
+                      fontWeight: 600,
+                      color: 'var(--text-primary)'
+                    }}
+                  >
+                    <option value="overall">All Stages Combined (Overall)</option>
+                    {pageantParents.map(p => (
+                      <option key={p.id} value={p.id}>{p.label} Stage</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Judge Filter */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Users size={14} color="var(--text-muted)" />
+                  <select
+                    value={selectedJudgeId}
+                    onChange={e => setSelectedJudgeId(e.target.value)}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      background: 'var(--bg-elevated)',
+                      fontSize: '0.84rem',
+                      fontWeight: 600,
+                      color: 'var(--text-primary)'
+                    }}
+                  >
+                    <option value="all">All Scoring Judges</option>
+                    {pageantJudges.map(j => (
+                      <option key={j.id} value={j.id}>{j.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={handleGeneratePageantStageTabulation}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-primary)',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  padding: '6px 14px',
+                  borderRadius: 6
+                }}
+              >
+                <FileSpreadsheet size={14} color="#D97706" />
+                {selectedStageId === 'overall'
+                  ? `Print ${tab === 'ginoo' ? 'Ginoo' : 'Binibini'} Overall Tabulation (PDF)`
+                  : `Print ${tab === 'ginoo' ? 'Ginoo' : 'Binibini'} Stage Tabulation (PDF)`
+                }
+              </button>
+            </div>
+
+            {/* Overall Final Standings Reports */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Award size={14} color="#D97706" />
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                  Overall Championship Rankings (Top 4 PDF):
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {tab === 'ginoo' ? (
+                  <button
+                    type="button"
+                    className="btn btn-gold btn-sm"
+                    onClick={handleGenerateGinooRankings}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      fontSize: '0.82rem',
+                      padding: '7px 14px',
+                      borderRadius: 6
+                    }}
+                  >
+                    <Crown size={14} color="#78350F" />
+                    Ginoo Official Rankings (Top 4 PDF)
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-gold btn-sm"
+                    onClick={handleGenerateBinibiniRankings}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      fontSize: '0.82rem',
+                      padding: '7px 14px',
+                      borderRadius: 6
+                    }}
+                  >
+                    <Sparkles size={14} color="#78350F" />
+                    Binibini Official Rankings (Top 4 PDF)
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Main Data View ────────────────────────────────────── */}
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}><div className="spinner" /></div>
+      ) : (
+        <div className="print-area">
+          {/* CHEERDANCE */}
+          <ResultSection
+            show={tab === 'cheerdance'}
+            title="Cheerdance Final Standings"
+            rows={results.cheerdance}
+            nameCol="team"
+          />
+
+          {/* GINOO */}
+          {tab === 'ginoo' && (
+            <>
+              <StageAwardsSection awards={results.pageant.ginooAwards} />
+              <ResultSection
+                show={true}
+                title="Ginoo Overall Rankings"
+                rows={results.pageant.ginoo}
+                nameCol="candidate"
+                teamCol="team"
+              />
+            </>
+          )}
+
+          {/* BINIBINI */}
+          {tab === 'binibini' && (
+            <>
+              <StageAwardsSection awards={results.pageant.binibiniAwards} />
+              <ResultSection
+                show={true}
+                title="Binibini Overall Rankings"
+                rows={results.pageant.binibini}
+                nameCol="candidate"
+                teamCol="team"
+              />
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ── Warning Modal for Incomplete Scores ───────────────── */}
+      {warningModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', padding: 24
+        }}>
+          <div className="card" style={{ maxWidth: 640, width: '100%', padding: 24, borderRadius: 14, maxHeight: '82vh', display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid var(--border)' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 14 }}>
+              <div style={{ padding: 8, background: 'rgba(242,183,5,0.12)', borderRadius: 8, border: '1px solid rgba(242,183,5,0.3)' }}>
+                <AlertTriangle size={20} color="#b45309" strokeWidth={2.2} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-primary)' }}>Incomplete Scores Detected</div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                  The following judge scores are not yet fully locked. The generated report may reflect partial results.
+                </div>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div style={{ overflowY: 'auto', flex: 1, marginBottom: 18, border: '1px solid var(--border)', borderRadius: 8 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
+                <thead>
+                  <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)' }}>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Judge</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Entry / Candidate</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Stage</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {warningModal.issues.map((issue, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '8px 12px', fontWeight: 700 }}>{issue.judge}</td>
+                      <td style={{ padding: '8px 12px', color: 'var(--text-primary)' }}>{issue.target}</td>
+                      <td style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>{issue.stage}</td>
+                      <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                        <span style={{
+                          fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px',
+                          borderRadius: 4,
+                          background: issue.status === 'Not Started' ? '#fee2e2' : issue.status === 'Partially Locked' ? '#fef9c3' : '#fde68a',
+                          color:      issue.status === 'Not Started' ? '#b91c1c' : issue.status === 'Partially Locked' ? '#92400e' : '#78350f',
+                          border:     issue.status === 'Not Started' ? '1px solid #fecaca' : '1px solid #fde68a'
+                        }}>
+                          {issue.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => setWarningModal(null)}
+                style={{ fontWeight: 600 }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => {
+                  const cb = warningModal.onProceed
+                  setWarningModal(null)
+                  cb()
+                }}
+                style={{
+                  background: '#b45309',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '6px 14px'
+                }}
+              >
+                Proceed Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Stage Awards Leaderboards Component ─────────────────────── */
+
+function StageAwardsSection({ awards }) {
+  const [activeIdx, setActiveIdx] = useState(0)
+
+  if (!awards || awards.length === 0) return null
+  const hasAny = awards.some(a => a.rankings && a.rankings.length > 0)
+  if (!hasAny) return null
+
+  const currentAward = awards[activeIdx] || awards[0]
+
+  return (
+    <div style={{ marginBottom: 36 }}>
+      {/* Header & Sub-Tabs */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Award size={18} color="#D97706" strokeWidth={2.2} />
+          <div>
+            <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+              Stage Awards Comparison
+            </h2>
+            <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+              Individual stage leaderboards on a standard 0–100 score scale
+            </p>
+          </div>
+        </div>
+
+        {/* Stage Sub-Tabs */}
+        <div style={{
+          display: 'inline-flex',
+          background: 'var(--bg-elevated)',
+          padding: 3,
+          borderRadius: 8,
+          border: '1px solid var(--border)',
+          gap: 2
+        }}>
+          {awards.map((award, i) => {
+            const isSelected = activeIdx === i
+            return (
+              <button
+                key={award.id || i}
+                type="button"
+                onClick={() => setActiveIdx(i)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 6,
+                  border: 'none',
+                  background: isSelected ? 'var(--pageant-primary)' : 'transparent',
+                  color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
+                  fontWeight: isSelected ? 700 : 600,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {award.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Full-Width Stage Award Card */}
+      {currentAward && (
+        <div className="card" style={{
+          padding: 0,
+          overflow: 'hidden',
+          borderRadius: 12,
+          border: '1px solid var(--border)',
+          background: 'var(--bg-surface)'
+        }}>
+          {/* Active Stage Banner */}
+          <div style={{
+            padding: '12px 18px',
+            background: 'var(--bg-elevated)',
+            borderBottom: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 10
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Layers size={16} color="var(--pageant-primary)" />
+              <span style={{ fontWeight: 800, fontSize: '0.92rem', color: 'var(--text-primary)' }}>
+                {currentAward.label}
+              </span>
+            </div>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              Ranked by stage average (0–100 scale)
+            </span>
+          </div>
+
+          {/* Table */}
+          {currentAward.rankings && currentAward.rankings.length > 0 ? (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
+                    <th style={{ padding: '10px 18px', width: 64, textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Rank</th>
+                    <th style={{ padding: '10px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Candidate</th>
+                    <th style={{ padding: '10px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Team</th>
+                    <th style={{ padding: '10px 18px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Judges Scored</th>
+                    <th style={{ padding: '10px 18px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Stage Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentAward.rankings.map((c, idx) => {
+                    const isFirst = idx === 0 && c.stage_avg > 0
+                    const isSecond = idx === 1 && c.stage_avg > 0
+                    const isThird = idx === 2 && c.stage_avg > 0
+
+                    return (
+                      <tr key={c.candidate_id || idx} style={{
+                        borderBottom: '1px solid var(--border)',
+                        background: isFirst ? 'rgba(46,125,50,0.03)' : 'transparent'
+                      }}>
+                        {/* Rank Badge */}
+                        <td style={{ padding: '12px 18px', textAlign: 'center' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 24,
+                            height: 24,
+                            borderRadius: 6,
+                            fontSize: '0.78rem',
+                            fontWeight: 800,
+                            fontVariantNumeric: 'tabular-nums',
+                            background: isFirst ? '#fef3c7' : isSecond ? '#f1f5f9' : isThird ? '#ffedd5' : 'transparent',
+                            color: isFirst ? '#92400e' : isSecond ? '#334155' : isThird ? '#9a3412' : 'var(--text-muted)',
+                            border: isFirst ? '1px solid #fde68a' : isSecond ? '1px solid #e2e8f0' : isThird ? '1px solid #fed7aa' : '1px solid transparent'
+                          }}>
+                            {idx + 1}
+                          </span>
+                        </td>
+
+                        {/* Candidate Name */}
+                        <td style={{ padding: '12px 18px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 140 }}>
+                            <span style={{ lineHeight: 1.3, wordBreak: 'break-word' }}>{c.candidate}</span>
+                            {c.candidate_number != null && (
+                              <span style={{
+                                fontSize: '0.7rem',
+                                width: 'fit-content',
+                                background: 'var(--bg-elevated)',
+                                border: '1px solid var(--border)',
+                                borderRadius: 4,
+                                padding: '1px 6px',
+                                fontWeight: 700,
+                                color: 'var(--pageant-primary)'
+                              }}>
+                                #{c.candidate_number}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Team */}
+                        <td style={{ padding: '12px 18px', color: 'var(--text-secondary)', fontSize: '0.86rem' }}>
+                          {c.team}
+                        </td>
+
+                        {/* Judges Count */}
+                        <td style={{ padding: '12px 18px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+                          {c.stage_judge_count > 0 ? `${c.stage_judge_count} judge${c.stage_judge_count !== 1 ? 's' : ''}` : '—'}
+                        </td>
+
+                        {/* Stage Score */}
+                        <td style={{ padding: '12px 18px', textAlign: 'right' }}>
+                          {c.stage_judge_count > 0 && c.stage_avg > 0 ? (
+                            <span style={{
+                              fontWeight: 800,
+                              fontSize: '1.05rem',
+                              fontVariantNumeric: 'tabular-nums',
+                              color: isFirst ? 'var(--pageant-primary)' : 'var(--text-primary)'
+                            }}>
+                              {Number(c.stage_avg).toFixed(2)}
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                              Pending
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '32px 0' }}>
+              No locked scores submitted yet for this stage
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Overall Rankings Table Component ────────────────────────── */
+
+function ResultSection({ show, title, rows, nameCol, teamCol }) {
+  if (!show) return null
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <Trophy size={18} color="#D97706" strokeWidth={2.2} />
+        <div>
+          <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+            {title}
+          </h2>
+          <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+            Combined standings across all locked stage scores
+          </p>
+        </div>
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="card" style={{ padding: 48, textAlign: 'center', borderRadius: 12, border: '1px solid var(--border)' }}>
+          <div style={{ display: 'inline-flex', padding: 12, background: 'var(--bg-elevated)', borderRadius: '50%', marginBottom: 12 }}>
+            <Trophy size={28} color="var(--text-muted)" />
+          </div>
+          <h3 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700 }}>No locked scores yet</h3>
+          <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+            Rankings populate automatically as judges submit and lock their scores.
+          </p>
+        </div>
+      ) : (
+        <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
+                <th style={{ padding: '11px 18px', width: 64, textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Rank</th>
+                <th style={{ padding: '11px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>{nameCol === 'team' ? 'Team Name' : 'Candidate Name'}</th>
+                {teamCol && <th style={{ padding: '11px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Team</th>}
+                <th style={{ padding: '11px 18px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Judges Scored</th>
+                <th style={{ padding: '11px 18px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Final Combined Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, idx) => {
+                const isFirst = idx === 0
+                const isSecond = idx === 1
+                const isThird = idx === 2
+
+                return (
+                  <tr key={idx} style={{
+                    borderBottom: '1px solid var(--border)',
+                    background: isFirst ? 'rgba(46,125,50,0.03)' : 'transparent'
+                  }}>
+                    {/* Rank Badge */}
+                    <td style={{ padding: '14px 18px', textAlign: 'center' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 24,
+                        height: 24,
+                        borderRadius: 6,
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        fontVariantNumeric: 'tabular-nums',
+                        background: isFirst ? '#fef3c7' : isSecond ? '#f1f5f9' : isThird ? '#ffedd5' : 'transparent',
+                        color: isFirst ? '#92400e' : isSecond ? '#334155' : isThird ? '#9a3412' : 'var(--text-muted)',
+                        border: isFirst ? '1px solid #fde68a' : isSecond ? '1px solid #e2e8f0' : isThird ? '1px solid #fed7aa' : '1px solid transparent'
+                      }}>
+                        {idx + 1}
+                      </span>
+                    </td>
+
+                    {/* Candidate Name */}
+                    <td style={{ padding: '14px 18px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 140 }}>
+                        <span style={{ lineHeight: 1.3, wordBreak: 'break-word' }}>{row[nameCol]}</span>
+                        {row.candidate_number != null && (
+                          <span style={{
+                            fontSize: '0.7rem',
+                            width: 'fit-content',
+                            background: 'var(--bg-elevated)',
+                            border: '1px solid var(--border)',
+                            borderRadius: 4,
+                            padding: '1px 6px',
+                            fontWeight: 700,
+                            color: 'var(--pageant-primary)'
+                          }}>
+                            #{row.candidate_number}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Team */}
+                    {teamCol && (
+                      <td style={{ padding: '14px 18px', color: 'var(--text-secondary)', fontSize: '0.86rem' }}>
+                        {row[teamCol]}
+                      </td>
+                    )}
+
+                    {/* Judges count */}
+                    <td style={{ padding: '14px 18px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+                      {row.judges_scored} judge{row.judges_scored !== 1 ? 's' : ''}
+                    </td>
+
+                    {/* Final Score */}
+                    <td style={{ padding: '14px 18px', textAlign: 'right' }}>
+                      <span style={{
+                        fontWeight: 900,
+                        fontSize: '1.2rem',
+                        fontVariantNumeric: 'tabular-nums',
+                        color: isFirst ? 'var(--pageant-primary)' : 'var(--text-primary)'
+                      }}>
+                        {Number(row.final_score).toFixed(2)}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}

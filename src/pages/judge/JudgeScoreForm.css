@@ -1,0 +1,315 @@
+/* ── JudgeScoreForm.css ──────────────────────────────────────── */
+
+.sf-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 0 80px;
+}
+
+/* Header */
+.sf-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.sf-back {
+  flex-shrink: 0;
+}
+
+.sf-header-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.sf-title {
+  font-size: clamp(1.2rem, 3vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.sf-lock-badge {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.sf-header-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* Locked banner */
+.sf-locked-banner {
+  background: rgba(192, 57, 43, 0.06);
+  border: 1px solid rgba(192, 57, 43, 0.20);
+  color: #C0392B;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Round tabs (pageant) */
+.sf-round-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 28px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.sf-round-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid rgba(46, 125, 50, 0.14);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all var(--transition);
+  white-space: nowrap;
+  font-family: var(--font);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sf-round-tab:hover {
+  border-color: rgba(46, 125, 50, 0.30);
+  color: #fffc4e;
+  background: rgba(46, 125, 50, 0.04);
+}
+
+.sf-round-tab.active {
+  background: linear-gradient(135deg, #2E7D32, #388E3C);
+  border-color: transparent;
+  color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(46, 125, 50, 0.25);
+}
+
+.sf-round-score {
+  font-size: 0.70rem;
+  font-weight: 700;
+  opacity: 0.80;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Body layout */
+.sf-body {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .sf-body {
+    grid-template-columns: 1fr;
+  }
+
+  .sf-summary {
+    order: -1;
+  }
+}
+
+/* Criteria list */
+.sf-criteria-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Individual criterion */
+.sf-criterion {
+  background: #FFFFFF;
+  border: 1px solid rgba(46, 125, 50, 0.12);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.sf-criterion:hover {
+  border-color: rgba(46, 125, 50, 0.30);
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.08);
+}
+
+.sf-criterion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.sf-criterion-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+
+.sf-criterion-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.sf-criterion-value {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.sf-score-num {
+  font-size: 1.75rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.sf-score-sep {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Slider with gradient fill via inline style */
+.score-slider {
+  background: var(--border) !important;
+  /* fallback; overridden by inline style */
+}
+
+/* ── Percentage mini-bar ───────────────────────────────── */
+.sf-pct-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(46, 125, 50, 0.10);
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 0 8px;
+}
+
+.sf-pct-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #2E7D32, #66BB6A);
+  transition: width var(--transition);
+}
+
+/* ── Summary card ───────────────────────────────────── */
+.sf-summary {
+  position: sticky;
+  top: 100px;
+  background: #FFFFFF;
+  border: 1px solid rgba(46, 125, 50, 0.14);
+  border-top: 3px solid #2E7D32;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(46, 125, 50, 0.08);
+}
+
+.sf-summary-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.sf-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  font-size: 0.84rem;
+  border-bottom: 1px solid rgba(46, 125, 50, 0.07);
+}
+
+.sf-summary-label {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.sf-summary-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #2E7D32;
+}
+
+.sf-summary-divider {
+  height: 2px;
+  background: linear-gradient(90deg, #2E7D32 0%, #F2B705 100%);
+  border-radius: 99px;
+  margin: 12px 0;
+  opacity: 0.35;
+}
+
+.sf-summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #1A1A1A;
+}
+
+.sf-summary-pct-bar {
+  height: 8px;
+  background: rgba(46, 125, 50, 0.10);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.sf-summary-pct-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #2E7D32 0%, #66BB6A 100%);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Lock modal extras */
+.sf-lock-totals {
+  background: linear-gradient(135deg, rgba(46, 125, 50, 0.05) 0%, rgba(242, 183, 5, 0.04) 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(46, 125, 50, 0.12);
+  padding: 14px 16px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sf-lock-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.sf-lock-grand {
+  border-top: 2px solid rgba(46, 125, 50, 0.15);
+  padding-top: 10px;
+  margin-top: 4px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 800;
+}

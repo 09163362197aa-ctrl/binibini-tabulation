@@ -1,0 +1,468 @@
+/* ==========================================================================
+   Admin Teams Management Styles
+   ========================================================================== */
+
+/* ── 1. Scannable Teams List View ────────────────────────────────────────── */
+.scannable-teams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.team-row-card {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-row-card:hover {
+  border-color: var(--gold-primary);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.team-row-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.team-row-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  background: var(--bg-elevated);
+}
+
+.team-row-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.team-row-badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.team-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.candidate-num-badge {
+  font-size: 0.78rem;
+  font-weight: 800;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--gold-primary);
+  border-radius: 8px;
+  padding: 2px 9px;
+  color: var(--gold-primary);
+  letter-spacing: 0.02em;
+}
+
+.candidate-num-badge-lg {
+  font-size: 0.9rem;
+  font-weight: 800;
+  background: var(--bg-elevated);
+  border: 2px solid var(--gold-primary);
+  border-radius: 10px;
+  padding: 4px 12px;
+  color: var(--gold-primary);
+}
+
+
+/* ── 2. Team Detail View Layout ─────────────────────────────────────────── */
+.team-detail-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.team-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.team-detail-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  background: var(--bg-elevated);
+}
+
+.team-detail-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.team-detail-sub {
+  margin: 4px 0 0 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+
+/* ── 3. Detail Tabs Bar ─────────────────────────────────────────────────── */
+.team-detail-tabs {
+  display: flex;
+  gap: 12px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 2px;
+}
+
+.detail-tab-btn {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 12px 24px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.detail-tab-btn.active {
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border-bottom: 3px solid var(--gold-primary);
+}
+
+.detail-tab-btn.active-cheer {
+  border-bottom-color: var(--cheer-primary, #e67e22);
+}
+
+.detail-tab-btn.active-pageant {
+  border-bottom-color: var(--pageant-primary, #9b59b6);
+}
+
+
+/* ── 4. Cheerdance Tab (Large Prominent Group Photo) ───────────────────── */
+.cheer-detail-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+}
+
+.cheer-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cheer-detail-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.25rem;
+}
+
+.cheer-large-photo-container {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  background: #0d1117;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+}
+
+.cheer-large-photo {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.cheer-photo-hover-trigger {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.cheer-large-photo-container:hover .cheer-photo-hover-trigger {
+  opacity: 1;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0,0,0,0.2));
+}
+
+.cheer-large-photo-container:hover .cheer-large-photo {
+  transform: scale(1.01);
+}
+
+
+/* ── 5. Pageant Tab (Large Candidate Cards Grid) ────────────────────────── */
+.pageant-detail-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pageant-detail-intro h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.25rem;
+}
+
+.pageant-candidates-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.large-candidate-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.candidate-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.candidate-photo-frame {
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  background: #0d1117;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.candidate-large-photo {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.candidate-photo-frame:hover .candidate-large-photo {
+  transform: scale(1.02);
+}
+
+.candidate-photo-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.candidate-photo-frame:hover .candidate-photo-overlay {
+  opacity: 1;
+}
+
+.candidate-inputs-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.save-indicator {
+  font-size: 0.78rem;
+  color: var(--success);
+  font-weight: 700;
+}
+
+.photo-upload-spinner-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #ffffff;
+  font-weight: 600;
+  z-index: 5;
+}
+
+
+/* ── 6. Upload Zone & Modal Styles ─────────────────────────────────────── */
+.photo-upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  background: var(--bg-elevated);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.photo-upload-zone:hover {
+  border-color: var(--gold-primary);
+  background: rgba(212, 163, 89, 0.05);
+}
+
+.photo-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.photo-upload-icon {
+  font-size: 2rem;
+}
+
+.photo-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.photo-preview-img-large {
+  max-width: 100%;
+  max-height: 240px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  border: 1px solid var(--border);
+}
+
+.wizard-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+  padding: 0 10px;
+}
+
+.wizard-progress::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--border);
+  z-index: 1;
+  transform: translateY(-50%);
+}
+
+.wizard-step-node {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.88rem;
+  z-index: 2;
+  color: var(--text-muted);
+  transition: all 0.25s ease;
+}
+
+.wizard-step-node.active {
+  border-color: #D97706;
+  background: linear-gradient(135deg, #F2B705 0%, #E6A100 100%);
+  color: #1A1A1A;
+  font-weight: 900;
+  box-shadow: 0 2px 10px rgba(242, 183, 5, 0.45);
+}
+
+.wizard-step-node.completed {
+  border-color: var(--pageant-primary);
+  background: #dcfce7;
+  color: #166534;
+}
+
+.wizard-step-title {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+
+/* ── 7. Responsive Media Queries ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .pageant-candidates-grid {
+    grid-template-columns: 1fr;
+  }
+  .team-row-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .team-row-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .cheer-large-photo {
+    height: 260px;
+  }
+  .candidate-large-photo {
+    height: 280px;
+  }
+}
