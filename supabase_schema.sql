@@ -105,9 +105,10 @@ create table if not exists public.unlock_requests (
   team_entry_id uuid references public.team_entries(id) on delete cascade,
   candidate_id uuid references public.candidates(id) on delete cascade,
   stage_id text,
-  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  status text not null default 'pending' check (status in ('pending', 'approved', 'denied')),
+  requested_at timestamptz default now(),
+  resolved_at timestamptz,
+  resolved_by uuid references public.profiles(id)
 );
 
 -- ==============================================================================

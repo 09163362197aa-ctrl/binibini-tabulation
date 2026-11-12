@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { getPageantCriteria } from '../../lib/criteriaSync'
@@ -31,31 +31,43 @@ export default function AdminUnlock() {
     const pageantCrit = await getPageantCriteria()
     setCriteria(pageantCrit)
 
-    const { data: requestsResult } = await supabase
+    const { data: requestsResult, error } = await supabase
       .from('unlock_requests')
       .select(`
-        id, stage_id, status, requested_at, resolved_at,
+        id, stage_id, status, created_at, updated_at,
         judge:judge_id ( id, name ),
         team_entry:team_entry_id ( id, competition_type, team:teams(name) ),
         candidate:candidate_id ( id, category, name, candidate_number, team_entry:team_entry_id(team:teams(name)) )
       `)
-      .order('requested_at', { ascending: false })
+      .order('created_at', { ascending: false })
 
+    if (error) console.error('AdminUnlock load error:', error)
     setRequests(requestsResult || [])
     setLoading(false)
   }
 
+  const loadRef = useRef(load)
+  useEffect(() => { loadRef.current = load })
+
   useEffect(() => {
-    load()
+    loadRef.current()
 
     const channel = supabase
       .channel('admin-unlock-live')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'unlock_requests' }, load)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, load)
-      .subscribe()
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'unlock_requests' }, () => {
+        loadRef.current()
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, () => {
+        loadRef.current()
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('AdminUnlock realtime connected')
+        }
+      })
 
     return () => supabase.removeChannel(channel)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   // Helper to get criteria IDs for a pageant parent stage
   function getStageCritIds(stageId) {
