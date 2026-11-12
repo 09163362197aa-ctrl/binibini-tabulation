@@ -14,7 +14,7 @@ import {
   Calendar
 } from 'lucide-react'
 
-const EDGE_FN_URL = 'https://hzpkkhxfpjvydewhjowv.supabase.co/functions/v1/manage-judge'
+const EDGE_FN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-judge`
 
 async function callEdge(action, payload) {
   const { data: { session } } = await supabase.auth.getSession()
