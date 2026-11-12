@@ -399,23 +399,23 @@ export default function JudgeHome() {
             lineHeight: 1.25,
             wordBreak: 'break-word'
           }}>
-            {c.name || (isGinoo ? 'Ginoo Candidate' : 'Binibini Candidate')}
+            {c.name || 'Binibini Candidate'}
           </div>
 
           <div style={{ display: 'flex', gap: 8, marginTop: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-            {/* Plain solid color text badge without emojis */}
+            {/* Category badge */}
             <span style={{
               fontSize: '0.7rem',
               fontWeight: 800,
               padding: '3px 8px',
               borderRadius: 6,
-              background: isGinoo ? '#15803d' : '#b45309',
+              background: '#b45309',
               color: '#ffffff',
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
               lineHeight: 1
             }}>
-              {isGinoo ? 'Ginoo' : 'Binibini'}
+              Binibini
             </span>
 
             {/* Team Identity Pill (Logo + Name as one distinct unit) */}
@@ -447,13 +447,13 @@ export default function JudgeHome() {
                   width: 18,
                   height: 18,
                   borderRadius: '50%',
-                  background: isGinoo ? 'rgba(46,125,50,0.15)' : 'rgba(217,119,6,0.15)',
+                  background: 'rgba(217,119,6,0.15)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '0.62rem',
                   fontWeight: 800,
-                  color: isGinoo ? 'var(--pageant-primary)' : '#b45309',
+                  color: '#b45309',
                   flexShrink: 0
                 }}>
                   {team.name.charAt(0)}
