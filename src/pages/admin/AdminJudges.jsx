@@ -263,50 +263,121 @@ export default function AdminJudges() {
                 {judges.map(j => {
                   return (
                     <tr key={j.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '12px 18px' }}>
+                      <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <div style={{
-                            width: 34, height: 34, borderRadius: '50%',
-                            background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                            width: 36, height: 36, borderRadius: '50%',
+                            background: 'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(180,83,9,0.15) 100%)',
+                            border: '1.5px solid rgba(212,175,55,0.4)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontWeight: 800, color: 'var(--pageant-primary)', fontSize: '0.85rem', flexShrink: 0
+                            fontWeight: 800, color: '#B45309', fontSize: '0.88rem', flexShrink: 0
                           }}>
                             {(j.name || '?')[0].toUpperCase()}
                           </div>
                           <div>
-                            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{j.name || 'Unnamed'}</div>
+                            <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-primary)' }}>{j.name || 'Unnamed'}</div>
                             <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>ID: {j.id.slice(0, 8)}…</div>
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: '12px 18px', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.88rem' }}>
-                        {j.username ? `@${j.username}` : <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>none</span>}
+                      <td style={{ padding: '14px 18px', color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.88rem' }}>
+                        {j.username ? (
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            padding: '2px 8px',
+                            borderRadius: 6,
+                            background: 'rgba(217,119,6,0.08)',
+                            border: '1px solid rgba(217,119,6,0.2)',
+                            color: '#B45309',
+                            fontWeight: 700,
+                            fontSize: '0.8rem'
+                          }}>
+                            @{j.username}
+                          </span>
+                        ) : (
+                          <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>none</span>
+                        )}
                       </td>
-                      <td style={{ padding: '12px 18px' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', fontWeight: 700, padding: '3px 8px', borderRadius: 4, background: 'rgba(46,125,50,0.1)', color: 'var(--pageant-primary)', border: '1px solid var(--border)' }}>
-                          <Crown size={12} /> Binibining Palayan
+                      <td style={{ padding: '14px 18px' }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          fontSize: '0.76rem',
+                          fontWeight: 700,
+                          padding: '4px 10px',
+                          borderRadius: 20,
+                          background: 'rgba(217,119,6,0.1)',
+                          color: '#B45309',
+                          border: '1px solid rgba(217,119,6,0.25)'
+                        }}>
+                          <Crown size={12} color="#D97706" /> Binibining Palayan
                         </span>
                       </td>
-                      <td style={{ padding: '12px 18px', color: 'var(--text-muted)', fontSize: '0.84rem' }}>
+                      <td style={{ padding: '14px 18px', color: 'var(--text-muted)', fontSize: '0.84rem' }}>
                         {new Date(j.created_at).toLocaleDateString()}
                       </td>
-                      <td style={{ padding: '12px 18px', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: 6 }}>
+                      <td style={{ padding: '14px 18px', textAlign: 'right' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                           <button
                             type="button"
-                            className="btn btn-ghost btn-xs"
                             onClick={() => startEdit(j)}
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              padding: '5px 12px',
+                              borderRadius: 8,
+                              border: '1px solid rgba(180, 130, 30, 0.3)',
+                              background: 'var(--bg-elevated)',
+                              color: '#B45309',
+                              fontWeight: 700,
+                              fontSize: '0.8rem',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = 'rgba(212,175,55,0.15)'
+                              e.currentTarget.style.borderColor = '#D4AF37'
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = 'var(--bg-elevated)'
+                              e.currentTarget.style.borderColor = 'rgba(180, 130, 30, 0.3)'
+                            }}
                           >
-                            <Edit3 size={13} /> Edit
+                            <Edit3 size={13} />
+                            <span>Edit</span>
                           </button>
                           <button
                             type="button"
-                            className="btn btn-danger btn-xs"
                             onClick={() => setDeleting(j)}
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 8px' }}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: 32,
+                              height: 30,
+                              borderRadius: 8,
+                              border: '1px solid rgba(220, 38, 38, 0.25)',
+                              background: 'rgba(220, 38, 38, 0.06)',
+                              color: '#DC2626',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = '#DC2626'
+                              e.currentTarget.style.color = '#FFFFFF'
+                              e.currentTarget.style.borderColor = '#DC2626'
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = 'rgba(220, 38, 38, 0.06)'
+                              e.currentTarget.style.color = '#DC2626'
+                              e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.25)'
+                            }}
+                            title="Remove Judge"
                           >
-                            <Trash2 size={13} /> Remove
+                            <Trash2 size={13} />
                           </button>
                         </div>
                       </td>
@@ -324,8 +395,8 @@ export default function AdminJudges() {
         <div className="modal-overlay" onClick={() => !busy && setShowModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 460, borderRadius: 14, padding: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <div style={{ padding: 8, background: 'rgba(46,125,50,0.1)', borderRadius: 8 }}>
-                <UserPlus size={18} color="var(--pageant-primary)" />
+              <div style={{ padding: 8, background: 'rgba(217,119,6,0.12)', borderRadius: 8 }}>
+                <UserPlus size={18} color="#D97706" />
               </div>
               <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>Add Board Judge</h2>
             </div>
@@ -369,8 +440,8 @@ export default function AdminJudges() {
         <div className="modal-overlay" onClick={() => !busy && setEditingJudge(null)}>
           <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 460, borderRadius: 14, padding: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <div style={{ padding: 8, background: 'rgba(46,125,50,0.1)', borderRadius: 8 }}>
-                <Edit3 size={18} color="var(--pageant-primary)" />
+              <div style={{ padding: 8, background: 'rgba(217,119,6,0.12)', borderRadius: 8 }}>
+                <Edit3 size={18} color="#D97706" />
               </div>
               <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>Edit Judge</h2>
             </div>
@@ -400,7 +471,7 @@ export default function AdminJudges() {
               </div>
               <div className="modal-actions" style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
                 <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditingJudge(null)} disabled={busy}>Cancel</button>
-                <button type="submit" className="btn btn-primary btn-sm" disabled={busy}>
+                <button type="submit" className="btn btn-gold btn-sm" disabled={busy}>
                   {busy ? <span className="spinner spinner-sm" /> : 'Save Changes'}
                 </button>
               </div>

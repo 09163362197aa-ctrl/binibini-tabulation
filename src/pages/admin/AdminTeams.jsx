@@ -455,114 +455,170 @@ export default function AdminTeams() {
           }
 
           return (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 18 }}>
               {displayed.map(cand => (
                 <div
                   key={cand.id}
                   className="card"
                   style={{
-                    padding: 16,
-                    borderRadius: 14,
-                    border: '1px solid var(--border)',
+                    padding: '18px 20px',
+                    borderRadius: 16,
+                    border: '1px solid rgba(180, 130, 30, 0.22)',
                     background: 'var(--bg-surface)',
                     display: 'flex',
-                    alignItems: 'center',
+                    flexDirection: 'column',
                     gap: 16,
                     position: 'relative',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
-                    transition: 'all 0.15s ease'
+                    boxShadow: '0 3px 12px rgba(180, 130, 30, 0.05)',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
                   }}
                 >
-                  {/* Ribbon Badge */}
-                  <div style={{ flexShrink: 0 }}>
-                    {cand.candidate_number != null ? (
-                      <CandidateRibbon number={cand.candidate_number} category="binibini" />
-                    ) : (
-                      <div style={{
-                        width: 44,
-                        height: 48,
-                        borderRadius: 8,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: 'var(--bg-elevated)',
-                        border: '1.5px dashed var(--border)',
-                        color: 'var(--text-muted)',
-                        fontWeight: 800,
-                        fontSize: '1rem'
-                      }}>
-                        —
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Portrait Thumbnail */}
-                  <div style={{ position: 'relative', width: 52, height: 52, flexShrink: 0 }}>
-                    <img
-                      src={cand.photo_url || '/palayan.png'}
-                      alt={cand.name}
-                      loading="lazy"
-                      decoding="async"
-                      style={{
-                        width: 52,
-                        height: 52,
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                        border: '2px solid rgba(217,119,6,0.35)',
-                        background: 'var(--bg-elevated)'
-                      }}
-                    />
-                  </div>
-
-                  {/* Candidate Info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* Top Card Row: Official Number Ribbon + Sleek Action Buttons */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                     <div style={{
-                      fontWeight: 800,
-                      fontSize: '1.02rem',
-                      color: 'var(--text-primary)',
-                      letterSpacing: '-0.01em',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '4px 12px',
+                      borderRadius: 20,
+                      background: 'linear-gradient(135deg, rgba(212,175,55,0.18) 0%, rgba(180,83,9,0.12) 100%)',
+                      border: '1px solid rgba(212,175,55,0.4)',
+                      boxShadow: '0 1px 3px rgba(180,130,30,0.1)'
                     }}>
-                      {cand.name}
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 4 }}>
-                      <MapPin size={12} color="var(--text-muted)" flexShrink={0} />
+                      <Crown size={13} color="#D97706" />
                       <span style={{
-                        fontSize: '0.8rem',
-                        color: 'var(--text-muted)',
-                        fontWeight: 600,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        color: '#B45309',
+                        letterSpacing: '0.04em',
+                        textTransform: 'uppercase'
                       }}>
-                        {cand.team_name || 'Palayan City'}
+                        Candidate #{cand.candidate_number != null ? String(cand.candidate_number).padStart(2, '0') : '—'}
                       </span>
                     </div>
+
+                    {/* Aligned Action Buttons Group */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <button
+                        type="button"
+                        onClick={() => openEdit(cand)}
+                        title="Edit Candidate Details"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          padding: '6px 12px',
+                          borderRadius: 8,
+                          border: '1px solid rgba(180, 130, 30, 0.3)',
+                          background: 'var(--bg-elevated)',
+                          color: '#B45309',
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.background = 'rgba(212,175,55,0.15)'
+                          e.currentTarget.style.borderColor = '#D4AF37'
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.background = 'var(--bg-elevated)'
+                          e.currentTarget.style.borderColor = 'rgba(180, 130, 30, 0.3)'
+                        }}
+                      >
+                        <Edit3 size={13} />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => openDelete(cand)}
+                        title="Remove Candidate"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 32,
+                          height: 32,
+                          borderRadius: 8,
+                          border: '1px solid rgba(220, 38, 38, 0.25)',
+                          background: 'rgba(220, 38, 38, 0.06)',
+                          color: '#DC2626',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.background = '#DC2626'
+                          e.currentTarget.style.color = '#FFFFFF'
+                          e.currentTarget.style.borderColor = '#DC2626'
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.background = 'rgba(220, 38, 38, 0.06)'
+                          e.currentTarget.style.color = '#DC2626'
+                          e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.25)'
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
-                    <button
-                      type="button"
-                      className="btn btn-ghost btn-xs"
-                      onClick={() => openEdit(cand)}
-                      title="Edit Candidate Details"
-                      style={{ padding: '5px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                    >
-                      <Edit3 size={13} /> Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-xs"
-                      onClick={() => openDelete(cand)}
-                      title="Remove Candidate"
-                      style={{ padding: '5px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                    >
-                      <Trash2 size={13} />
-                    </button>
+                  {/* Body: Contestant Photo & Information */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ position: 'relative', width: 62, height: 62, flexShrink: 0 }}>
+                      <img
+                        src={cand.photo_url || '/palayan.png'}
+                        alt={cand.name}
+                        loading="lazy"
+                        decoding="async"
+                        style={{
+                          width: 62,
+                          height: 62,
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                          border: '2.5px solid #D4AF37',
+                          boxShadow: '0 2px 8px rgba(180, 130, 30, 0.2)',
+                          background: 'var(--bg-elevated)'
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontWeight: 800,
+                        fontSize: '1.08rem',
+                        color: 'var(--text-primary)',
+                        letterSpacing: '-0.01em',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        marginBottom: 4
+                      }}>
+                        {cand.name}
+                      </div>
+
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        padding: '3px 9px',
+                        borderRadius: 6,
+                        background: 'rgba(0,0,0,0.04)',
+                        border: '1px solid var(--border)'
+                      }}>
+                        <MapPin size={12} color="#D97706" style={{ flexShrink: 0 }} />
+                        <span style={{
+                          fontSize: '0.78rem',
+                          color: 'var(--text-secondary)',
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
+                          {cand.team_name || 'Palayan City'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}

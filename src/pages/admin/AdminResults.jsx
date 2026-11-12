@@ -452,71 +452,132 @@ export default function AdminResults() {
         </div>
       </div>
 
-      {/* ── Official Reports & Verification Toolbar ─────────────── */}
-      <div className="card" style={{
-        padding: 0,
-        marginBottom: 32,
-        borderRadius: 12,
-        border: '1px solid var(--border)',
-        background: 'var(--bg-surface)',
-        overflow: 'hidden'
+      {/* ── Official Reports & Verification Executive Hub ─────── */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+        gap: 16,
+        marginBottom: 32
       }}>
-        {/* Toolbar Header */}
-        <div style={{
-          padding: '12px 18px',
-          background: 'var(--bg-elevated)',
-          borderBottom: '1px solid var(--border)',
+        {/* Card 1: Official Championship & Proclamation (Golden Hero Hub) */}
+        <div className="card" style={{
+          padding: 22,
+          borderRadius: 16,
+          border: '1.5px solid rgba(212,175,55,0.45)',
+          background: 'linear-gradient(145deg, #FFFDF8 0%, #FBF6EA 100%)',
+          boxShadow: '0 4px 18px rgba(180,130,30,0.08)',
           display: 'flex',
-          alignItems: 'center',
+          flexDirection: 'column',
           justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 8
+          gap: 16,
+          position: 'relative',
+          overflow: 'hidden'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <FileText size={15} color="#D97706" strokeWidth={2.2} />
-            <span style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-primary)' }}>
-              Official Print &amp; PDF Report Generation
-            </span>
+          {/* Subtle Royal Watermark */}
+          <div style={{ position: 'absolute', right: -12, top: -12, opacity: 0.06, pointerEvents: 'none' }}>
+            <Crown size={120} color="#B45309" />
           </div>
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '3px 10px',
-            borderRadius: 6,
-            background: 'rgba(217,119,6,0.12)',
-            color: '#b45309',
-            border: '1px solid rgba(217,119,6,0.25)',
-            fontSize: '0.78rem',
-            fontWeight: 800
-          }}>
-            <Crown size={13} /> Binibining Palayan
-          </span>
+
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(217,119,6,0.12)', borderRadius: 20, border: '1px solid rgba(217,119,6,0.3)', marginBottom: 10 }}>
+              <Crown size={13} color="#D97706" />
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Coronation &amp; Final Proclamation
+              </span>
+            </div>
+            <h3 style={{ margin: '0 0 6px', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+              Official Grand Tabulation &amp; Winners
+            </h3>
+            <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>
+              Generate certified print-ready PDF documents for coronation night proclamation and auditor sign-off.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, paddingTop: 6 }}>
+            <button
+              type="button"
+              className="btn btn-gold btn-sm"
+              onClick={handleGenerateBinibiniRankings}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 7,
+                fontSize: '0.84rem',
+                fontWeight: 800,
+                padding: '9px 18px',
+                borderRadius: 10,
+                boxShadow: '0 3px 10px rgba(180,130,30,0.22)'
+              }}
+            >
+              <Trophy size={15} />
+              <span>Print Official Rankings (PDF)</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => {
+                setSelectedStageId('overall')
+                setTimeout(() => handleGeneratePageantStageTabulation(), 50)
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 7,
+                fontSize: '0.84rem',
+                fontWeight: 700,
+                padding: '9px 16px',
+                borderRadius: 10,
+                background: 'var(--bg-surface)',
+                border: '1px solid rgba(180,130,30,0.3)',
+                color: '#B45309'
+              }}
+            >
+              <FileSpreadsheet size={15} color="#D97706" />
+              <span>Print Full Matrix (PDF)</span>
+            </button>
+          </div>
         </div>
 
-        {/* Toolbar Body */}
-        <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {/* Stage Tabulation Controls */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 12,
-            paddingBottom: 14,
-            borderBottom: '1px solid var(--border)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-              {/* Stage Selector */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Layers size={14} color="var(--text-muted)" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Stage:</span>
+        {/* Card 2: Stage & Segment Breakdown Hub */}
+        <div className="card" style={{
+          padding: 22,
+          borderRadius: 16,
+          border: '1px solid var(--border)',
+          background: 'var(--bg-surface)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          gap: 16
+        }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'var(--bg-elevated)', borderRadius: 20, border: '1px solid var(--border)', marginBottom: 10 }}>
+              <Layers size={13} color="var(--text-muted)" />
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Stage-by-Stage Tabulation
+              </span>
+            </div>
+            <h3 style={{ margin: '0 0 6px', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+              Segment Breakdown Reports
+            </h3>
+            <p style={{ margin: '0 0 14px', fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>
+              Filter by specific competition segment and judge to generate individual stage tabulation sheets.
+            </p>
+
+            {/* Segment Selector & Filter Row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              {/* Segment Dropdown */}
+              <div style={{ flex: '1 1 180px' }}>
+                <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 4, textTransform: 'uppercase' }}>
+                  Competition Stage
+                </label>
                 <select
                   value={selectedStageId}
                   onChange={e => setSelectedStageId(e.target.value)}
                   style={{
-                    padding: '6px 12px',
-                    borderRadius: 6,
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: 8,
                     border: '1px solid var(--border)',
                     background: 'var(--bg-elevated)',
                     fontSize: '0.84rem',
@@ -526,20 +587,23 @@ export default function AdminResults() {
                 >
                   <option value="overall">All Stages Combined (Overall)</option>
                   {pageantParents.map(p => (
-                    <option key={p.id} value={p.id}>{p.label} Stage</option>
+                    <option key={p.id} value={p.id}>{p.label} Competition</option>
                   ))}
                 </select>
               </div>
 
-              {/* Judge Filter */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Users size={14} color="var(--text-muted)" />
+              {/* Judge Filter Dropdown */}
+              <div style={{ flex: '1 1 150px' }}>
+                <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 4, textTransform: 'uppercase' }}>
+                  Filter Judge
+                </label>
                 <select
                   value={selectedJudgeId}
                   onChange={e => setSelectedJudgeId(e.target.value)}
                   style={{
-                    padding: '6px 12px',
-                    borderRadius: 6,
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: 8,
                     border: '1px solid var(--border)',
                     background: 'var(--bg-elevated)',
                     fontSize: '0.84rem',
@@ -554,7 +618,9 @@ export default function AdminResults() {
                 </select>
               </div>
             </div>
+          </div>
 
+          <div style={{ paddingTop: 6 }}>
             <button
               type="button"
               className="btn btn-sm"
@@ -562,47 +628,18 @@ export default function AdminResults() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 7,
                 background: 'var(--bg-elevated)',
                 border: '1px solid var(--border)',
                 color: 'var(--text-primary)',
                 fontWeight: 700,
                 fontSize: '0.84rem',
-                padding: '7px 16px',
-                borderRadius: 6
+                padding: '9px 18px',
+                borderRadius: 10
               }}
             >
               <FileSpreadsheet size={15} color="#D97706" />
-              {selectedStageId === 'overall'
-                ? `Print Official Overall Tabulation (PDF)`
-                : `Print Stage Tabulation Sheet (PDF)`
-              }
-            </button>
-          </div>
-
-          {/* Overall Final Standings Reports */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Award size={15} color="#D97706" />
-              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                Championship Rankings:
-              </span>
-            </div>
-            <button
-              type="button"
-              className="btn btn-gold btn-sm"
-              onClick={handleGenerateBinibiniRankings}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: '0.84rem',
-                padding: '8px 18px',
-                borderRadius: 6
-              }}
-            >
-              <Crown size={15} color="#78350F" />
-              Binibining Palayan Official Rankings (PDF)
+              <span>Print Segment Breakdown (PDF)</span>
             </button>
           </div>
         </div>
@@ -832,7 +869,7 @@ function StageAwardsSection({ awards }) {
                     return (
                       <tr key={c.candidate_id || idx} style={{
                         borderBottom: '1px solid var(--border)',
-                        background: isFirst ? 'rgba(46,125,50,0.03)' : 'transparent'
+                        background: isFirst ? 'rgba(217,119,6,0.06)' : 'transparent'
                       }}>
                         {/* Rank Badge */}
                         <td style={{ padding: '12px 18px', textAlign: 'center' }}>
@@ -840,15 +877,16 @@ function StageAwardsSection({ awards }) {
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            width: 24,
-                            height: 24,
-                            borderRadius: 6,
-                            fontSize: '0.78rem',
-                            fontWeight: 800,
+                            width: 28,
+                            height: 28,
+                            borderRadius: 8,
+                            fontSize: '0.82rem',
+                            fontWeight: 900,
                             fontVariantNumeric: 'tabular-nums',
-                            background: isFirst ? '#fef3c7' : isSecond ? '#f1f5f9' : isThird ? '#ffedd5' : 'transparent',
-                            color: isFirst ? '#92400e' : isSecond ? '#334155' : isThird ? '#9a3412' : 'var(--text-muted)',
-                            border: isFirst ? '1px solid #fde68a' : isSecond ? '1px solid #e2e8f0' : isThird ? '1px solid #fed7aa' : '1px solid transparent'
+                            background: isFirst ? 'linear-gradient(135deg, #FDE68A 0%, #D97706 100%)' : isSecond ? 'linear-gradient(135deg, #F1F5F9 0%, #94A3B8 100%)' : isThird ? 'linear-gradient(135deg, #FFEDD5 0%, #C2410C 100%)' : 'var(--bg-elevated)',
+                            color: (isFirst || isThird) ? '#FFFFFF' : isSecond ? '#0F172A' : 'var(--text-muted)',
+                            boxShadow: isFirst ? '0 2px 6px rgba(180,130,30,0.3)' : 'none',
+                            border: isFirst ? '1px solid #D97706' : isSecond ? '1px solid #CBD5E1' : isThird ? '1px solid #EA580C' : '1px solid var(--border)'
                           }}>
                             {idx + 1}
                           </span>
@@ -860,16 +898,16 @@ function StageAwardsSection({ awards }) {
                             <span style={{ lineHeight: 1.3, wordBreak: 'break-word' }}>{c.candidate}</span>
                             {c.candidate_number != null && (
                               <span style={{
-                                fontSize: '0.7rem',
+                                fontSize: '0.72rem',
                                 width: 'fit-content',
-                                background: 'var(--bg-elevated)',
-                                border: '1px solid var(--border)',
+                                background: 'rgba(217,119,6,0.1)',
+                                border: '1px solid rgba(217,119,6,0.25)',
                                 borderRadius: 4,
-                                padding: '1px 6px',
-                                fontWeight: 700,
-                                color: 'var(--pageant-primary)'
+                                padding: '1px 7px',
+                                fontWeight: 800,
+                                color: '#B45309'
                               }}>
-                                #{c.candidate_number}
+                                Candidate #{c.candidate_number}
                               </span>
                             )}
                           </div>
@@ -889,10 +927,10 @@ function StageAwardsSection({ awards }) {
                         <td style={{ padding: '12px 18px', textAlign: 'right' }}>
                           {c.stage_judge_count > 0 && c.stage_avg > 0 ? (
                             <span style={{
-                              fontWeight: 800,
-                              fontSize: '1.05rem',
+                              fontWeight: 900,
+                              fontSize: '1.1rem',
                               fontVariantNumeric: 'tabular-nums',
-                              color: isFirst ? 'var(--pageant-primary)' : 'var(--text-primary)'
+                              color: isFirst ? '#B45309' : 'var(--text-primary)'
                             }}>
                               {Number(c.stage_avg).toFixed(2)}
                             </span>
@@ -969,7 +1007,7 @@ function ResultSection({ show, title, rows, nameCol, teamCol }) {
                 return (
                   <tr key={idx} style={{
                     borderBottom: '1px solid var(--border)',
-                    background: isFirst ? 'rgba(46,125,50,0.03)' : 'transparent'
+                    background: isFirst ? 'rgba(217,119,6,0.06)' : 'transparent'
                   }}>
                     {/* Rank Badge */}
                     <td style={{ padding: '14px 18px', textAlign: 'center' }}>
@@ -977,15 +1015,16 @@ function ResultSection({ show, title, rows, nameCol, teamCol }) {
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        width: 24,
-                        height: 24,
-                        borderRadius: 6,
-                        fontSize: '0.78rem',
-                        fontWeight: 800,
+                        width: 28,
+                        height: 28,
+                        borderRadius: 8,
+                        fontSize: '0.82rem',
+                        fontWeight: 900,
                         fontVariantNumeric: 'tabular-nums',
-                        background: isFirst ? '#fef3c7' : isSecond ? '#f1f5f9' : isThird ? '#ffedd5' : 'transparent',
-                        color: isFirst ? '#92400e' : isSecond ? '#334155' : isThird ? '#9a3412' : 'var(--text-muted)',
-                        border: isFirst ? '1px solid #fde68a' : isSecond ? '1px solid #e2e8f0' : isThird ? '1px solid #fed7aa' : '1px solid transparent'
+                        background: isFirst ? 'linear-gradient(135deg, #FDE68A 0%, #D97706 100%)' : isSecond ? 'linear-gradient(135deg, #F1F5F9 0%, #94A3B8 100%)' : isThird ? 'linear-gradient(135deg, #FFEDD5 0%, #C2410C 100%)' : 'var(--bg-elevated)',
+                        color: (isFirst || isThird) ? '#FFFFFF' : isSecond ? '#0F172A' : 'var(--text-muted)',
+                        boxShadow: isFirst ? '0 2px 6px rgba(180,130,30,0.3)' : 'none',
+                        border: isFirst ? '1px solid #D97706' : isSecond ? '1px solid #CBD5E1' : isThird ? '1px solid #EA580C' : '1px solid var(--border)'
                       }}>
                         {idx + 1}
                       </span>
@@ -997,16 +1036,16 @@ function ResultSection({ show, title, rows, nameCol, teamCol }) {
                         <span style={{ lineHeight: 1.3, wordBreak: 'break-word' }}>{row[nameCol]}</span>
                         {row.candidate_number != null && (
                           <span style={{
-                            fontSize: '0.7rem',
+                            fontSize: '0.72rem',
                             width: 'fit-content',
-                            background: 'var(--bg-elevated)',
-                            border: '1px solid var(--border)',
+                            background: 'rgba(217,119,6,0.1)',
+                            border: '1px solid rgba(217,119,6,0.25)',
                             borderRadius: 4,
-                            padding: '1px 6px',
-                            fontWeight: 700,
-                            color: 'var(--pageant-primary)'
+                            padding: '1px 7px',
+                            fontWeight: 800,
+                            color: '#B45309'
                           }}>
-                            #{row.candidate_number}
+                            Candidate #{row.candidate_number}
                           </span>
                         )}
                       </div>
@@ -1028,9 +1067,9 @@ function ResultSection({ show, title, rows, nameCol, teamCol }) {
                     <td style={{ padding: '14px 18px', textAlign: 'right' }}>
                       <span style={{
                         fontWeight: 900,
-                        fontSize: '1.2rem',
+                        fontSize: '1.25rem',
                         fontVariantNumeric: 'tabular-nums',
-                        color: isFirst ? 'var(--pageant-primary)' : 'var(--text-primary)'
+                        color: isFirst ? '#B45309' : 'var(--text-primary)'
                       }}>
                         {Number(row.final_score).toFixed(2)}
                       </span>
