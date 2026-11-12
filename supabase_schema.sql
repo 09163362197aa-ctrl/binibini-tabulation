@@ -112,6 +112,21 @@ create table if not exists public.unlock_requests (
 );
 
 -- ==============================================================================
+-- PERFORMANCE INDEXES (High Concurrency & Real-Time Optimization)
+-- ==============================================================================
+create index if not exists idx_scores_judge_id on public.scores (judge_id);
+create index if not exists idx_scores_candidate_id on public.scores (candidate_id);
+create index if not exists idx_scores_criterion_id on public.scores (criterion_id);
+create index if not exists idx_scores_is_locked on public.scores (is_locked);
+create index if not exists idx_scores_composite on public.scores (judge_id, candidate_id, criterion_id);
+
+create index if not exists idx_candidates_team_entry on public.candidates (team_entry_id);
+create index if not exists idx_team_entries_team on public.team_entries (team_id);
+create index if not exists idx_unlock_requests_judge_status on public.unlock_requests (judge_id, status);
+create index if not exists idx_unlock_requests_candidate on public.unlock_requests (candidate_id);
+create index if not exists idx_rankings_candidate on public.rankings (candidate_id);
+
+-- ==============================================================================
 -- DEFAULT CRITERIA SEED DATA (Binibining Palayan)
 -- ==============================================================================
 

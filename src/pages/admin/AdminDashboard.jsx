@@ -32,14 +32,25 @@ export default function AdminDashboard() {
   useEffect(() => {
     load()
 
+    let debounceTimer = null
+    const debouncedLoad = () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
+        load()
+      }, 400)
+    }
+
     const channel = supabase
       .channel('admin-dashboard-live')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'candidates' }, load)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, load)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'candidates' }, debouncedLoad)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, debouncedLoad)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, debouncedLoad)
       .subscribe()
 
-    return () => supabase.removeChannel(channel)
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      supabase.removeChannel(channel)
+    }
   }, [load])
 
   const lockPct = stats.total > 0 ? Math.round((stats.locked / stats.total) * 100) : 0

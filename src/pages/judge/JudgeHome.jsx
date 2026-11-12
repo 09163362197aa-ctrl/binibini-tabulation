@@ -61,17 +61,22 @@ export default function JudgeHome() {
   useEffect(() => {
     load()
 
+    let debounceTimer = null
+    const debouncedLoad = () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
+        load()
+      }, 350)
+    }
+
     const channel = supabase
       .channel(`judge-home-rt-${user.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores', filter: `judge_id=eq.${user.id}` }, () => {
-        load()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'unlock_requests', filter: `judge_id=eq.${user.id}` }, () => {
-        load()
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores', filter: `judge_id=eq.${user.id}` }, debouncedLoad)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'unlock_requests', filter: `judge_id=eq.${user.id}` }, debouncedLoad)
       .subscribe()
 
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
       supabase.removeChannel(channel)
     }
   }, [load, selectedComp, selectedStageId, user.id])
@@ -379,6 +384,8 @@ export default function JudgeHome() {
           <img
             src={c.photo_url || '/palayan.png'}
             alt={c.name}
+            loading="lazy"
+            decoding="async"
             style={{
               width: 48,
               height: 48,

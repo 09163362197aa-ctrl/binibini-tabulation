@@ -52,21 +52,28 @@ export default function AdminUnlock() {
   useEffect(() => {
     loadRef.current()
 
+    let debounceTimer = null
+    const debouncedLoad = () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
+        loadRef.current()
+      }, 350)
+    }
+
     const channel = supabase
       .channel('admin-unlock-live')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'unlock_requests' }, () => {
-        loadRef.current()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, () => {
-        loadRef.current()
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'unlock_requests' }, debouncedLoad)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, debouncedLoad)
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           console.log('AdminUnlock realtime connected')
         }
       })
 
-    return () => supabase.removeChannel(channel)
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   // Helper to get criteria IDs for a pageant parent stage

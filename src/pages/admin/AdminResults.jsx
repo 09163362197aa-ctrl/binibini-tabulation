@@ -225,14 +225,25 @@ export default function AdminResults() {
 
     load()
 
+    let debounceTimer = null
+    const debouncedLoad = () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
+        load()
+      }, 400)
+    }
+
     const channel = supabase
       .channel('admin-results-live')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, load)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'candidates' }, load)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'rankings' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, debouncedLoad)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'candidates' }, debouncedLoad)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rankings' }, debouncedLoad)
       .subscribe()
 
-    return () => supabase.removeChannel(channel)
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   const cheerJudges   = (judgesList || []).filter(j => (j.allowed_competitions || ['cheerdance', 'pageant']).includes('cheerdance'))

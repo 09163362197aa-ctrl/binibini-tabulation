@@ -21,7 +21,13 @@ export const OFFICIAL_PAGEANT_CRITERIA = [
   { id: 'qa_delivery', key: 'qa_delivery', label: 'Confidence and Delivery', max_score: 10, display_order: 3, parent_id: 'stage_qa', competition_type: 'pageant' },
 ]
 
-export async function getPageantCriteria() {
+let _criteriaCache = null
+
+export async function getPageantCriteria(forceRefresh = false) {
+  if (_criteriaCache && !forceRefresh) {
+    return _criteriaCache
+  }
+
   try {
     const { data: dbCriteria } = await supabase
       .from('criteria')
@@ -30,6 +36,7 @@ export async function getPageantCriteria() {
       .order('display_order')
 
     if (!dbCriteria || dbCriteria.length === 0) {
+      _criteriaCache = OFFICIAL_PAGEANT_CRITERIA
       return OFFICIAL_PAGEANT_CRITERIA
     }
 
@@ -73,9 +80,10 @@ export async function getPageantCriteria() {
       })
     })
 
+    _criteriaCache = mapped
     return mapped
   } catch (err) {
     console.error('Error in getPageantCriteria:', err)
-    return OFFICIAL_PAGEANT_CRITERIA
+    return _criteriaCache || OFFICIAL_PAGEANT_CRITERIA
   }
 }

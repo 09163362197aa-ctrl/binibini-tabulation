@@ -448,6 +448,8 @@ export default function AdminTeams() {
                 <img
                   src={cand.photo_url || '/palayan.png'}
                   alt={cand.name}
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: 52,
                     height: 52,
