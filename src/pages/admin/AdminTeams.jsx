@@ -181,6 +181,15 @@ export default function AdminTeams() {
       return
     }
 
+    // Check for duplicate candidate number (excluding current candidate if editing)
+    const isDuplicate = candidates.some(c =>
+      c.candidate_number === num && (!editing || c.id !== editing.id)
+    )
+    if (isDuplicate) {
+      showToast(`Candidate #${num} is already assigned to another candidate. Please use a different number.`, 'error')
+      return
+    }
+
     setBusy(true)
 
     if (editing) {

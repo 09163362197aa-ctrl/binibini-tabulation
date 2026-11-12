@@ -47,7 +47,7 @@ create table if not exists public.team_entries (
   created_at timestamptz default now()
 );
 
--- 4. CANDIDATES TABLE (Pageant Ginoo / Binibini)
+-- 4. CANDIDATES TABLE (Pageant Binibini)
 create table if not exists public.candidates (
   id uuid primary key default gen_random_uuid(),
   team_entry_id uuid not null references public.team_entries(id) on delete cascade,
@@ -57,6 +57,11 @@ create table if not exists public.candidates (
   candidate_number integer,
   created_at timestamptz default now()
 );
+
+-- Ensure candidate numbers are unique across all candidates
+create unique index if not exists candidates_candidate_number_unique
+  on public.candidates (candidate_number)
+  where candidate_number is not null;
 
 -- 5. CRITERIA TABLE
 create table if not exists public.criteria (
