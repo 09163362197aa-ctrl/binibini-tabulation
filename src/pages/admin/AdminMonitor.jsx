@@ -288,222 +288,233 @@ export default function AdminMonitor() {
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'rgba(217,119,6,0.08)', borderRadius: 8, border: '1px solid rgba(217,119,6,0.22)', marginBottom: 8 }}>
             <Radio size={13} color="#D97706" />
             <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Live Tabulation Matrix
+              Live Judging Monitor
             </span>
           </div>
           <h1 style={{ margin: 0, fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            Judging Monitor
+            Official Scoring Matrix
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Real-time stage-by-stage scoring matrix, judge draft progress, and official lock certifications
+            Real-time stage-by-stage evaluation stream, judge draft updates, and lock certifications
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          {lastUpdate && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.8rem', color: 'var(--text-muted)', background: 'var(--bg-elevated)', padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border)' }}>
-              <Clock size={14} color="#D97706" />
-              <span>Live: {lastUpdate.toLocaleTimeString()}</span>
-            </div>
-          )}
+
+        {/* Header Right Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          {/* Live Sync Status Pill */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 7,
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            color: '#15803D',
+            background: 'rgba(21,128,61,0.08)',
+            padding: '7px 14px',
+            borderRadius: 8,
+            border: '1px solid rgba(21,128,61,0.22)'
+          }}>
+            <span style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: '#16A34A',
+              boxShadow: '0 0 6px rgba(22,163,74,0.6)',
+              display: 'inline-block'
+            }} />
+            <span>Live Sync {lastUpdate ? `(${lastUpdate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})` : ''}</span>
+          </div>
+
+          {/* Quick Refresh Button */}
           <button
             type="button"
             className="btn btn-sm"
-            onClick={() => {
-              setResetConfirmation('')
-              setShowResetModal(true)
-            }}
+            onClick={load}
+            title="Refresh Scoring Matrix"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              background: '#fef2f2',
-              color: '#b91c1c',
-              border: '1px solid #fca5a5',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
               fontWeight: 700,
-              fontSize: '0.8rem',
+              fontSize: '0.82rem',
               borderRadius: 8,
-              padding: '8px 14px',
+              padding: '7px 14px',
               cursor: 'pointer',
               transition: 'all 0.15s ease'
             }}
           >
-            <RotateCcw size={13} strokeWidth={2.2} />
-            <span>Reset All Scores</span>
+            <RotateCcw size={13} color="#D97706" />
+            <span>Refresh</span>
           </button>
         </div>
       </div>
 
-      {/* ── Binibining Palayan Stage Selector & Legend Bar ──────────────────────── */}
+      {/* ── Unified Pageant Control & Progress Panel ──────────────── */}
       <div style={{
         background: 'var(--bg-surface)',
-        padding: '14px 18px',
         borderRadius: 14,
         border: '1px solid var(--border)',
         marginBottom: 20,
         boxShadow: 'var(--shadow-sm)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 14
+        overflow: 'hidden'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: '0.82rem',
-            fontWeight: 800,
-            color: '#B45309',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            marginRight: 4
-          }}>
-            <Crown size={16} color="#D97706" />
-            <span>Select Segment:</span>
-          </div>
+        {/* Row 1: Segment Selector & Legend */}
+        <div style={{
+          padding: '14px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 12,
+          borderBottom: '1px solid var(--border)'
+        }}>
+          {/* Segment Pills */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: '0.8rem',
+              fontWeight: 800,
+              color: '#B45309',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em'
+            }}>
+              <Crown size={15} color="#D97706" />
+              <span>Segment:</span>
+            </div>
 
-          <div style={{
-            display: 'inline-flex',
-            background: 'var(--bg-elevated)',
-            padding: 4,
-            borderRadius: 10,
-            border: '1px solid var(--border)',
-            gap: 4,
-            flexWrap: 'wrap'
-          }}>
-            <button
-              type="button"
-              onClick={() => setSelectedStageId('all')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 18px',
-                borderRadius: 8,
-                border: 'none',
-                background: selectedStageId === 'all' ? 'linear-gradient(135deg, #D4AF37 0%, #B45309 100%)' : 'transparent',
-                color: selectedStageId === 'all' ? '#FFFFFF' : 'var(--text-secondary)',
-                fontWeight: selectedStageId === 'all' ? 800 : 600,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                boxShadow: selectedStageId === 'all' ? '0 2px 8px rgba(180,130,30,0.25)' : 'none'
-              }}
-            >
-              <span>All Stages (Combined)</span>
-            </button>
+            <div style={{
+              display: 'inline-flex',
+              background: 'var(--bg-elevated)',
+              padding: 4,
+              borderRadius: 10,
+              border: '1px solid var(--border)',
+              gap: 4,
+              flexWrap: 'wrap'
+            }}>
+              <button
+                type="button"
+                onClick={() => setSelectedStageId('all')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '7px 16px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: selectedStageId === 'all' ? 'linear-gradient(135deg, #D4AF37 0%, #B45309 100%)' : 'transparent',
+                  color: selectedStageId === 'all' ? '#FFFFFF' : 'var(--text-secondary)',
+                  fontWeight: selectedStageId === 'all' ? 800 : 600,
+                  fontSize: '0.84rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  boxShadow: selectedStageId === 'all' ? '0 2px 8px rgba(180,130,30,0.25)' : 'none'
+                }}
+              >
+                <span>All Stages (Combined)</span>
+              </button>
 
-            {pageantStages.map(stage => {
-              const isSelected = selectedStageId === stage.id
-              let stageLockedPairs = 0
-              scoreables.forEach(s => {
-                activeJudges.forEach(j => {
-                  if (getJudgeStageStatus(j.id, s.candidateId, stage.id) === 'locked') {
-                    stageLockedPairs++
-                  }
+              {pageantStages.map(stage => {
+                const isSelected = selectedStageId === stage.id
+                let stageLockedPairs = 0
+                scoreables.forEach(s => {
+                  activeJudges.forEach(j => {
+                    if (getJudgeStageStatus(j.id, s.candidateId, stage.id) === 'locked') {
+                      stageLockedPairs++
+                    }
+                  })
                 })
-              })
 
-              return (
-                <button
-                  key={stage.id}
-                  type="button"
-                  onClick={() => setSelectedStageId(stage.id)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '8px 16px',
-                    borderRadius: 8,
-                    border: 'none',
-                    background: isSelected ? 'linear-gradient(135deg, #D4AF37 0%, #B45309 100%)' : 'transparent',
-                    color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
-                    fontWeight: isSelected ? 800 : 600,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    boxShadow: isSelected ? '0 2px 8px rgba(180,130,30,0.25)' : 'none'
-                  }}
-                >
-                  <span>{stage.label}</span>
-                  <span style={{
-                    fontSize: '0.72rem',
-                    padding: '1px 7px',
-                    borderRadius: 10,
-                    background: isSelected ? 'rgba(255,255,255,0.28)' : 'var(--bg-surface)',
-                    color: isSelected ? '#FFFFFF' : 'var(--text-muted)',
-                    fontWeight: 800
-                  }}>
-                    {stageLockedPairs}/{totalCells}
-                  </span>
-                </button>
-              )
-            })}
+                return (
+                  <button
+                    key={stage.id}
+                    type="button"
+                    onClick={() => setSelectedStageId(stage.id)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '7px 16px',
+                      borderRadius: 8,
+                      border: 'none',
+                      background: isSelected ? 'linear-gradient(135deg, #D4AF37 0%, #B45309 100%)' : 'transparent',
+                      color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
+                      fontWeight: isSelected ? 800 : 600,
+                      fontSize: '0.84rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      boxShadow: isSelected ? '0 2px 8px rgba(180,130,30,0.25)' : 'none'
+                    }}
+                  >
+                    <span>{stage.label}</span>
+                    <span style={{
+                      fontSize: '0.72rem',
+                      padding: '1px 7px',
+                      borderRadius: 10,
+                      background: isSelected ? 'rgba(255,255,255,0.28)' : 'var(--bg-surface)',
+                      color: isSelected ? '#FFFFFF' : 'var(--text-muted)',
+                      fontWeight: 800
+                    }}>
+                      {stageLockedPairs}/{totalCells}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Clean Legend */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.74rem', fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}>
+              <CheckCircle2 size={12} strokeWidth={2.4} /> Certified
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.74rem', fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }}>
+              <FileEdit size={12} strokeWidth={2.2} /> Draft
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.74rem', fontWeight: 600, padding: '3px 8px', borderRadius: 6, background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca' }}>
+              <AlertCircle size={12} strokeWidth={2} /> Pending
+            </span>
           </div>
         </div>
 
-        {/* Legend */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Legend:</span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.74rem', fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}>
-            <CheckCircle2 size={12} strokeWidth={2.2} /> Locked
-          </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.74rem', fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }}>
-            <FileEdit size={12} strokeWidth={2.2} /> Draft
-          </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.74rem', fontWeight: 600, padding: '3px 8px', borderRadius: 6, background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca' }}>
-            <AlertCircle size={12} strokeWidth={2} /> Not Started
-          </span>
-        </div>
-      </div>
-
-      {/* ── Progress Bar ─────────────────────────────────────── */}
-      {!loading && totalCells > 0 && (
-        <div className="card" style={{ padding: '14px 18px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-surface)', marginBottom: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                Binibining Palayan
-                {isPageant && selectedStageId !== 'all' ? (
-                  <span style={{ color: isGinoo ? 'var(--pageant-primary)' : '#b45309', fontWeight: 800, marginLeft: 6 }}>
-                    — {pageantStages.find(s => s.id === selectedStageId)?.label}
-                  </span>
-                ) : isPageant ? (
-                  <span style={{ color: 'var(--text-muted)', fontWeight: 600, marginLeft: 6 }}>
-                    (All Stages Combined)
-                  </span>
-                ) : null}
+        {/* Row 2: Integrated Live Progress Bar */}
+        {!loading && totalCells > 0 && (
+          <div style={{ padding: '12px 18px', background: 'var(--bg-elevated)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#166534' }}>
+                  ✓ {lockedCells} Certified
+                </span>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#854d0e' }}>
+                  ✎ {draftCells} In Draft
+                </span>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#991b1b' }}>
+                  ⚠ {notStartedCells} Pending
+                </span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  &bull; {activeJudges.length} Judge{activeJudges.length !== 1 ? 's' : ''} Online
+                </span>
+              </div>
+              <span style={{ fontSize: '0.86rem', fontWeight: 900, color: '#B45309' }}>
+                {progressPct}% Certified
               </span>
             </div>
-            <span style={{ fontSize: '0.88rem', fontWeight: 900, color: isGinoo ? 'var(--pageant-primary)' : isBinibini ? '#b45309' : 'var(--pageant-primary)' }}>
-              {progressPct}% Complete
-            </span>
+            <div style={{ height: 6, background: 'rgba(0,0,0,0.08)', borderRadius: 999, overflow: 'hidden' }}>
+              <div style={{
+                width: `${progressPct}%`,
+                height: '100%',
+                background: progressPct === 100 ? '#16A34A' : 'linear-gradient(90deg, #D97706, #F59E0B)',
+                transition: 'width 0.4s ease',
+                borderRadius: 999
+              }} />
+            </div>
           </div>
-          <div style={{ height: 8, background: 'var(--bg-elevated)', borderRadius: 4, overflow: 'hidden' }}>
-            <div style={{
-              width: `${progressPct}%`,
-              height: '100%',
-              background: progressPct === 100
-                ? (isBinibini ? '#d97706' : 'var(--pageant-primary)')
-                : `linear-gradient(90deg, ${isBinibini ? '#f59e0b, #d97706' : 'var(--pageant-primary), #4CAF50'})`,
-              transition: 'width 0.4s ease',
-              borderRadius: 4
-            }} />
-          </div>
-          <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.76rem', color: '#166534', fontWeight: 700 }}>
-              ✓ {lockedCells} Locked
-            </span>
-            <span style={{ fontSize: '0.76rem', color: '#854d0e', fontWeight: 700 }}>
-              ✎ {draftCells} Drafts
-            </span>
-            <span style={{ fontSize: '0.76rem', color: '#991b1b', fontWeight: 700 }}>
-              ⚠ {notStartedCells} Not Started
-            </span>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ── Matrix Table ─────────────────────────────────────── */}
       {loading ? (
@@ -887,6 +898,36 @@ export default function AdminMonitor() {
           </div>
         </div>
       )}
+
+      {/* ── Admin Maintenance & Danger Zone ──────────────────────── */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 32, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+        <button
+          type="button"
+          onClick={() => {
+            setResetConfirmation('')
+            setShowResetModal(true)
+          }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            background: 'transparent',
+            color: '#b91c1c',
+            border: '1px solid #fecaca',
+            borderRadius: 8,
+            padding: '7px 14px',
+            fontSize: '0.78rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            transition: 'all 0.15s ease'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+        >
+          <RotateCcw size={12} strokeWidth={2.2} />
+          <span>Reset All Scores (Danger Zone)</span>
+        </button>
+      </div>
 
       {/* ── Reset Confirmation Modal ───────────────────────────────── */}
       {showResetModal && (

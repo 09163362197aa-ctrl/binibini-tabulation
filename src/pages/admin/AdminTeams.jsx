@@ -13,13 +13,15 @@ import {
   X,
   Camera,
   Layers,
-  MapPin
+  MapPin,
+  Search
 } from 'lucide-react'
 import { CandidateRibbon } from '../../components/CandidateBadge'
 import './AdminTeams.css'
 
 export default function AdminTeams() {
   const [candidates, setCandidates] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading]       = useState(true)
   const [showModal, setShowModal]   = useState(false)
   const [editing, setEditing]       = useState(null)
@@ -360,28 +362,55 @@ export default function AdminTeams() {
       {/* Main Header */}
       <div className="page-header" style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
         <div className="page-header-left">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(217,119,6,0.1)', borderRadius: 6, border: '1px solid rgba(217,119,6,0.25)', marginBottom: 8 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'rgba(217,119,6,0.08)', borderRadius: 8, border: '1px solid rgba(217,119,6,0.22)', marginBottom: 8 }}>
             <Crown size={14} color="#D97706" />
-            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Binibining Palayan Roster
             </span>
           </div>
-          <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            Official Candidates
+          <h1 style={{ margin: 0, fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            Official Candidates ({candidates.length})
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
             Register candidates, assign official numbers, and manage barangay representations
           </p>
         </div>
 
-        <button
-          type="button"
-          className="btn btn-gold btn-sm"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 8 }}
-          onClick={openAdd}
-        >
-          <Plus size={16} /> Add Candidate
-        </button>
+        {/* Action Bar: Search Input + Add Candidate Button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          {candidates.length > 0 && (
+            <div style={{ position: 'relative', minWidth: 220 }}>
+              <Search size={15} color="var(--text-muted)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Search candidate or barangay…"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                style={{
+                  paddingLeft: 34,
+                  paddingRight: 12,
+                  paddingTop: 8,
+                  paddingBottom: 8,
+                  fontSize: '0.84rem',
+                  borderRadius: 8,
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-surface)',
+                  width: '100%'
+                }}
+              />
+            </div>
+          )}
+
+          <button
+            type="button"
+            className="btn btn-gold btn-sm"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 8 }}
+            onClick={openAdd}
+          >
+            <Plus size={16} /> Add Candidate
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -402,118 +431,144 @@ export default function AdminTeams() {
           </button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
-          {candidates.map(cand => (
-            <div
-              key={cand.id}
-              className="card"
-              style={{
-                padding: 16,
-                borderRadius: 14,
-                border: '1px solid var(--border)',
-                background: 'var(--bg-surface)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 16,
-                position: 'relative',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              {/* Ribbon Badge */}
-              <div style={{ flexShrink: 0 }}>
-                {cand.candidate_number != null ? (
-                  <CandidateRibbon number={cand.candidate_number} category="binibini" />
-                ) : (
-                  <div style={{
-                    width: 44,
-                    height: 48,
-                    borderRadius: 8,
+        (() => {
+          const q = searchQuery.trim().toLowerCase()
+          const displayed = q
+            ? candidates.filter(c =>
+                (c.name && c.name.toLowerCase().includes(q)) ||
+                (c.team_name && c.team_name.toLowerCase().includes(q)) ||
+                (c.candidate_number != null && String(c.candidate_number).includes(q))
+              )
+            : candidates
+
+          if (displayed.length === 0) {
+            return (
+              <div className="card" style={{ padding: 40, textAlign: 'center', borderRadius: 12, border: '1px solid var(--border)' }}>
+                <p style={{ margin: '0 0 8px', fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  No candidates match "{searchQuery}"
+                </p>
+                <button type="button" className="btn btn-ghost btn-xs" onClick={() => setSearchQuery('')}>
+                  Clear Search
+                </button>
+              </div>
+            )
+          }
+
+          return (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+              {displayed.map(cand => (
+                <div
+                  key={cand.id}
+                  className="card"
+                  style={{
+                    padding: 16,
+                    borderRadius: 14,
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-surface)',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    background: 'var(--bg-elevated)',
-                    border: '1.5px dashed var(--border)',
-                    color: 'var(--text-muted)',
-                    fontWeight: 800,
-                    fontSize: '1rem'
-                  }}>
-                    —
-                  </div>
-                )}
-              </div>
-
-              {/* Portrait Thumbnail */}
-              <div style={{ position: 'relative', width: 52, height: 52, flexShrink: 0 }}>
-                <img
-                  src={cand.photo_url || '/palayan.png'}
-                  alt={cand.name}
-                  loading="lazy"
-                  decoding="async"
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    border: '2px solid rgba(217,119,6,0.35)',
-                    background: 'var(--bg-elevated)'
+                    gap: 16,
+                    position: 'relative',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+                    transition: 'all 0.15s ease'
                   }}
-                />
-              </div>
-
-              {/* Candidate Info */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontWeight: 800,
-                  fontSize: '1.02rem',
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.01em',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}>
-                  {cand.name}
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 4 }}>
-                  <MapPin size={12} color="var(--text-muted)" flexShrink={0} />
-                  <span style={{
-                    fontSize: '0.8rem',
-                    color: 'var(--text-muted)',
-                    fontWeight: 600,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {cand.team_name || 'Palayan City'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-xs"
-                  onClick={() => openEdit(cand)}
-                  title="Edit Candidate Details"
-                  style={{ padding: '5px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4 }}
                 >
-                  <Edit3 size={13} /> Edit
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-danger btn-xs"
-                  onClick={() => openDelete(cand)}
-                  title="Remove Candidate"
-                  style={{ padding: '5px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                >
-                  <Trash2 size={13} />
-                </button>
-              </div>
+                  {/* Ribbon Badge */}
+                  <div style={{ flexShrink: 0 }}>
+                    {cand.candidate_number != null ? (
+                      <CandidateRibbon number={cand.candidate_number} category="binibini" />
+                    ) : (
+                      <div style={{
+                        width: 44,
+                        height: 48,
+                        borderRadius: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'var(--bg-elevated)',
+                        border: '1.5px dashed var(--border)',
+                        color: 'var(--text-muted)',
+                        fontWeight: 800,
+                        fontSize: '1rem'
+                      }}>
+                        —
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Portrait Thumbnail */}
+                  <div style={{ position: 'relative', width: 52, height: 52, flexShrink: 0 }}>
+                    <img
+                      src={cand.photo_url || '/palayan.png'}
+                      alt={cand.name}
+                      loading="lazy"
+                      decoding="async"
+                      style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        border: '2px solid rgba(217,119,6,0.35)',
+                        background: 'var(--bg-elevated)'
+                      }}
+                    />
+                  </div>
+
+                  {/* Candidate Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontWeight: 800,
+                      fontSize: '1.02rem',
+                      color: 'var(--text-primary)',
+                      letterSpacing: '-0.01em',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {cand.name}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 4 }}>
+                      <MapPin size={12} color="var(--text-muted)" flexShrink={0} />
+                      <span style={{
+                        fontSize: '0.8rem',
+                        color: 'var(--text-muted)',
+                        fontWeight: 600,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}>
+                        {cand.team_name || 'Palayan City'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-xs"
+                      onClick={() => openEdit(cand)}
+                      title="Edit Candidate Details"
+                      style={{ padding: '5px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    >
+                      <Edit3 size={13} /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-xs"
+                      onClick={() => openDelete(cand)}
+                      title="Remove Candidate"
+                      style={{ padding: '5px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )
+        })()
       )}
 
       {/* Add / Edit Candidate Modal */}

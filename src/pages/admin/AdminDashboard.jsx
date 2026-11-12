@@ -72,10 +72,54 @@ export default function AdminDashboard() {
             Real-time score audit, candidate progress, and official competition management
           </p>
         </div>
-        <div className="dashboard-competition-badges" style={{ display: 'flex', gap: 8 }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: 'linear-gradient(135deg, rgba(217,119,6,0.12) 0%, rgba(212,175,55,0.18) 100%)', borderRadius: 10, border: '1px solid rgba(217,119,6,0.3)', fontSize: '0.82rem', fontWeight: 800, color: '#B45309' }}>
-            <Crown size={15} color="#D97706" /> Binibining Palayan Official
-          </span>
+        {/* High-Priority Action Header Buttons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <Link
+            to="/admin/teams"
+            className="btn btn-sm"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 10,
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+              fontWeight: 700,
+              fontSize: '0.84rem',
+              textDecoration: 'none',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+          >
+            <Users2 size={15} color="#D97706" />
+            <span>Manage Candidates</span>
+          </Link>
+
+          <Link
+            to="/admin/monitor"
+            className="btn btn-gold btn-sm"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '9px 18px',
+              borderRadius: 10,
+              textDecoration: 'none',
+              boxShadow: '0 3px 12px rgba(180,130,30,0.28)'
+            }}
+          >
+            <Radio size={15} />
+            <span>Open Live Monitor</span>
+            <span style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: '#FFFFFF',
+              boxShadow: '0 0 6px #FFFFFF',
+              display: 'inline-block'
+            }} />
+          </Link>
         </div>
       </div>
 
@@ -85,14 +129,15 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
-          <StatCard icon={Users2} label="Official Candidates" value={stats.candidates} iconColor="#B45309" />
-          <StatCard icon={Gavel} label="Board of Judges" value={stats.judges} iconColor="#D97706" />
-          <StatCard icon={Lock} label="Certified Scores" value={stats.locked} iconColor="#15803D" />
+          <StatCard icon={Users2} label="Official Candidates" value={stats.candidates} iconColor="#B45309" borderColor="#D4AF37" />
+          <StatCard icon={Gavel} label="Board of Judges" value={stats.judges} iconColor="#D97706" borderColor="#D97706" />
+          <StatCard icon={Lock} label="Certified Scores" value={stats.locked} iconColor="#15803D" borderColor="#16A34A" />
           <StatCard
             icon={Activity}
             label="Locking Progress"
             value={`${lockPct}%`}
             iconColor="#D97706"
+            borderColor="#B45309"
             sub={`${stats.locked} of ${stats.total} total scores`}
           />
         </div>
@@ -141,17 +186,25 @@ export default function AdminDashboard() {
   )
 }
 
-function StatCard({ icon: Icon, label, value, sub, iconColor = 'var(--pageant-primary)' }) {
+function StatCard({ icon: Icon, label, value, sub, iconColor = 'var(--pageant-primary)', borderColor = 'var(--border)' }) {
   return (
-    <div className="card" style={{ padding: 18, borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</span>
-        <div style={{ padding: 6, background: 'var(--bg-elevated)', borderRadius: 6 }}>
-          <Icon size={16} color={iconColor} />
+    <div className="card" style={{
+      padding: '20px 20px 18px',
+      borderRadius: 14,
+      border: '1px solid var(--border)',
+      borderTop: `3.5px solid ${borderColor}`,
+      background: 'var(--bg-surface)',
+      boxShadow: 'var(--shadow-sm)',
+      position: 'relative'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
+        <div style={{ padding: '7px 8px', background: 'var(--bg-elevated)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={17} color={iconColor} strokeWidth={2.4} />
         </div>
       </div>
-      <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }}>{value}</div>
-      {sub && <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>{sub}</div>}
+      <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums', lineHeight: 1.05 }}>{value}</div>
+      {sub && <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', marginTop: 6, fontWeight: 500 }}>{sub}</div>}
     </div>
   )
 }
