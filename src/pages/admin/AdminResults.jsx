@@ -806,7 +806,7 @@ function StageAwardsSection({ awards }) {
                   <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
                     <th style={{ padding: '10px 18px', width: 64, textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Rank</th>
                     <th style={{ padding: '10px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Candidate</th>
-                    <th style={{ padding: '10px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Team</th>
+                    <th style={{ padding: '10px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Barangay</th>
                     <th style={{ padding: '10px 18px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Judges Scored</th>
                     <th style={{ padding: '10px 18px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Stage Score</th>
                   </tr>
@@ -943,7 +943,7 @@ function ResultSection({ show, title, rows, nameCol, teamCol }) {
               <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
                 <th style={{ padding: '11px 18px', width: 64, textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Rank</th>
                 <th style={{ padding: '11px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>{nameCol === 'team' ? 'Team Name' : 'Candidate Name'}</th>
-                {teamCol && <th style={{ padding: '11px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Team</th>}
+                {teamCol && <th style={{ padding: '11px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Barangay</th>}
                 <th style={{ padding: '11px 18px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Judges Scored</th>
                 <th style={{ padding: '11px 18px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Final Combined Score</th>
               </tr>

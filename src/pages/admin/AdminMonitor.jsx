@@ -548,7 +548,7 @@ export default function AdminMonitor() {
                     zIndex: 2,
                     minWidth: 220
                   }}>
-                    {tab === 'cheerdance' ? 'Team' : 'Candidate'}
+                    {tab === 'cheerdance' ? 'Barangay' : 'Candidate'}
                   </th>
 
                   {/* Column headers: Judge names */}

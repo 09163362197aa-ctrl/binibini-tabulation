@@ -370,7 +370,7 @@ export default function ScoreForm() {
 
       {/* Subject Header Card */}
       {subject && (() => {
-        const isGinoo = subject.type === 'ginoo'
+        const isGinoo = false // Only Binibini division exists
         const isBinibini = subject.type === 'binibini'
 
         return (
@@ -389,13 +389,13 @@ export default function ScoreForm() {
                 fontWeight: 800,
                 padding: '3px 12px',
                 borderRadius: 6,
-                background: isGinoo ? '#15803d' : isBinibini ? '#b45309' : '#15803d',
+                background: isBinibini ? '#b45309' : '#15803d',
                 color: '#ffffff',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
                 lineHeight: 1.2
               }}>
-                {isGinoo ? 'Ginoo Division' : isBinibini ? 'Binibini Division' : 'Cheerdance'}
+                {isBinibini ? 'Binibini Division' : 'Binibining Palayan'}
               </span>
             </div>
 
@@ -628,7 +628,7 @@ export default function ScoreForm() {
                   {subject.logoUrl ? (
                     <img
                       src={subject.logoUrl}
-                      alt={subject.team || 'Team Logo'}
+                      alt={subject.team || 'Barangay Logo'}
                       style={{
                         width: 22,
                         height: 22,
@@ -643,16 +643,16 @@ export default function ScoreForm() {
                       width: 22,
                       height: 22,
                       borderRadius: '50%',
-                      background: isGinoo ? 'rgba(46,125,50,0.15)' : 'rgba(217,119,6,0.15)',
+                      background: 'rgba(217,119,6,0.15)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '0.68rem',
                       fontWeight: 800,
-                      color: isGinoo ? 'var(--pageant-primary)' : '#b45309',
+                      color: '#b45309',
                       flexShrink: 0
                     }}>
-                      {(subject.team || 'T').charAt(0)}
+                      {(subject.team || 'B').charAt(0)}
                     </div>
                   )}
                   <span style={{
@@ -661,7 +661,7 @@ export default function ScoreForm() {
                     color: 'var(--text-primary)',
                     letterSpacing: '-0.01em'
                   }}>
-                    {subject.team || 'Participating Team'}
+                    {subject.team || 'Palayan City'}
                   </span>
                 </div>
               )}

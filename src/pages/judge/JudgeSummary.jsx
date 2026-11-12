@@ -407,7 +407,7 @@ export default function JudgeSummary() {
                         }}>
                           Candidate
                         </th>
-                        <th style={{ padding: '10px 12px', minWidth: 110, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>Team</th>
+                        <th style={{ padding: '10px 12px', minWidth: 110, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>Barangay</th>
                         {stageKids.map(k => (
                           <th
                             key={k.id}
@@ -643,7 +643,7 @@ export default function JudgeSummary() {
                         }}>
                           Candidate
                         </th>
-                        <th style={{ padding: '10px 12px', minWidth: 110, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>Team</th>
+                        <th style={{ padding: '10px 12px', minWidth: 110, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>Barangay</th>
                         {parentStages.map(stage => (
                           <th
                             key={stage.id}

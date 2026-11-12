@@ -327,7 +327,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
   })
 
   // Build head / body with direct max points
-  const head = [['No.', 'Candidate Name', 'Team', ...stageKids.map(k => `${k.label}\n(Max: ${k.max_score} pts)`), 'Stage Total']]
+  const head = [['No.', 'Candidate Name', 'Barangay', ...stageKids.map(k => `${k.label}\n(Max: ${k.max_score} pts)`), 'Stage Total']]
 
   const rowData = filtered.map(c => {
     let stageTotal = 0
@@ -513,7 +513,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
   })
 
   const totalMaxPts = stageColMeta.reduce((sum, s) => sum + s.maxPts, 0)
-  const head = [['No.', 'Candidate Name', 'Team', ...stageColMeta.map(s => s.header), `Combined Total\n(Max: ${totalMaxPts} pts)`, 'Rank']]
+  const head = [['No.', 'Candidate Name', 'Barangay', ...stageColMeta.map(s => s.header), `Combined Total\n(Max: ${totalMaxPts} pts)`, 'Rank']]
 
   const rowData = filtered.map(c => {
     let overallTotal = 0
