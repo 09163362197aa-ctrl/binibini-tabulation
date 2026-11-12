@@ -165,9 +165,30 @@ create policy "Allow delete from team-photos" on storage.objects
   for delete using (bucket_id = 'team-photos');
 
 -- ==============================================================================
--- AUTO-CREATE PROFILE TRIGGER FOR NEW USERS
--- Whenever a user is created in Supabase Auth, automatically create their profile!
+-- AUTO-CONFIRM & AUTO-CREATE PROFILE TRIGGER FOR NEW USERS
 -- ==============================================================================
+-- 1. Auto-confirm any existing unconfirmed users
+update auth.users
+set email_confirmed_at = coalesce(email_confirmed_at, now()),
+    confirmed_at = coalesce(confirmed_at, now())
+where email_confirmed_at is null;
+
+-- 2. Trigger to automatically confirm email upon creation (no email verification needed)
+create or replace function public.auto_confirm_new_user()
+returns trigger as $$
+begin
+  new.email_confirmed_at := coalesce(new.email_confirmed_at, now());
+  new.confirmed_at := coalesce(new.confirmed_at, now());
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_auth_user_created_confirm on auth.users;
+create trigger on_auth_user_created_confirm
+  before insert on auth.users
+  for each row execute function public.auto_confirm_new_user();
+
+-- 3. Whenever a user is created in Supabase Auth, automatically create their profile!
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
