@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
 import {
   Users2,
@@ -87,7 +87,18 @@ export default function AdminTeams() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+
+    const channel = supabase
+      .channel('admin-teams-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'teams' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'team_entries' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'candidates' }, load)
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function showToast(msg, type = 'success') {
     setToast({ msg, type })

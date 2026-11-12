@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
 import {
   FileText,
@@ -222,7 +222,17 @@ export default function AdminResults() {
       setResults({ cheerdance: cheer, pageant: { ginoo, binibini, ginooAwards, binibiniAwards } })
       setLoading(false)
     }
+
     load()
+
+    const channel = supabase
+      .channel('admin-results-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'candidates' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rankings' }, load)
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
   }, [])
 
   const cheerJudges   = (judgesList || []).filter(j => (j.allowed_competitions || ['cheerdance', 'pageant']).includes('cheerdance'))

@@ -7,6 +7,19 @@
 create extension if not exists "uuid-ossp";
 create extension if not exists "pgcrypto";
 
+-- ==============================================================================
+-- ENABLE REALTIME ON ALL TABLES
+-- (Required for live updates without tab switching)
+-- ==============================================================================
+alter publication supabase_realtime add table public.profiles;
+alter publication supabase_realtime add table public.teams;
+alter publication supabase_realtime add table public.team_entries;
+alter publication supabase_realtime add table public.candidates;
+alter publication supabase_realtime add table public.criteria;
+alter publication supabase_realtime add table public.scores;
+alter publication supabase_realtime add table public.rankings;
+alter publication supabase_realtime add table public.unlock_requests;
+
 -- 1. PROFILES TABLE (Admins and Judges)
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,

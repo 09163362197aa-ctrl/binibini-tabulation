@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { getPageantCriteria } from '../../lib/criteriaSync'
@@ -45,7 +45,17 @@ export default function AdminUnlock() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+
+    const channel = supabase
+      .channel('admin-unlock-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'unlock_requests' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, load)
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Helper to get criteria IDs for a pageant parent stage
   function getStageCritIds(stageId) {

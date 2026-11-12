@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import {
@@ -18,19 +18,29 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({ candidates: 0, judges: 0, locked: 0, total: 0 })
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function load() {
-      const [{ count: candidates }, { count: judges }, { count: locked }, { count: total }] = await Promise.all([
-        supabase.from('candidates').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'judge'),
-        supabase.from('scores').select('*', { count: 'exact', head: true }).eq('is_locked', true),
-        supabase.from('scores').select('*', { count: 'exact', head: true }),
-      ])
-      setStats({ candidates: candidates ?? 0, judges: judges ?? 0, locked: locked ?? 0, total: total ?? 0 })
-      setLoading(false)
-    }
-    load()
+  const load = useCallback(async () => {
+    const [{ count: candidates }, { count: judges }, { count: locked }, { count: total }] = await Promise.all([
+      supabase.from('candidates').select('*', { count: 'exact', head: true }),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'judge'),
+      supabase.from('scores').select('*', { count: 'exact', head: true }).eq('is_locked', true),
+      supabase.from('scores').select('*', { count: 'exact', head: true }),
+    ])
+    setStats({ candidates: candidates ?? 0, judges: judges ?? 0, locked: locked ?? 0, total: total ?? 0 })
+    setLoading(false)
   }, [])
+
+  useEffect(() => {
+    load()
+
+    const channel = supabase
+      .channel('admin-dashboard-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'candidates' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, load)
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
+  }, [load])
 
   const lockPct = stats.total > 0 ? Math.round((stats.locked / stats.total) * 100) : 0
 
