@@ -462,7 +462,7 @@ export default function AdminMonitor() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                {TABS.find(t => t.key === tab)?.label}
+                Binibining Palayan
                 {isPageant && selectedStageId !== 'all' ? (
                   <span style={{ color: isGinoo ? 'var(--pageant-primary)' : '#b45309', fontWeight: 800, marginLeft: 6 }}>
                     — {pageantStages.find(s => s.id === selectedStageId)?.label}
@@ -513,7 +513,7 @@ export default function AdminMonitor() {
           <div style={{ display: 'inline-flex', padding: 12, background: 'var(--bg-elevated)', borderRadius: '50%', marginBottom: 12 }}>
             <Radio size={28} color="var(--text-muted)" />
           </div>
-          <h3 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700 }}>No entries for {TABS.find(t => t.key === tab)?.label}</h3>
+          <h3 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700 }}>No entries for Binibining Palayan</h3>
           <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
             Register teams and candidates to view the scoring matrix for this competition.
           </p>
@@ -523,7 +523,7 @@ export default function AdminMonitor() {
           <div style={{ display: 'inline-flex', padding: 12, background: 'var(--bg-elevated)', borderRadius: '50%', marginBottom: 12 }}>
             <Radio size={28} color="var(--text-muted)" />
           </div>
-          <h3 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700 }}>No judges assigned to {TABS.find(t => t.key === tab)?.label}</h3>
+          <h3 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700 }}>No judges assigned to Binibining Palayan</h3>
           <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
             Assign judges to this competition under the Judges page to monitor their scores.
           </p>
