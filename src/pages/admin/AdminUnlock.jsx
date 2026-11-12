@@ -172,13 +172,13 @@ export default function AdminUnlock() {
 
       <div className="page-header" style={{ marginBottom: 24 }}>
         <div className="page-header-left">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(46,125,50,0.08)', borderRadius: 6, border: '1px solid rgba(46,125,50,0.2)', marginBottom: 8 }}>
-            <LockOpen size={13} color="var(--pageant-primary)" />
-            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--pageant-primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'rgba(217,119,6,0.08)', borderRadius: 8, border: '1px solid rgba(217,119,6,0.22)', marginBottom: 8 }}>
+            <LockOpen size={14} color="#D97706" />
+            <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Security &amp; Authorization
             </span>
           </div>
-          <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          <h1 style={{ margin: 0, fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Score Unlock Requests
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
@@ -206,27 +206,29 @@ export default function AdminUnlock() {
               type="button"
               onClick={() => setFilter(f)}
               style={{
-                padding: '6px 16px',
-                borderRadius: 6,
+                padding: '7px 18px',
+                borderRadius: 8,
                 border: 'none',
-                background: isSelected ? 'var(--pageant-primary)' : 'transparent',
+                background: isSelected ? 'linear-gradient(135deg, #D4AF37 0%, #B45309 100%)' : 'transparent',
                 color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
-                fontWeight: isSelected ? 700 : 600,
+                fontWeight: isSelected ? 800 : 600,
                 fontSize: '0.84rem',
                 textTransform: 'capitalize',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 6
+                gap: 8,
+                transition: 'all 0.15s ease',
+                boxShadow: isSelected ? '0 2px 8px rgba(180,130,30,0.25)' : 'none'
               }}
             >
               <span>{f}</span>
               {count !== null && (
                 <span style={{
                   fontSize: '0.72rem',
-                  padding: '1px 6px',
+                  padding: '1px 7px',
                   borderRadius: 10,
-                  background: isSelected ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.08)',
+                  background: isSelected ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.08)',
                   color: isSelected ? '#FFFFFF' : 'var(--text-primary)',
                   fontWeight: 800
                 }}>

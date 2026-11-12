@@ -747,10 +747,10 @@ function StageAwardsSection({ awards }) {
         <div style={{
           display: 'inline-flex',
           background: 'var(--bg-elevated)',
-          padding: 3,
-          borderRadius: 8,
+          padding: 4,
+          borderRadius: 10,
           border: '1px solid var(--border)',
-          gap: 2
+          gap: 4
         }}>
           {awards.map((award, i) => {
             const isSelected = activeIdx === i
@@ -760,15 +760,16 @@ function StageAwardsSection({ awards }) {
                 type="button"
                 onClick={() => setActiveIdx(i)}
                 style={{
-                  padding: '6px 14px',
-                  borderRadius: 6,
+                  padding: '7px 16px',
+                  borderRadius: 8,
                   border: 'none',
-                  background: isSelected ? 'var(--pageant-primary)' : 'transparent',
+                  background: isSelected ? 'linear-gradient(135deg, #D4AF37 0%, #B45309 100%)' : 'transparent',
                   color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
-                  fontWeight: isSelected ? 700 : 600,
-                  fontSize: '0.82rem',
+                  fontWeight: isSelected ? 800 : 600,
+                  fontSize: '0.84rem',
                   cursor: 'pointer',
-                  transition: 'all 0.15s ease'
+                  transition: 'all 0.15s ease',
+                  boxShadow: isSelected ? '0 2px 8px rgba(180,130,30,0.25)' : 'none'
                 }}
               >
                 {award.label}

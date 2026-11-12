@@ -283,26 +283,26 @@ export default function AdminMonitor() {
       )}
 
       {/* ── Page Header ─────────────────────────────────────── */}
-      <div className="page-header" style={{ marginBottom: 20 }}>
+      <div className="page-header" style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
         <div className="page-header-left">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(46,125,50,0.08)', borderRadius: 6, border: '1px solid rgba(46,125,50,0.2)', marginBottom: 8 }}>
-            <Radio size={13} color="var(--pageant-primary)" />
-            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--pageant-primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Realtime Activity Stream
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'rgba(217,119,6,0.08)', borderRadius: 8, border: '1px solid rgba(217,119,6,0.22)', marginBottom: 8 }}>
+            <Radio size={13} color="#D97706" />
+            <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Live Tabulation Matrix
             </span>
           </div>
-          <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          <h1 style={{ margin: 0, fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Judging Monitor
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Real-time matrix of judge scoring progress, stage-by-stage drafts, and certifications
+            Real-time stage-by-stage scoring matrix, judge draft progress, and official lock certifications
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {lastUpdate && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-              <Clock size={13} />
-              <span>Updated: {lastUpdate.toLocaleTimeString()}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.8rem', color: 'var(--text-muted)', background: 'var(--bg-elevated)', padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border)' }}>
+              <Clock size={14} color="#D97706" />
+              <span>Live: {lastUpdate.toLocaleTimeString()}</span>
             </div>
           )}
           <button
@@ -322,7 +322,7 @@ export default function AdminMonitor() {
               fontWeight: 700,
               fontSize: '0.8rem',
               borderRadius: 8,
-              padding: '7px 14px',
+              padding: '8px 14px',
               cursor: 'pointer',
               transition: 'all 0.15s ease'
             }}
@@ -336,31 +336,31 @@ export default function AdminMonitor() {
       {/* ── Binibining Palayan Stage Selector & Legend Bar ──────────────────────── */}
       <div style={{
         background: 'var(--bg-surface)',
-        padding: '12px 16px',
+        padding: '14px 18px',
         borderRadius: 14,
         border: '1px solid var(--border)',
         marginBottom: 20,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        boxShadow: 'var(--shadow-sm)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: 12
+        gap: 14
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            fontSize: '0.8rem',
+            fontSize: '0.82rem',
             fontWeight: 800,
-            color: 'var(--pageant-primary)',
+            color: '#B45309',
             textTransform: 'uppercase',
             letterSpacing: '0.04em',
             marginRight: 4
           }}>
-            <Crown size={15} color="var(--pageant-primary)" />
-            <span>Evaluation Stage:</span>
+            <Crown size={16} color="#D97706" />
+            <span>Select Segment:</span>
           </div>
 
           <div style={{
@@ -379,18 +379,19 @@ export default function AdminMonitor() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '7px 16px',
+                padding: '8px 18px',
                 borderRadius: 8,
                 border: 'none',
-                background: selectedStageId === 'all' ? 'var(--pageant-primary)' : 'transparent',
+                background: selectedStageId === 'all' ? 'linear-gradient(135deg, #D4AF37 0%, #B45309 100%)' : 'transparent',
                 color: selectedStageId === 'all' ? '#FFFFFF' : 'var(--text-secondary)',
                 fontWeight: selectedStageId === 'all' ? 800 : 600,
                 fontSize: '0.85rem',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease'
+                transition: 'all 0.15s ease',
+                boxShadow: selectedStageId === 'all' ? '0 2px 8px rgba(180,130,30,0.25)' : 'none'
               }}
             >
-              <span>All Stages (Overview)</span>
+              <span>All Stages (Combined)</span>
             </button>
 
             {pageantStages.map(stage => {
@@ -413,23 +414,24 @@ export default function AdminMonitor() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 6,
-                    padding: '7px 16px',
+                    padding: '8px 16px',
                     borderRadius: 8,
                     border: 'none',
-                    background: isSelected ? 'var(--pageant-primary)' : 'transparent',
+                    background: isSelected ? 'linear-gradient(135deg, #D4AF37 0%, #B45309 100%)' : 'transparent',
                     color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
                     fontWeight: isSelected ? 800 : 600,
                     fontSize: '0.85rem',
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    transition: 'all 0.15s ease',
+                    boxShadow: isSelected ? '0 2px 8px rgba(180,130,30,0.25)' : 'none'
                   }}
                 >
                   <span>{stage.label}</span>
                   <span style={{
-                    fontSize: '0.7rem',
-                    padding: '1px 6px',
+                    fontSize: '0.72rem',
+                    padding: '1px 7px',
                     borderRadius: 10,
-                    background: isSelected ? 'rgba(255,255,255,0.25)' : 'var(--bg-surface)',
+                    background: isSelected ? 'rgba(255,255,255,0.28)' : 'var(--bg-surface)',
                     color: isSelected ? '#FFFFFF' : 'var(--text-muted)',
                     fontWeight: 800
                   }}>

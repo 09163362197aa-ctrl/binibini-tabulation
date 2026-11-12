@@ -57,24 +57,24 @@ export default function AdminDashboard() {
 
   return (
     <div className="dashboard" style={{ width: '100%' }}>
-      <div className="page-header" style={{ marginBottom: 24 }}>
+      <div className="page-header" style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
         <div className="page-header-left">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(46,125,50,0.08)', borderRadius: 6, border: '1px solid rgba(46,125,50,0.2)', marginBottom: 8 }}>
-            <Crown size={13} color="var(--pageant-primary)" />
-            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--pageant-primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Binibining Palayan Command Center
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'rgba(217,119,6,0.08)', borderRadius: 8, border: '1px solid rgba(217,119,6,0.22)', marginBottom: 8 }}>
+            <Crown size={14} color="#D97706" />
+            <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Binibining Palayan Tabulation Center
             </span>
           </div>
-          <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          <h1 style={{ margin: 0, fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Administrator Dashboard
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Real-time scoring status and competition management for Binibining Palayan
+            Real-time score audit, candidate progress, and official competition management
           </p>
         </div>
         <div className="dashboard-competition-badges" style={{ display: 'flex', gap: 8 }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'rgba(46,125,50,0.1)', borderRadius: 8, border: '1px solid rgba(46,125,50,0.25)', fontSize: '0.8rem', fontWeight: 700, color: 'var(--pageant-primary)' }}>
-            <Crown size={14} color="var(--pageant-primary)" /> Binibining Palayan
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: 'linear-gradient(135deg, rgba(217,119,6,0.12) 0%, rgba(212,175,55,0.18) 100%)', borderRadius: 10, border: '1px solid rgba(217,119,6,0.3)', fontSize: '0.82rem', fontWeight: 800, color: '#B45309' }}>
+            <Crown size={15} color="#D97706" /> Binibining Palayan Official
           </span>
         </div>
       </div>
@@ -85,36 +85,42 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
-          <StatCard icon={Users2} label="Official Candidates" value={stats.candidates} iconColor="var(--pageant-primary)" />
+          <StatCard icon={Users2} label="Official Candidates" value={stats.candidates} iconColor="#B45309" />
           <StatCard icon={Gavel} label="Board of Judges" value={stats.judges} iconColor="#D97706" />
-          <StatCard icon={Lock} label="Locked Scores" value={stats.locked} iconColor="var(--pageant-primary)" />
+          <StatCard icon={Lock} label="Certified Scores" value={stats.locked} iconColor="#15803D" />
           <StatCard
             icon={Activity}
             label="Locking Progress"
             value={`${lockPct}%`}
             iconColor="#D97706"
-            sub={`${stats.locked} of ${stats.total} entries`}
+            sub={`${stats.locked} of ${stats.total} total scores`}
           />
         </div>
       )}
 
       {!loading && (
-        <div className="card" style={{ marginTop: 20, padding: 20, borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
+        <div className="card" style={{ marginTop: 22, padding: '20px 22px', borderRadius: 14, border: '1px solid var(--border)', background: 'var(--bg-surface)', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Activity size={16} color="var(--pageant-primary)" />
-              <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Overall Scoring Progress</h3>
+              <Activity size={16} color="#D97706" />
+              <h3 style={{ margin: 0, fontSize: '0.96rem', fontWeight: 800, color: 'var(--text-primary)' }}>Competition Scoring Progress</h3>
             </div>
-            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--pageant-primary)' }}>{lockPct}% Locked In</span>
+            <span style={{ fontSize: '0.84rem', fontWeight: 800, color: '#B45309' }}>{lockPct}% Certified &amp; Locked</span>
           </div>
-          <div className="progress-bar-track" style={{ height: 8, background: 'var(--bg-elevated)', borderRadius: 4, overflow: 'hidden' }}>
+          <div className="progress-bar-track" style={{ height: 10, background: 'var(--bg-elevated)', borderRadius: 999, overflow: 'hidden' }}>
             <div
               className="progress-bar-fill"
-              style={{ width: `${lockPct}%`, height: '100%', background: 'var(--pageant-primary)', transition: 'width 0.3s ease' }}
+              style={{
+                width: `${lockPct}%`,
+                height: '100%',
+                background: lockPct === 100 ? '#15803D' : 'linear-gradient(90deg, #D97706, #F59E0B)',
+                transition: 'width 0.4s ease',
+                borderRadius: 999
+              }}
             />
           </div>
           <p style={{ marginTop: 10, marginBottom: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            {stats.locked} scores certified and locked &bull; {stats.total - stats.locked} scores still in draft or pending
+            <strong>{stats.locked}</strong> scores certified and locked &bull; <strong>{stats.total - stats.locked}</strong> scores still in draft or awaiting judge submission
           </p>
         </div>
       )}

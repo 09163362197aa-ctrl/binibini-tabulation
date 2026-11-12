@@ -194,31 +194,31 @@ export default function AdminJudges() {
         </div>
       )}
 
-      <div className="page-header" style={{ marginBottom: 24 }}>
+      <div className="page-header" style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
         <div className="page-header-left">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(46,125,50,0.08)', borderRadius: 6, border: '1px solid rgba(46,125,50,0.2)', marginBottom: 8 }}>
-            <Gavel size={13} color="var(--pageant-primary)" />
-            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--pageant-primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Access Control &amp; Roster
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'rgba(217,119,6,0.08)', borderRadius: 8, border: '1px solid rgba(217,119,6,0.22)', marginBottom: 8 }}>
+            <Gavel size={14} color="#D97706" />
+            <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Access Control &amp; Board of Judges
             </span>
           </div>
-          <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          <h1 style={{ margin: 0, fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Board of Judges
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Register and manage judge credentials and competition assignments
+            Register official judge accounts, set credentials, and manage portal access
           </p>
         </div>
         <button
           type="button"
           className="btn btn-gold btn-sm"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8 }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 8 }}
           onClick={() => {
             setForm({ name: '', username: '', password: '', allowed_competitions: ['pageant'] })
             setShowModal(true)
           }}
         >
-          <UserPlus size={15} /> Add Judge
+          <UserPlus size={16} /> Add Judge
         </button>
       </div>
 

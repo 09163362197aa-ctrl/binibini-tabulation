@@ -16,17 +16,18 @@
   left: 0;
   right: 0;
   height: 56px;
-  background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
+  background: linear-gradient(135deg, #181A1F 0%, #0F1013 100%);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
   padding: 0 16px;
   align-items: center;
   gap: 12px;
   z-index: 99;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
 }
 
 .admin-mobile-toggle-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: 8px;
   width: 38px;
   height: 38px;
@@ -39,7 +40,7 @@
 }
 
 .admin-mobile-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(212, 175, 55, 0.25);
 }
 
 .mobile-header-brand {
@@ -49,7 +50,7 @@
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #FDF6E2;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -78,13 +79,13 @@
 }
 
 /* =========================================================
-   SIDEBAR
+   SIDEBAR (Royal Pageant Obsidian & Gold Trim)
    ========================================================= */
 .admin-sidebar {
   width: 250px;
   min-height: 100vh;
-  background: linear-gradient(180deg, #1B5E20 0%, #2E7D32 40%, #388E3C 100%);
-  border-right: none;
+  background: linear-gradient(180deg, #181A1F 0%, #121317 60%, #0E0F12 100%);
+  border-right: 1px solid rgba(212, 175, 55, 0.18);
   display: flex;
   flex-direction: column;
   position: sticky;
@@ -93,7 +94,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   flex-shrink: 0;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.10);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 999;
 }
@@ -110,7 +111,7 @@
   justify-content: space-between;
   gap: 10px;
   padding: 22px 16px 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.16);
   margin-bottom: 12px;
   min-height: 72px;
   box-sizing: border-box;
@@ -134,7 +135,7 @@
   font-family: var(--font-display);
   font-size: 1.12rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #FDF6E2;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   line-height: 1.1;
@@ -143,9 +144,9 @@
 
 /* Toggle Buttons */
 .sidebar-collapse-btn {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #FFFFFF;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  color: #D4AF37;
   width: 28px;
   height: 28px;
   border-radius: 6px;
@@ -159,7 +160,8 @@
 }
 
 .sidebar-collapse-btn:hover {
-  background: rgba(255, 255, 255, 0.24);
+  background: rgba(212, 175, 55, 0.24);
+  color: #FBBF24;
   transform: scale(1.05);
 }
 
@@ -179,7 +181,7 @@
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   padding: 4px 10px;
   flex: 1;
 }
@@ -190,7 +192,7 @@
   gap: 12px;
   padding: 11px 14px;
   border-radius: 10px;
-  color: rgba(255, 255, 255, 0.80);
+  color: rgba(245, 235, 220, 0.72);
   font-family: var(--font-display);
   font-size: 0.86rem;
   font-weight: 700;
@@ -203,17 +205,17 @@
 }
 
 .sidebar-link:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(212, 175, 55, 0.08);
   color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.10);
+  border-color: rgba(212, 175, 55, 0.18);
 }
 
 .sidebar-link.active {
-  background: rgba(255, 255, 255, 0.20);
-  color: #FFFFFF;
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.20) 0%, rgba(212, 175, 55, 0.06) 100%);
+  color: #FDF6E2;
   font-weight: 800;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.40);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.20);
 }
 
 .sidebar-link-icon {
@@ -221,18 +223,18 @@
   width: 20px;
   text-align: center;
   flex-shrink: 0;
-  color: #FCD34D;
+  color: #D4AF37;
   transition: transform 0.2s ease, color 0.2s ease, filter 0.2s ease;
 }
 
 .sidebar-link:hover .sidebar-link-icon {
-  color: #FEF08A;
+  color: #FBBF24;
   transform: scale(1.1);
 }
 
 .sidebar-link.active .sidebar-link-icon {
   color: #FCD34D;
-  filter: drop-shadow(0 0 6px rgba(252, 211, 77, 0.45));
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
 }
 
 /* Collapsed Nav Link */
@@ -250,7 +252,7 @@
    ========================================================= */
 .sidebar-footer {
   padding: 16px 10px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(212, 175, 55, 0.16);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -272,7 +274,7 @@
   width: 38px;
   height: 38px;
   border-radius: 10px !important;
-  background: rgba(255, 255, 255, 0.18);
+  background: linear-gradient(135deg, #D4AF37 0%, #B45309 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -282,7 +284,7 @@
   color: #FFFFFF;
   border: 1px solid rgba(255, 255, 255, 0.25);
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .sidebar-user-info {
@@ -293,7 +295,7 @@
 .sidebar-user-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #FDF6E2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -302,24 +304,33 @@
 
 .sidebar-user-role {
   font-size: 0.70rem;
-  color: rgba(255, 255, 255, 0.65);
+  color: #D4AF37;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-weight: 700;
 }
 
 .admin-sidebar .sidebar-signout {
   width: 100%;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.88);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  background: transparent;
+  color: rgba(245, 235, 220, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  background: rgba(212, 175, 55, 0.06);
   gap: 8px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
 }
 
 .admin-sidebar .sidebar-signout:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(239, 68, 68, 0.15);
+  color: #FCA5A5;
+  border-color: rgba(239, 68, 68, 0.35);
 }
 
 .admin-sidebar.collapsed .sidebar-signout {
