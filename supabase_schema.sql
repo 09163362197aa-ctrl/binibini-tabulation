@@ -169,8 +169,7 @@ create policy "Allow delete from team-photos" on storage.objects
 -- ==============================================================================
 -- 1. Auto-confirm any existing unconfirmed users
 update auth.users
-set email_confirmed_at = coalesce(email_confirmed_at, now()),
-    confirmed_at = coalesce(confirmed_at, now())
+set email_confirmed_at = coalesce(email_confirmed_at, now())
 where email_confirmed_at is null;
 
 -- 2. Trigger to automatically confirm email upon creation (no email verification needed)
@@ -178,7 +177,6 @@ create or replace function public.auto_confirm_new_user()
 returns trigger as $$
 begin
   new.email_confirmed_at := coalesce(new.email_confirmed_at, now());
-  new.confirmed_at := coalesce(new.confirmed_at, now());
   return new;
 end;
 $$ language plpgsql security definer;
