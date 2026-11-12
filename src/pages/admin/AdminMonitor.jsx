@@ -17,12 +17,6 @@ import {
   Trash2
 } from 'lucide-react'
 
-const TABS = [
-  { key: 'cheerdance', label: 'Cheerdance', icon: Megaphone },
-  { key: 'ginoo',      label: 'Ginoo',      icon: Crown },
-  { key: 'binibini',   label: 'Binibini',   icon: Sparkles },
-]
-
 export default function AdminMonitor() {
   const [judges, setJudges]       = useState([])
   const [entries, setEntries]     = useState([])
@@ -30,7 +24,7 @@ export default function AdminMonitor() {
   const [criteria, setCriteria]   = useState([])
   const [loading, setLoading]     = useState(true)
   const [lastUpdate, setLastUpdate] = useState(null)
-  const [tab, setTab]             = useState('cheerdance')
+  const tab                       = 'binibini'
   const [selectedStageId, setSelectedStageId] = useState('all')
   const [toast, setToast]         = useState(null)
   const [showResetModal, setShowResetModal] = useState(false)
@@ -157,27 +151,18 @@ export default function AdminMonitor() {
     return (criteria || []).filter(c => c.competition_type === 'cheerdance')
   }, [criteria])
 
-  // Active Judges filtered by competition type
+  // Active Judges for Binibining Palayan
   const activeJudges = useMemo(() => {
-    const compKey = tab === 'cheerdance' ? 'cheerdance' : 'pageant'
-    return judges.filter(j => (j.allowed_competitions || ['cheerdance', 'pageant']).includes(compKey))
-  }, [judges, tab])
+    return judges.filter(j => (j.allowed_competitions || ['pageant']).includes('pageant'))
+  }, [judges])
 
-  // Scoreable units (Teams for cheer, Candidates for Ginoo/Binibini sorted by candidate_number)
+  // Scoreable units (Binibining Palayan Candidates sorted by candidate_number)
   const scoreables = useMemo(() => {
     const list = []
     entries.forEach(entry => {
-      if (tab === 'cheerdance' && entry.competition_type === 'cheerdance') {
-        list.push({
-          id: entry.id,
-          candidateId: null,
-          label: entry.team?.name || 'Unknown Team',
-          logoUrl: entry.team?.logo_url,
-          type: 'cheerdance'
-        })
-      } else if (entry.competition_type === 'pageant') {
+      if (entry.competition_type === 'pageant') {
         entry.candidates?.forEach(c => {
-          if (c.category === tab) {
+          if (c.category === 'binibini') {
             list.push({
               id: entry.id,
               candidateId: c.id,
@@ -193,18 +178,14 @@ export default function AdminMonitor() {
       }
     })
 
-    if (tab !== 'cheerdance') {
-      list.sort((a, b) => {
-        const numA = a.number != null ? a.number : 99999
-        const numB = b.number != null ? b.number : 99999
-        if (numA !== numB) return numA - numB
-        return (a.label || '').localeCompare(b.label || '')
-      })
-    } else {
-      list.sort((a, b) => (a.label || '').localeCompare(b.label || ''))
-    }
+    list.sort((a, b) => {
+      const numA = a.number != null ? a.number : 99999
+      const numB = b.number != null ? b.number : 99999
+      if (numA !== numB) return numA - numB
+      return (a.label || '').localeCompare(b.label || '')
+    })
     return list
-  }, [entries, tab])
+  }, [entries])
 
   // Helper: Get status of a judge for a specific pageant stage
   const getJudgeStageStatus = useCallback((judgeId, candidateId, stageId) => {
@@ -352,13 +333,13 @@ export default function AdminMonitor() {
         </div>
       </div>
 
-      {/* ── Competition Selection Bar ──────────────────────── */}
+      {/* ── Binibining Palayan Stage Selector & Legend Bar ──────────────────────── */}
       <div style={{
         background: 'var(--bg-surface)',
         padding: '12px 16px',
         borderRadius: 14,
         border: '1px solid var(--border)',
-        marginBottom: 16,
+        marginBottom: 20,
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
         display: 'flex',
         alignItems: 'center',
@@ -366,47 +347,98 @@ export default function AdminMonitor() {
         flexWrap: 'wrap',
         gap: 12
       }}>
-        <div style={{
-          display: 'inline-flex',
-          background: 'var(--bg-elevated)',
-          padding: 4,
-          borderRadius: 10,
-          border: '1px solid var(--border)',
-          gap: 4
-        }}>
-          {TABS.map(t => {
-            const Icon = t.icon
-            const isActive = tab === t.key
-            return (
-              <button
-                key={t.key}
-                type="button"
-                onClick={() => {
-                  setTab(t.key)
-                  setSelectedStageId('all')
-                }}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '8px 18px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: isActive
-                    ? (t.key === 'binibini' ? '#d97706' : 'var(--pageant-primary)')
-                    : 'transparent',
-                  color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
-                  fontWeight: isActive ? 800 : 600,
-                  fontSize: '0.88rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <Icon size={16} strokeWidth={isActive ? 2.2 : 1.8} />
-                {t.label}
-              </button>
-            )
-          })}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: '0.8rem',
+            fontWeight: 800,
+            color: 'var(--pageant-primary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            marginRight: 4
+          }}>
+            <Crown size={15} color="var(--pageant-primary)" />
+            <span>Evaluation Stage:</span>
+          </div>
+
+          <div style={{
+            display: 'inline-flex',
+            background: 'var(--bg-elevated)',
+            padding: 4,
+            borderRadius: 10,
+            border: '1px solid var(--border)',
+            gap: 4,
+            flexWrap: 'wrap'
+          }}>
+            <button
+              type="button"
+              onClick={() => setSelectedStageId('all')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '7px 16px',
+                borderRadius: 8,
+                border: 'none',
+                background: selectedStageId === 'all' ? 'var(--pageant-primary)' : 'transparent',
+                color: selectedStageId === 'all' ? '#FFFFFF' : 'var(--text-secondary)',
+                fontWeight: selectedStageId === 'all' ? 800 : 600,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>All Stages (Overview)</span>
+            </button>
+
+            {pageantStages.map(stage => {
+              const isSelected = selectedStageId === stage.id
+              let stageLockedPairs = 0
+              scoreables.forEach(s => {
+                activeJudges.forEach(j => {
+                  if (getJudgeStageStatus(j.id, s.candidateId, stage.id) === 'locked') {
+                    stageLockedPairs++
+                  }
+                })
+              })
+
+              return (
+                <button
+                  key={stage.id}
+                  type="button"
+                  onClick={() => setSelectedStageId(stage.id)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '7px 16px',
+                    borderRadius: 8,
+                    border: 'none',
+                    background: isSelected ? 'var(--pageant-primary)' : 'transparent',
+                    color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
+                    fontWeight: isSelected ? 800 : 600,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span>{stage.label}</span>
+                  <span style={{
+                    fontSize: '0.7rem',
+                    padding: '1px 6px',
+                    borderRadius: 10,
+                    background: isSelected ? 'rgba(255,255,255,0.25)' : 'var(--bg-surface)',
+                    color: isSelected ? '#FFFFFF' : 'var(--text-muted)',
+                    fontWeight: 800
+                  }}>
+                    {stageLockedPairs}/{totalCells}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         {/* Legend */}
@@ -423,130 +455,6 @@ export default function AdminMonitor() {
           </span>
         </div>
       </div>
-
-      {/* ── PAGEANT STAGE SELECTOR BAR (For Ginoo & Binibini) ──────────────── */}
-      {isPageant && pageantStages.length > 0 && (
-        <div style={{
-          background: isGinoo ? 'rgba(46,125,50,0.04)' : 'rgba(217,119,6,0.04)',
-          border: `1px solid ${isGinoo ? 'rgba(46,125,50,0.18)' : 'rgba(217,119,6,0.18)'}`,
-          borderRadius: 14,
-          padding: '10px 14px',
-          marginBottom: 20,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          flexWrap: 'wrap'
-        }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: '0.78rem',
-            fontWeight: 800,
-            color: isGinoo ? 'var(--pageant-primary)' : '#b45309',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            marginRight: 4
-          }}>
-            <Layers size={14} />
-            <span>Stage Filter:</span>
-          </div>
-
-          {/* All Stages Option */}
-          <button
-            type="button"
-            onClick={() => setSelectedStageId('all')}
-            style={{
-              padding: '6px 14px',
-              borderRadius: 8,
-              fontSize: '0.82rem',
-              fontWeight: selectedStageId === 'all' ? 800 : 600,
-              border: selectedStageId === 'all'
-                ? `1.5px solid ${isGinoo ? 'var(--pageant-primary)' : '#d97706'}`
-                : '1px solid var(--border)',
-              background: selectedStageId === 'all'
-                ? (isGinoo ? '#f0fdf4' : '#fffbeb')
-                : 'var(--bg-surface)',
-              color: selectedStageId === 'all'
-                ? (isGinoo ? '#166534' : '#92400e')
-                : 'var(--text-secondary)',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              transition: 'all 0.15s ease'
-            }}
-          >
-            <span>All Stages</span>
-            <span style={{
-              fontSize: '0.7rem',
-              padding: '1px 6px',
-              borderRadius: 10,
-              background: selectedStageId === 'all' ? (isGinoo ? '#bbf7d0' : '#fde68a') : 'var(--bg-elevated)',
-              fontWeight: 800
-            }}>
-              Overview
-            </span>
-          </button>
-
-          {/* Individual Stages */}
-          {pageantStages.map((stage) => {
-            const isSelected = selectedStageId === stage.id
-
-            // Calculate how many judge-candidate pairs locked this stage
-            let stageLockedPairs = 0
-            scoreables.forEach(s => {
-              activeJudges.forEach(j => {
-                if (getJudgeStageStatus(j.id, s.candidateId, stage.id) === 'locked') {
-                  stageLockedPairs++
-                }
-              })
-            })
-
-            return (
-              <button
-                key={stage.id}
-                type="button"
-                onClick={() => setSelectedStageId(stage.id)}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: 8,
-                  fontSize: '0.82rem',
-                  fontWeight: isSelected ? 800 : 600,
-                  border: isSelected
-                    ? `1.5px solid ${isGinoo ? 'var(--pageant-primary)' : '#d97706'}`
-                    : '1px solid var(--border)',
-                  background: isSelected
-                    ? (isGinoo ? '#f0fdf4' : '#fffbeb')
-                    : 'var(--bg-surface)',
-                  color: isSelected
-                    ? (isGinoo ? '#166534' : '#92400e')
-                    : 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <span>{stage.label}</span>
-                <span style={{
-                  fontSize: '0.7rem',
-                  padding: '1px 6px',
-                  borderRadius: 10,
-                  background: isSelected
-                    ? (isGinoo ? '#bbf7d0' : '#fde68a')
-                    : 'var(--bg-elevated)',
-                  fontWeight: 800,
-                  color: isSelected ? (isGinoo ? '#14532d' : '#78350f') : 'var(--text-muted)'
-                }}>
-                  {stageLockedPairs}/{totalCells}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      )}
 
       {/* ── Progress Bar ─────────────────────────────────────── */}
       {!loading && totalCells > 0 && (

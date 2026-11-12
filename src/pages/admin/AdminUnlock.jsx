@@ -66,49 +66,43 @@ export default function AdminUnlock() {
       }).eq('id', req.id)
 
       if (status === 'approved') {
-        let error
-        if (req.candidate) {
-          const stageCritIds = req.stage_id ? getStageCritIds(req.stage_id) : []
+        let unlockSuccess = false
+        const stageCritIds = req.stage_id ? getStageCritIds(req.stage_id) : []
 
+        // Try RPC first
+        try {
           if (stageCritIds.length > 0) {
-            ;({ error } = await supabase.rpc('admin_unlock_stage_scores', {
+            const { error: rpcErr } = await supabase.rpc('admin_unlock_stage_scores', {
               p_judge_id:      req.judge?.id,
               p_candidate_id:  req.candidate?.id,
               p_criterion_ids: stageCritIds,
-            }))
-          } else {
-            const { data: lockedScores } = await supabase
-              .from('scores')
-              .select('criterion_id')
-              .eq('judge_id', req.judge?.id)
-              .eq('candidate_id', req.candidate?.id)
-              .eq('is_locked', true)
-
-            const lockedCritIds = (lockedScores || []).map(s => String(s.criterion_id))
-            if (lockedCritIds.length > 0) {
-              ;({ error } = await supabase.rpc('admin_unlock_stage_scores', {
-                p_judge_id:      req.judge?.id,
-                p_candidate_id:  req.candidate?.id,
-                p_criterion_ids: lockedCritIds,
-              }))
-            } else {
-              ;({ error } = await supabase.rpc('admin_unlock_scores', {
-                p_judge_id:      req.judge?.id,
-                p_candidate_id:  req.candidate?.id,
-                p_team_entry_id: null
-              }))
-            }
+            })
+            if (!rpcErr) unlockSuccess = true
           }
-        } else if (req.team_entry) {
-          ;({ error } = await supabase.rpc('admin_unlock_scores', {
-            p_judge_id:      req.judge?.id,
-            p_team_entry_id: req.team_entry?.id,
-            p_candidate_id:  null
-          }))
+        } catch (_) {}
+
+        // Fallback: update scores table directly
+        if (!unlockSuccess) {
+          let q = supabase
+            .from('scores')
+            .update({ is_locked: false })
+            .eq('judge_id', req.judge?.id)
+
+          if (req.candidate?.id) {
+            q = q.eq('candidate_id', req.candidate.id)
+          } else if (req.team_entry?.id) {
+            q = q.eq('team_entry_id', req.team_entry.id)
+          }
+
+          if (stageCritIds.length > 0) {
+            q = q.in('criterion_id', stageCritIds)
+          }
+
+          const { error: directErr } = await q
+          if (directErr) throw directErr
         }
 
-        if (error) throw error
-        showToast(`Unlocked scores for ${req.judge?.name}`)
+        showToast(`Unlocked scores for ${req.judge?.name || 'Judge'}`)
       } else {
         showToast(`Request denied.`, 'info')
       }
@@ -129,14 +123,14 @@ export default function AdminUnlock() {
       if (parent) stageLabel = ` [${parent.label}]`
     }
     if (req.candidate) {
-      const team = req.candidate.team_entry?.team?.name || '?'
+      const team = req.candidate.team_entry?.team?.name || 'Palayan City'
       const num = req.candidate.candidate_number != null ? ` #${req.candidate.candidate_number}` : ''
-      return `${team} — ${req.candidate.category === 'ginoo' ? 'Ginoo' : 'Binibini'}${num} (${req.candidate.name || 'unnamed'})${stageLabel}`
+      return `Candidate${num} — ${req.candidate.name || 'Candidate'} (${team})${stageLabel}`
     }
     if (req.team_entry) {
-      return `${req.team_entry.team?.name || '?'} — Cheerdance`
+      return `${req.team_entry.team?.name || 'Entry'}`
     }
-    return 'Unknown target'
+    return 'Candidate Score Entry'
   }
 
   return (

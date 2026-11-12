@@ -52,13 +52,13 @@ export default function Login() {
       <div className="login-card">
         <div className="login-logo">
           <div className="login-logo-icon">
-            <img src={ictLogo} alt="ICT Logo" style={{ width: 42, height: 42, objectFit: 'contain', display: 'block' }} />
+            <img src="/palayan.png" alt="Palayan City Logo" style={{ width: 44, height: 44, objectFit: 'contain', display: 'block' }} />
           </div>
-          <span className="login-logo-text">ScoreSystem</span>
+          <span className="login-logo-text">Binibining Palayan</span>
         </div>
 
         <h1 className="login-title">Welcome Back</h1>
-        <p className="login-subtitle">Sign in to access your scoring dashboard</p>
+        <p className="login-subtitle">Sign in to access the official tabulation system</p>
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">

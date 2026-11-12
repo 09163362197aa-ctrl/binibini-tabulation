@@ -157,7 +157,7 @@ export function printCheerdanceTabulation({ teams, criteria, scores, judges, sel
     : 'Official Verification Sheet — All Scoring Judges'
 
   let y = drawHeader(doc, {
-    sysTitle: 'ScoreSystem — Official Tabulation Report',
+    sysTitle: 'Binibining Palayan — Official Tabulation Report',
     title:    'Cheerdance Competition Tabulation Sheet',
     subtitle,
   })
@@ -243,7 +243,7 @@ export function printCheerdanceRankings({ rankedTeams, judges }) {
   const rankLabels = ['CHAMPION', '1ST RUNNER-UP', '2ND RUNNER-UP', '3RD RUNNER-UP']
 
   let y = drawHeader(doc, {
-    sysTitle: 'ScoreSystem — Official Final Rankings Report',
+    sysTitle: 'Binibining Palayan — Official Final Rankings Report',
     title:    'Cheerdance Competition — Official Champion & Winners',
     subtitle: 'Top 4 Final Ranking Standings',
   })
@@ -321,7 +321,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
     : 'Official Verification Sheet — All Scoring Judges'
 
   let y = drawHeader(doc, {
-    sysTitle: 'ScoreSystem — Official Pageant Tabulation Report',
+    sysTitle: 'Binibining Palayan — Official Pageant Tabulation Report',
     title:    `${stage.label} — Tabulation Sheet`,
     subtitle: `Category: ${catLabel}   |   ${judgeNote}`,
   })
@@ -411,7 +411,7 @@ export function printPageantOverallRankings({ category, topCandidates, judges })
   const rankLabels = ['CHAMPION', '1ST RUNNER-UP', '2ND RUNNER-UP', '3RD RUNNER-UP']
 
   let y = drawHeader(doc, {
-    sysTitle: 'ScoreSystem — Official Pageant Final Rankings',
+    sysTitle: 'Binibining Palayan — Official Final Rankings',
     title:    `${divLabel} — Official Champion & Winners Sheet`,
     subtitle: `Combined Total: All Stages, All Judges`,
   })
@@ -495,7 +495,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
     : 'Official Verification Sheet — All Scoring Judges'
 
   let y = drawHeader(doc, {
-    sysTitle: 'ScoreSystem — Official Pageant Tabulation Report',
+    sysTitle: 'Binibining Palayan — Official Pageant Tabulation Report',
     title:    `${divLabel} — Combined Overall Tabulation Sheet`,
     subtitle: `Category: ${catLabel}   |   ${judgeNote}`,
   })

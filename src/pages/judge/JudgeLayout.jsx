@@ -27,9 +27,9 @@ export default function JudgeLayout() {
       <header className="judge-header">
         <div className="judge-header-logo">
           <div className="judge-logo-icon">
-            <img src={ictLogo} alt="ICT Logo" style={{ width: 30, height: 30, objectFit: 'contain', display: 'block' }} />
+            <img src="/palayan.png" alt="Palayan Logo" style={{ width: 32, height: 32, objectFit: 'contain', display: 'block' }} />
           </div>
-          <span className="judge-logo-text">ScoreSystem</span>
+          <span className="judge-logo-text">Binibining Palayan</span>
         </div>
 
         <div className="judge-header-right">

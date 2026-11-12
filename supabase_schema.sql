@@ -92,18 +92,8 @@ create table if not exists public.unlock_requests (
 );
 
 -- ==============================================================================
--- DEFAULT CRITERIA SEED DATA
+-- DEFAULT CRITERIA SEED DATA (Binibining Palayan)
 -- ==============================================================================
-
--- Cheerdance Criteria
-insert into public.criteria (id, key, label, max_score, display_order, parent_id, competition_type)
-values
-  ('execution', 'execution', 'Execution & Technique', 30, 1, null, 'cheerdance'),
-  ('formation', 'formation', 'Formation & Choreography', 25, 2, null, 'cheerdance'),
-  ('crowd', 'crowd', 'Crowd Appeal', 20, 3, null, 'cheerdance'),
-  ('costume', 'costume', 'Costume & Presentation', 15, 4, null, 'cheerdance'),
-  ('difficulty', 'difficulty', 'Difficulty', 10, 5, null, 'cheerdance')
-on conflict (id) do nothing;
 
 -- Pageant Parent Stages
 insert into public.criteria (id, key, label, max_score, display_order, parent_id, competition_type)
@@ -172,3 +162,4 @@ create policy "Allow update to team-photos" on storage.objects
 
 create policy "Allow delete from team-photos" on storage.objects
   for delete using (bucket_id = 'team-photos');
+

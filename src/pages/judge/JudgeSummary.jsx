@@ -41,17 +41,10 @@ export default function JudgeSummary() {
   const [scores, setScores]           = useState([])
   const [unlockReqs, setUnlockReqs]   = useState([])
 
-  // Active Main Comp Tab: 'pageant' or 'cheerdance'
-  const [activeComp, setActiveComp] = useState(
-    searchParams.get('comp') === 'cheerdance' ? 'cheerdance' : 'pageant'
-  )
-
-  // Active Pageant Overview Tab: 'stage_sw', 'stage_tl', 'stage_qa', or 'overall'
+  const activeComp = 'pageant'
   const initialStageTab = searchParams.get('stage') || 'overall'
   const [activePageantTab, setActivePageantTab] = useState(initialStageTab)
-
-  // Division Filter: 'all', 'ginoo', or 'binibini'
-  const [selectedDivision, setSelectedDivision] = useState('all')
+  const selectedDivision = 'binibini'
 
   function showToast(msg, kind = 'success') {
     setToast({ msg, kind })
@@ -110,12 +103,14 @@ export default function JudgeSummary() {
           .flatMap(t => {
             const pageantEntry = t.team_entries?.find(e => e.competition_type === 'pageant')
             if (!pageantEntry) return []
-            return (pageantEntry.candidates || []).map(c => ({
-              ...c,
-              team_id: t.id,
-              team_name: t.name,
-              team_entry_id: pageantEntry.id
-            }))
+            return (pageantEntry.candidates || [])
+              .filter(c => c.category === 'binibini')
+              .map(c => ({
+                ...c,
+                team_id: t.id,
+                team_name: t.name,
+                team_entry_id: pageantEntry.id
+              }))
           })
           .sort((a, b) => {
             const numA = a.candidate_number != null ? a.candidate_number : 99999
@@ -257,85 +252,34 @@ export default function JudgeSummary() {
             type="button"
             className="btn btn-ghost btn-sm"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 8px', marginBottom: 8 }}
-            onClick={() => navigate(activeComp === 'pageant' ? '/judge?comp=pageant' : '/judge?comp=cheerdance')}
+            onClick={() => navigate('/judge')}
           >
             <ArrowLeft size={14} /> Back to Scoring
           </button>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(217,119,6,0.1)', borderRadius: 6, border: '1px solid rgba(217,119,6,0.25)', marginBottom: 8 }}>
+            <Crown size={14} color="#D97706" />
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Binibining Palayan
+            </span>
+          </div>
           <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            {activeComp === 'pageant' ? 'Pageant Scores Summary' : 'Cheerdance Scores Summary'}
+            Score Verification &amp; Summary
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Review your submitted criteria evaluations and locking status
+            Review your submitted evaluations, criteria breakdowns, and certification status
           </p>
         </div>
       </div>
 
-      {/* Main Competition Tabs (if not forced by URL) */}
-      {!searchParams.get('comp') && (
-        <div style={{
-          display: 'inline-flex',
-          background: 'var(--bg-elevated)',
-          padding: 4,
-          borderRadius: 10,
-          border: '1px solid var(--border)',
-          marginBottom: 24,
-          gap: 4
-        }}>
-          <button
-            type="button"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '8px 18px',
-              borderRadius: 8,
-              border: 'none',
-              background: activeComp === 'pageant' ? 'var(--pageant-primary)' : 'transparent',
-              color: activeComp === 'pageant' ? '#FFFFFF' : 'var(--text-secondary)',
-              fontWeight: activeComp === 'pageant' ? 700 : 600,
-              fontSize: '0.88rem',
-              cursor: 'pointer'
-            }}
-            onClick={() => setActiveComp('pageant')}
-          >
-            <Crown size={16} /> Pageant Overview
-          </button>
-          <button
-            type="button"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '8px 18px',
-              borderRadius: 8,
-              border: 'none',
-              background: activeComp === 'cheerdance' ? 'var(--pageant-primary)' : 'transparent',
-              color: activeComp === 'cheerdance' ? '#FFFFFF' : 'var(--text-secondary)',
-              fontWeight: activeComp === 'cheerdance' ? 700 : 600,
-              fontSize: '0.88rem',
-              cursor: 'pointer'
-            }}
-            onClick={() => setActiveComp('cheerdance')}
-          >
-            <Megaphone size={16} /> Cheerdance
-          </button>
-        </div>
-      )}
-
       {/* ───────────────────────────────────────────────────────────── */}
-      {/* 1. PAGEANT OVERVIEW SCREEN                                    */}
+      {/* 1. BINIBINING PALAYAN OVERVIEW SCREEN                         */}
       {/* ───────────────────────────────────────────────────────────── */}
-      {activeComp === 'pageant' && (() => {
-        const displayCandidates = selectedDivision === 'all'
-          ? candidates
-          : candidates.filter(c => c.category === selectedDivision)
-
-        const ginooCount = candidates.filter(c => c.category === 'ginoo').length
-        const binibiniCount = candidates.filter(c => c.category === 'binibini').length
+      {(() => {
+        const displayCandidates = candidates
 
         return (
           <div>
-            {/* Stage Tabs & Division Switcher Toolbar */}
+            {/* Stage Tabs Toolbar */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -348,10 +292,10 @@ export default function JudgeSummary() {
               <div style={{
                 display: 'inline-flex',
                 background: 'var(--bg-elevated)',
-                padding: 3,
-                borderRadius: 8,
+                padding: 4,
+                borderRadius: 10,
                 border: '1px solid var(--border)',
-                gap: 2,
+                gap: 4,
                 flexWrap: 'wrap'
               }}>
                 {parentStages.map(stage => {
@@ -361,14 +305,15 @@ export default function JudgeSummary() {
                       key={stage.id}
                       type="button"
                       style={{
-                        padding: '6px 14px',
-                        borderRadius: 6,
+                        padding: '7px 16px',
+                        borderRadius: 8,
                         border: 'none',
                         background: isActive ? 'var(--pageant-primary)' : 'transparent',
                         color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
-                        fontWeight: isActive ? 700 : 600,
-                        fontSize: '0.82rem',
-                        cursor: 'pointer'
+                        fontWeight: isActive ? 800 : 600,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
                       }}
                       onClick={() => setActivePageantTab(stage.id)}
                     >
@@ -383,14 +328,15 @@ export default function JudgeSummary() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 6,
-                    padding: '6px 16px',
-                    borderRadius: 6,
+                    padding: '7px 18px',
+                    borderRadius: 8,
                     border: 'none',
                     background: activePageantTab === 'overall' ? 'var(--pageant-primary)' : 'transparent',
                     color: activePageantTab === 'overall' ? '#FFFFFF' : 'var(--text-secondary)',
                     fontWeight: activePageantTab === 'overall' ? 800 : 600,
-                    fontSize: '0.82rem',
-                    cursor: 'pointer'
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
                   }}
                   onClick={() => setActivePageantTab('overall')}
                 >
@@ -398,59 +344,9 @@ export default function JudgeSummary() {
                 </button>
               </div>
 
-              {/* Division Filter Pills */}
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                background: 'var(--bg-elevated)',
-                padding: 3,
-                borderRadius: 8,
-                border: '1px solid var(--border)',
-                gap: 2
-              }}>
-                {[
-                  { key: 'all', label: 'All', count: candidates.length, icon: Users },
-                  { key: 'ginoo', label: 'Ginoo', count: ginooCount, icon: Crown },
-                  { key: 'binibini', label: 'Binibini', count: binibiniCount, icon: Sparkles }
-                ].map(d => {
-                  const isSelected = selectedDivision === d.key
-                  const Icon = d.icon
-                  return (
-                    <button
-                      key={d.key}
-                      type="button"
-                      onClick={() => setSelectedDivision(d.key)}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        padding: '5px 12px',
-                        borderRadius: 6,
-                        border: 'none',
-                        background: isSelected ? 'var(--pageant-primary)' : 'transparent',
-                        color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
-                        fontSize: '0.8rem',
-                        fontWeight: isSelected ? 700 : 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <Icon size={13} />
-                      <span>{d.label}</span>
-                      <span style={{
-                        fontSize: '0.7rem',
-                        padding: '1px 5px',
-                        borderRadius: 10,
-                        background: isSelected ? 'rgba(255,255,255,0.25)' : 'var(--bg-surface)',
-                        color: isSelected ? '#FFFFFF' : 'var(--text-muted)',
-                        fontWeight: 800
-                      }}>
-                        {d.count}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
+              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--pageant-primary)', background: 'var(--bg-surface)', padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border)' }}>
+                {candidates.length} Official Candidates
+              </span>
             </div>
 
             {/* ── STAGE SPECIFIC TAB (Sportswear, Talent, Q&A) ────────── */}
@@ -886,208 +782,6 @@ export default function JudgeSummary() {
           })()}
         </div>
       )})()}
-
-      {/* ───────────────────────────────────────────────────────────── */}
-      {/* 2. CHEERDANCE OVERVIEW SCREEN                                 */}
-      {/* ───────────────────────────────────────────────────────────── */}
-      {activeComp === 'cheerdance' && (() => {
-        const cheerTeamsList = teams
-          .filter(t => t.team_entries?.some(e => e.competition_type === 'cheerdance'))
-          .map(t => {
-            const cheerEntry = t.team_entries?.find(e => e.competition_type === 'cheerdance')
-            const entryScores = scores.filter(s => s.team_entry_id === cheerEntry?.id)
-            const isLocked = entryScores.length > 0 && entryScores.every(s => s.is_locked)
-            const hasPending = unlockReqs.some(r => r.team_entry_id === cheerEntry?.id)
-            const reqKey = `${cheerEntry?.id}_cheer`
-
-            let total = 0
-            const rawByCrit = {}
-            cheerCriteria.forEach(crit => {
-              const match = entryScores.find(s => s.criterion_id === crit.id)
-              if (match) {
-                rawByCrit[crit.id] = Number(match.value)
-                total += Number(match.value) || 0
-              } else {
-                rawByCrit[crit.id] = null
-              }
-            })
-
-            const isComplete = cheerCriteria.length > 0 && cheerCriteria.every(k => rawByCrit[k.id] !== null)
-            const score = isComplete ? total : -1
-            return { t, cheerEntry, entryScores, isLocked, hasPending, reqKey, total, rawByCrit, isComplete, score }
-          })
-
-        cheerTeamsList.sort((a, b) => b.score - a.score)
-
-        return (
-          <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
-            <div style={{ padding: '14px 18px', background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-              <div>
-                <h2 style={{ fontSize: '1rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
-                  Cheerdance Evaluation Overview &amp; Standings
-                </h2>
-                <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Ranked by total score per team
-                </p>
-              </div>
-              <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--pageant-primary)', background: 'var(--bg-surface)', padding: '2px 8px', borderRadius: 4, border: '1px solid var(--border)' }}>
-                {cheerTeamsList.length} Teams
-              </span>
-            </div>
-
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
-                    <th style={{
-                      padding: '10px 14px',
-                      minWidth: 180,
-                      fontSize: '0.75rem',
-                      textTransform: 'uppercase',
-                      color: 'var(--text-muted)',
-                      fontWeight: 700,
-                      letterSpacing: '0.04em',
-                      position: 'sticky',
-                      left: 0,
-                      background: 'var(--bg-surface)',
-                      zIndex: 2,
-                      borderRight: '1px solid var(--border)',
-                      borderBottom: '1px solid var(--border)',
-                      boxShadow: '2px 0 6px rgba(0,0,0,0.03)'
-                    }}>
-                      Team
-                    </th>
-                    {cheerCriteria.map(k => (
-                      <th
-                        key={k.id}
-                        style={{
-                          padding: '8px 8px',
-                          minWidth: 110,
-                          fontSize: '0.75rem',
-                          color: 'var(--text-secondary)',
-                          fontWeight: 700,
-                          textAlign: 'center',
-                          lineHeight: 1.25,
-                          verticalAlign: 'middle',
-                          whiteSpace: 'normal',
-                          wordBreak: 'break-word',
-                          borderRight: '1px solid var(--border)',
-                          borderBottom: '1px solid var(--border)'
-                        }}
-                      >
-                        {formatHeaderLabel(k.label)}
-                      </th>
-                    ))}
-                    <th style={{ padding: '8px 10px', minWidth: 90, fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textAlign: 'center', lineHeight: 1.2, verticalAlign: 'middle', whiteSpace: 'normal', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>Total Score</th>
-                    <th style={{ padding: '8px 12px', minWidth: 110, fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textAlign: 'center', lineHeight: 1.2, verticalAlign: 'middle', whiteSpace: 'normal', borderBottom: '1px solid var(--border)' }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cheerTeamsList.map(({ t, cheerEntry, isLocked, hasPending, reqKey, total, rawByCrit, isComplete }) => {
-                    return (
-                      <tr key={t.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                        <td style={{
-                          padding: '12px 16px',
-                          fontWeight: 700,
-                          fontSize: '0.92rem',
-                          color: 'var(--text-primary)',
-                          minWidth: 200,
-                          position: 'sticky',
-                          left: 0,
-                          background: 'var(--bg-surface)',
-                          zIndex: 1,
-                          borderRight: '1px solid var(--border)',
-                          borderBottom: '1px solid var(--border)',
-                          boxShadow: '2px 0 6px rgba(0,0,0,0.03)'
-                        }}>
-                          {t.name}
-                        </td>
-                        {cheerCriteria.map(crit => {
-                          const val = rawByCrit[crit.id]
-                          return (
-                            <td key={crit.id} style={{ padding: '12px 10px', textAlign: 'center', fontWeight: 700, fontSize: '0.9rem', fontVariantNumeric: 'tabular-nums', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-                              {val != null
-                                ? <>{val % 1 === 0 ? val : val.toFixed(2)}<span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: 2 }}>/ {crit.max_score}</span></>
-                                : <span style={{ color: 'var(--text-muted)' }}>—</span>}
-                            </td>
-                          )
-                        })}
-                        <td style={{ padding: '12px 14px', textAlign: 'center', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-                          {isComplete ? (
-                            <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--pageant-primary)', fontVariantNumeric: 'tabular-nums' }}>
-                              {total % 1 === 0 ? total : total.toFixed(2)}
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>Pending</span>
-                          )}
-                        </td>
-                        <td style={{ padding: '12px 14px', textAlign: 'center', borderBottom: '1px solid var(--border)' }}>
-                          {isLocked ? (
-                            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', fontWeight: 800, padding: '2px 7px', borderRadius: 4, background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' }}>
-                                <Lock size={11} strokeWidth={2.5} /> Locked
-                              </span>
-                              <button
-                                type="button"
-                                className="btn btn-xs"
-                                style={{
-                                  fontSize: '0.72rem',
-                                  fontWeight: 700,
-                                  padding: '3px 8px',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: 4,
-                                  background: hasPending ? '#fef3c7' : 'rgba(242, 183, 5, 0.12)',
-                                  color: hasPending ? '#92400e' : '#B45309',
-                                  border: hasPending ? '1px solid #fde68a' : '1px solid rgba(242, 183, 5, 0.35)',
-                                  borderRadius: 5,
-                                  cursor: hasPending ? 'default' : 'pointer'
-                                }}
-                                disabled={requestingKey === reqKey || hasPending}
-                                onClick={() => handleRequestUnlock(null, cheerEntry?.id, null)}
-                              >
-                                <LockOpen size={11} color="#D97706" strokeWidth={2.2} />
-                                {requestingKey === reqKey ? 'Sending…' : hasPending ? 'Unlock Pending' : 'Request Unlock'}
-                              </button>
-                            </div>
-                          ) : hasPending ? (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: '#fef3c7', color: '#854d0e', border: '1px solid #fde047' }}>
-                              <Clock size={11} /> Unlock Pending
-                            </span>
-                          ) : isComplete ? (
-                            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }}>
-                                <Edit3 size={11} /> Draft
-                              </span>
-                              <button
-                                type="button"
-                                className="btn btn-ghost btn-xs"
-                                style={{ fontSize: '0.72rem', padding: '2px 6px' }}
-                                onClick={() => navigate(`/judge/score/cheerdance/${cheerEntry?.id}`)}
-                              >
-                                Edit Score
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              className="btn btn-primary btn-xs"
-                              style={{ fontSize: '0.74rem', padding: '3px 8px', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                              onClick={() => navigate(`/judge/score/cheerdance/${cheerEntry?.id}`)}
-                            >
-                              <span>Score</span> <ArrowRight size={11} />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )
-      })()}
 
       {/* Toast notifications */}
       {toast && (

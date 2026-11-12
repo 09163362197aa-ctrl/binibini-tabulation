@@ -6,8 +6,7 @@ import {
   Gavel,
   Lock,
   Activity,
-  Sparkles,
-  Megaphone,
+  Crown,
   Radio,
   LockOpen,
   Trophy,
@@ -16,18 +15,18 @@ import {
 import './AdminDashboard.css'
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ teams: 0, judges: 0, locked: 0, total: 0 })
+  const [stats, setStats] = useState({ candidates: 0, judges: 0, locked: 0, total: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
-      const [{ count: teams }, { count: judges }, { count: locked }, { count: total }] = await Promise.all([
-        supabase.from('teams').select('*', { count: 'exact', head: true }),
+      const [{ count: candidates }, { count: judges }, { count: locked }, { count: total }] = await Promise.all([
+        supabase.from('candidates').select('*', { count: 'exact', head: true }),
         supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'judge'),
         supabase.from('scores').select('*', { count: 'exact', head: true }).eq('is_locked', true),
         supabase.from('scores').select('*', { count: 'exact', head: true }),
       ])
-      setStats({ teams: teams ?? 0, judges: judges ?? 0, locked: locked ?? 0, total: total ?? 0 })
+      setStats({ candidates: candidates ?? 0, judges: judges ?? 0, locked: locked ?? 0, total: total ?? 0 })
       setLoading(false)
     }
     load()
@@ -40,24 +39,21 @@ export default function AdminDashboard() {
       <div className="page-header" style={{ marginBottom: 24 }}>
         <div className="page-header-left">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(46,125,50,0.08)', borderRadius: 6, border: '1px solid rgba(46,125,50,0.2)', marginBottom: 8 }}>
-            <Activity size={13} color="var(--pageant-primary)" />
+            <Crown size={13} color="var(--pageant-primary)" />
             <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--pageant-primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              System Command Center
+              Binibining Palayan Command Center
             </span>
           </div>
           <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Administrator Dashboard
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Real-time scoring status and competition management
+            Real-time scoring status and competition management for Binibining Palayan
           </p>
         </div>
         <div className="dashboard-competition-badges" style={{ display: 'flex', gap: 8 }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'var(--bg-elevated)', borderRadius: 8, border: '1px solid var(--border)', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-            <Sparkles size={14} color="#D97706" /> Pageant Active
-          </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'var(--bg-elevated)', borderRadius: 8, border: '1px solid var(--border)', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-            <Megaphone size={14} color="var(--pageant-primary)" /> Cheerdance Active
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'rgba(46,125,50,0.1)', borderRadius: 8, border: '1px solid rgba(46,125,50,0.25)', fontSize: '0.8rem', fontWeight: 700, color: 'var(--pageant-primary)' }}>
+            <Crown size={14} color="var(--pageant-primary)" /> Binibining Palayan
           </span>
         </div>
       </div>
@@ -68,7 +64,7 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
-          <StatCard icon={Users2} label="Teams Registered" value={stats.teams} iconColor="var(--pageant-primary)" />
+          <StatCard icon={Users2} label="Official Candidates" value={stats.candidates} iconColor="var(--pageant-primary)" />
           <StatCard icon={Gavel} label="Board of Judges" value={stats.judges} iconColor="#D97706" />
           <StatCard icon={Lock} label="Locked Scores" value={stats.locked} iconColor="var(--pageant-primary)" />
           <StatCard
@@ -107,7 +103,7 @@ export default function AdminDashboard() {
           Management Modules
         </h3>
         <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14 }}>
-          <QuickLink to="/admin/teams"   icon={Users2}   title="Teams & Candidates" desc="Register teams and manage candidate entries" />
+          <QuickLink to="/admin/teams"   icon={Users2}   title="Candidate Roster"   desc="Register candidates, photos, and numbers" />
           <QuickLink to="/admin/judges"  icon={Gavel}    title="Judges Management"  desc="Setup judge accounts and credentials" />
           <QuickLink to="/admin/monitor" icon={Radio}    title="Judging Monitor"    desc="Real-time judge scoring activity and matrix" />
           <QuickLink to="/admin/unlock"  icon={LockOpen} title="Unlock Requests"    desc="Review and process score unlock requests" />

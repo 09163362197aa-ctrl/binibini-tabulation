@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import {
   Gavel,
   UserPlus,
   Edit3,
   Trash2,
-  Megaphone,
   Crown,
   Sparkles,
   AlertTriangle,
@@ -15,6 +15,44 @@ import {
 } from 'lucide-react'
 
 const EDGE_FN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-judge`
+
+function getTempAuthClient() {
+  return createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false }
+  })
+}
+
+async function createJudgeAccount({ name, username, password }) {
+  try {
+    const res = await callEdge('create', { name, username, password })
+    if (res?.id) return res.id
+  } catch (edgeErr) {
+    console.warn('Edge function unavailable, using direct client auth fallback:', edgeErr.message)
+  }
+
+  // Fallback: direct sign up without destroying admin session
+  const email = `${username.toLowerCase()}@scoresystem.com`
+  const tempClient = getTempAuthClient()
+  const { data, error } = await tempClient.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { name, username }
+    }
+  })
+  if (error) throw error
+  if (!data?.user?.id) throw new Error('Could not create user account.')
+
+  const { error: profileErr } = await supabase.from('profiles').upsert({
+    id: data.user.id,
+    name,
+    username,
+    role: 'judge',
+    allowed_competitions: ['pageant']
+  })
+  if (profileErr) throw profileErr
+  return data.user.id
+}
 
 async function callEdge(action, payload) {
   const { data: { session } } = await supabase.auth.getSession()
@@ -37,7 +75,7 @@ export default function AdminJudges() {
   const [loading, setLoading]           = useState(true)
   const [showModal, setShowModal]       = useState(false)
   const [editingJudge, setEditingJudge] = useState(null)
-  const [form, setForm]                 = useState({ name: '', username: '', password: '', allowed_competitions: ['cheerdance', 'pageant'] })
+  const [form, setForm]                 = useState({ name: '', username: '', password: '', allowed_competitions: ['pageant'] })
   const [busy, setBusy]                 = useState(false)
   const [toast, setToast]               = useState(null)
   const [deleting, setDeleting]         = useState(null)
@@ -59,36 +97,22 @@ export default function AdminJudges() {
     setTimeout(() => setToast(null), 3200)
   }
 
-  function toggleComp(comp) {
-    setForm(f => {
-      const current = f.allowed_competitions || []
-      const next = current.includes(comp)
-        ? current.filter(c => c !== comp)
-        : [...current, comp]
-      return { ...f, allowed_competitions: next }
-    })
-  }
-
   // ── CREATE ───────────────────────────────────────────────────────────────────
   async function handleAdd(e) {
     e.preventDefault()
-    if (!form.allowed_competitions || form.allowed_competitions.length === 0) {
-      showToast('Select at least one competition for the judge.', 'error')
-      return
-    }
     setBusy(true)
     const username = form.username.trim().toLowerCase().replace(/\s+/g, '')
     try {
-      const res = await callEdge('create', { name: form.name.trim(), username, password: form.password })
-      if (res?.id) {
+      const judgeId = await createJudgeAccount({ name: form.name.trim(), username, password: form.password })
+      if (judgeId) {
         await supabase
           .from('profiles')
-          .update({ allowed_competitions: form.allowed_competitions })
-          .eq('id', res.id)
+          .update({ allowed_competitions: ['pageant'] })
+          .eq('id', judgeId)
       }
       showToast(`Judge "${form.name}" created!`)
       setShowModal(false)
-      setForm({ name: '', username: '', password: '', allowed_competitions: ['cheerdance', 'pageant'] })
+      setForm({ name: '', username: '', password: '', allowed_competitions: ['pageant'] })
       load()
     } catch (err) {
       showToast(err.message || 'Failed to create judge.', 'error')
@@ -100,22 +124,23 @@ export default function AdminJudges() {
   // ── EDIT ─────────────────────────────────────────────────────────────────────
   async function handleEdit(e) {
     e.preventDefault()
-    if (!form.allowed_competitions || form.allowed_competitions.length === 0) {
-      showToast('Select at least one competition for the judge.', 'error')
-      return
-    }
     setBusy(true)
     const username = form.username.trim().toLowerCase().replace(/\s+/g, '')
     try {
-      await callEdge('update', {
-        judgeId:  editingJudge.id,
-        name:     form.name.trim(),
-        username,
-        password: form.password || undefined,
-      })
+      try {
+        await callEdge('update', {
+          judgeId:  editingJudge.id,
+          name:     form.name.trim(),
+          username,
+          password: form.password || undefined,
+        })
+      } catch (edgeErr) {
+        console.warn('Edge function update failed, updating profile directly:', edgeErr.message)
+      }
+
       await supabase
         .from('profiles')
-        .update({ allowed_competitions: form.allowed_competitions })
+        .update({ name: form.name.trim(), username, allowed_competitions: ['pageant'] })
         .eq('id', editingJudge.id)
 
       showToast(`Judge "${form.name}" updated!`)
@@ -132,7 +157,11 @@ export default function AdminJudges() {
   async function handleDelete() {
     setBusy(true)
     try {
-      await callEdge('delete', { judgeId: deleting.id })
+      try {
+        await callEdge('delete', { judgeId: deleting.id })
+      } catch (edgeErr) {
+        await supabase.from('profiles').delete().eq('id', deleting.id)
+      }
       showToast(`Judge "${deleting.name}" removed.`)
       setDeleting(null)
       load()
@@ -153,7 +182,7 @@ export default function AdminJudges() {
       name: judge.name || '',
       username: judge.username || '',
       password: '',
-      allowed_competitions: judge.allowed_competitions || ['cheerdance', 'pageant']
+      allowed_competitions: ['pageant']
     })
   }
 
@@ -185,7 +214,7 @@ export default function AdminJudges() {
           className="btn btn-gold btn-sm"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8 }}
           onClick={() => {
-            setForm({ name: '', username: '', password: '', allowed_competitions: ['cheerdance', 'pageant'] })
+            setForm({ name: '', username: '', password: '', allowed_competitions: ['pageant'] })
             setShowModal(true)
           }}
         >
@@ -204,13 +233,13 @@ export default function AdminJudges() {
           </div>
           <h3 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700 }}>No judges registered yet</h3>
           <p style={{ margin: '0 0 16px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-            Create judge accounts so they can sign in and score competitions.
+            Create judge accounts so they can sign in and score Binibining Palayan.
           </p>
           <button
             type="button"
             className="btn btn-primary btn-sm"
             onClick={() => {
-              setForm({ name: '', username: '', password: '', allowed_competitions: ['cheerdance', 'pageant'] })
+              setForm({ name: '', username: '', password: '', allowed_competitions: ['pageant'] })
               setShowModal(true)
             }}
           >
@@ -225,14 +254,13 @@ export default function AdminJudges() {
                 <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
                   <th style={{ padding: '12px 18px', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700 }}>Judge</th>
                   <th style={{ padding: '12px 18px', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700 }}>Username</th>
-                  <th style={{ padding: '12px 18px', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700 }}>Assigned Competitions</th>
+                  <th style={{ padding: '12px 18px', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700 }}>Assigned Event</th>
                   <th style={{ padding: '12px 18px', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700 }}>Date Created</th>
                   <th style={{ padding: '12px 18px', color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {judges.map(j => {
-                  const comps = j.allowed_competitions || ['cheerdance', 'pageant']
                   return (
                     <tr key={j.id} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '12px 18px' }}>
@@ -255,18 +283,9 @@ export default function AdminJudges() {
                         {j.username ? `@${j.username}` : <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>none</span>}
                       </td>
                       <td style={{ padding: '12px 18px' }}>
-                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                          {comps.includes('cheerdance') && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: 'rgba(46,125,50,0.1)', color: 'var(--pageant-primary)', border: '1px solid var(--border)' }}>
-                              <Megaphone size={11} /> Cheerdance
-                            </span>
-                          )}
-                          {comps.includes('pageant') && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: 'rgba(46,125,50,0.1)', color: 'var(--pageant-primary)', border: '1px solid var(--border)' }}>
-                              <Crown size={11} /> Pageant
-                            </span>
-                          )}
-                        </div>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', fontWeight: 700, padding: '3px 8px', borderRadius: 4, background: 'rgba(46,125,50,0.1)', color: 'var(--pageant-primary)', border: '1px solid var(--border)' }}>
+                          <Crown size={12} /> Binibining Palayan
+                        </span>
                       </td>
                       <td style={{ padding: '12px 18px', color: 'var(--text-muted)', fontSize: '0.84rem' }}>
                         {new Date(j.created_at).toLocaleDateString()}
@@ -311,7 +330,7 @@ export default function AdminJudges() {
               <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>Add Board Judge</h2>
             </div>
             <p style={{ marginBottom: 20, fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-              Create a scoring account for a judge. Provide the credentials to the judge on event day.
+              Create a scoring account for Binibining Palayan. Provide credentials to the judge on event day.
             </p>
             <form onSubmit={handleAdd}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -332,29 +351,6 @@ export default function AdminJudges() {
                   <input type="password" className="form-input" placeholder="Min. 6 characters"
                     value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                     required minLength={6} disabled={busy} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.8rem', fontWeight: 700 }}>Assigned Competitions</label>
-                  <div style={{ display: 'flex', gap: 18, marginTop: 4 }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: '0.86rem', fontWeight: 600 }}>
-                      <input
-                        type="checkbox"
-                        checked={(form.allowed_competitions || []).includes('cheerdance')}
-                        onChange={() => toggleComp('cheerdance')}
-                        disabled={busy}
-                      />
-                      Cheerdance
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: '0.86rem', fontWeight: 600 }}>
-                      <input
-                        type="checkbox"
-                        checked={(form.allowed_competitions || []).includes('pageant')}
-                        onChange={() => toggleComp('pageant')}
-                        disabled={busy}
-                      />
-                      Pageant
-                    </label>
-                  </div>
                 </div>
               </div>
               <div className="modal-actions" style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
@@ -379,7 +375,7 @@ export default function AdminJudges() {
               <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>Edit Judge</h2>
             </div>
             <p style={{ marginBottom: 20, fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-              Update credentials or competition assignments for {editingJudge.name}.
+              Update credentials for {editingJudge.name}.
             </p>
             <form onSubmit={handleEdit}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -400,29 +396,6 @@ export default function AdminJudges() {
                   <input type="password" className="form-input" placeholder="Leave blank to keep existing password"
                     value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
                     minLength={6} disabled={busy} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.8rem', fontWeight: 700 }}>Assigned Competitions</label>
-                  <div style={{ display: 'flex', gap: 18, marginTop: 4 }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: '0.86rem', fontWeight: 600 }}>
-                      <input
-                        type="checkbox"
-                        checked={(form.allowed_competitions || []).includes('cheerdance')}
-                        onChange={() => toggleComp('cheerdance')}
-                        disabled={busy}
-                      />
-                      Cheerdance
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: '0.86rem', fontWeight: 600 }}>
-                      <input
-                        type="checkbox"
-                        checked={(form.allowed_competitions || []).includes('pageant')}
-                        onChange={() => toggleComp('pageant')}
-                        disabled={busy}
-                      />
-                      Pageant
-                    </label>
-                  </div>
                 </div>
               </div>
               <div className="modal-actions" style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>

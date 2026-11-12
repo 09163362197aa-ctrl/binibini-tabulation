@@ -31,7 +31,7 @@ export default function AdminResults() {
   const [teamsData, setTeamsData]     = useState([])
   const [candidatesData, setCandidatesData] = useState([])
   const [loading, setLoading]         = useState(true)
-  const [tab, setTab]                 = useState('cheerdance')
+  const tab                           = 'binibini'
 
   // Report Controls State
   const [selectedJudgeId, setSelectedJudgeId]   = useState('all')
@@ -431,69 +431,6 @@ export default function AdminResults() {
         </div>
       </div>
 
-      {/* ── Main Competition Tabs (Sticky Floating Bar) ──────────────────────── */}
-      <div style={{
-        position: 'sticky',
-        top: -40,
-        zIndex: 100,
-        background: 'rgba(250, 247, 239, 0.95)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        padding: '12px 0 16px',
-        marginBottom: 24,
-        borderBottom: '1px solid var(--border)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 12
-      }}>
-        <div style={{
-          display: 'inline-flex',
-          background: 'var(--bg-elevated)',
-          padding: 4,
-          borderRadius: 10,
-          border: '1px solid var(--border)',
-          gap: 4,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-        }}>
-          {[
-            { key: 'cheerdance', label: 'Cheerdance', icon: Megaphone },
-            { key: 'ginoo',      label: 'Ginoo Division', icon: Crown },
-            { key: 'binibini',   label: 'Binibini Division', icon: Sparkles },
-          ].map(t => {
-            const Icon = t.icon
-            const isActive = tab === t.key
-            return (
-              <button
-                key={t.key}
-                type="button"
-                onClick={() => {
-                  setTab(t.key)
-                }}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '8px 18px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: isActive ? 'var(--pageant-primary)' : 'transparent',
-                  color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
-                  fontWeight: isActive ? 700 : 600,
-                  fontSize: '0.88rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <Icon size={16} strokeWidth={isActive ? 2.2 : 1.8} />
-                {t.label}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
       {/* ── Official Reports & Verification Toolbar ─────────────── */}
       <div className="card" style={{
         padding: 0,
@@ -520,230 +457,134 @@ export default function AdminResults() {
               Official Print &amp; PDF Report Generation
             </span>
           </div>
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '3px 10px',
+            borderRadius: 6,
+            background: 'rgba(217,119,6,0.12)',
+            color: '#b45309',
+            border: '1px solid rgba(217,119,6,0.25)',
+            fontSize: '0.78rem',
+            fontWeight: 800
+          }}>
+            <Crown size={13} /> Binibining Palayan
+          </span>
         </div>
 
-        {/* Toolbar Body — Cheerdance */}
-        {tab === 'cheerdance' && (
-          <div style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-            {/* Judge Filter */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Filter size={14} color="var(--text-muted)" />
-              <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)' }}>Judge Verification:</span>
-              <select
-                value={selectedJudgeId}
-                onChange={e => setSelectedJudgeId(e.target.value)}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 6,
-                  border: '1px solid var(--border)',
-                  background: 'var(--bg-elevated)',
-                  fontSize: '0.84rem',
-                  fontWeight: 600,
-                  color: 'var(--text-primary)',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="all">All Scoring Judges (Official Sheet)</option>
-                {cheerJudges.map(j => (
-                  <option key={j.id} value={j.id}>{j.name} (@{j.username})</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Action Buttons */}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                className="btn btn-sm"
-                onClick={handleGenerateCheerdanceTabulation}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text-primary)',
-                  fontWeight: 700,
-                  fontSize: '0.82rem',
-                  padding: '7px 14px',
-                  borderRadius: 6
-                }}
-              >
-                <FileSpreadsheet size={14} color="#D97706" />
-                Tabulation Sheet (PDF)
-              </button>
-              <button
-                type="button"
-                className="btn btn-gold btn-sm"
-                onClick={handleGenerateCheerdanceRankings}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  fontSize: '0.82rem',
-                  padding: '7px 14px',
-                  borderRadius: 6
-                }}
-              >
-                <Trophy size={14} color="#78350F" />
-                Champion Rankings (PDF)
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Toolbar Body — Pageant (Ginoo & Binibini) */}
-        {(tab === 'ginoo' || tab === 'binibini') && (
-          <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {/* Stage Tabulation Controls */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: 12,
-              paddingBottom: 14,
-              borderBottom: '1px solid var(--border)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                {/* Active Division Indicator */}
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '5px 12px',
-                  borderRadius: 6,
-                  background: tab === 'ginoo' ? 'rgba(46,125,50,0.12)' : 'rgba(217,119,6,0.12)',
-                  color: tab === 'ginoo' ? 'var(--pageant-primary)' : '#b45309',
-                  border: `1px solid ${tab === 'ginoo' ? 'rgba(46,125,50,0.25)' : 'rgba(217,119,6,0.25)'}`,
-                  fontSize: '0.82rem',
-                  fontWeight: 800
-                }}>
-                  {tab === 'ginoo' ? <Crown size={14} /> : <Sparkles size={14} />}
-                  <span>{tab === 'ginoo' ? 'Ginoo Division' : 'Binibini Division'}</span>
-                </div>
-
-                {/* Stage Selector */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Layers size={14} color="var(--text-muted)" />
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Stage:</span>
-                  <select
-                    value={selectedStageId}
-                    onChange={e => setSelectedStageId(e.target.value)}
-                    style={{
-                      padding: '5px 10px',
-                      borderRadius: 6,
-                      border: '1px solid var(--border)',
-                      background: 'var(--bg-elevated)',
-                      fontSize: '0.84rem',
-                      fontWeight: 600,
-                      color: 'var(--text-primary)'
-                    }}
-                  >
-                    <option value="overall">All Stages Combined (Overall)</option>
-                    {pageantParents.map(p => (
-                      <option key={p.id} value={p.id}>{p.label} Stage</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Judge Filter */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Users size={14} color="var(--text-muted)" />
-                  <select
-                    value={selectedJudgeId}
-                    onChange={e => setSelectedJudgeId(e.target.value)}
-                    style={{
-                      padding: '5px 10px',
-                      borderRadius: 6,
-                      border: '1px solid var(--border)',
-                      background: 'var(--bg-elevated)',
-                      fontSize: '0.84rem',
-                      fontWeight: 600,
-                      color: 'var(--text-primary)'
-                    }}
-                  >
-                    <option value="all">All Scoring Judges</option>
-                    {pageantJudges.map(j => (
-                      <option key={j.id} value={j.id}>{j.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="btn btn-sm"
-                onClick={handleGeneratePageantStageTabulation}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text-primary)',
-                  fontWeight: 700,
-                  fontSize: '0.82rem',
-                  padding: '6px 14px',
-                  borderRadius: 6
-                }}
-              >
-                <FileSpreadsheet size={14} color="#D97706" />
-                {selectedStageId === 'overall'
-                  ? `Print ${tab === 'ginoo' ? 'Ginoo' : 'Binibini'} Overall Tabulation (PDF)`
-                  : `Print ${tab === 'ginoo' ? 'Ginoo' : 'Binibini'} Stage Tabulation (PDF)`
-                }
-              </button>
-            </div>
-
-            {/* Overall Final Standings Reports */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+        {/* Toolbar Body */}
+        <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* Stage Tabulation Controls */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 12,
+            paddingBottom: 14,
+            borderBottom: '1px solid var(--border)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              {/* Stage Selector */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Award size={14} color="#D97706" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                  Overall Championship Rankings (Top 4 PDF):
-                </span>
+                <Layers size={14} color="var(--text-muted)" />
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Stage:</span>
+                <select
+                  value={selectedStageId}
+                  onChange={e => setSelectedStageId(e.target.value)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-elevated)',
+                    fontSize: '0.84rem',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)'
+                  }}
+                >
+                  <option value="overall">All Stages Combined (Overall)</option>
+                  {pageantParents.map(p => (
+                    <option key={p.id} value={p.id}>{p.label} Stage</option>
+                  ))}
+                </select>
               </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {tab === 'ginoo' ? (
-                  <button
-                    type="button"
-                    className="btn btn-gold btn-sm"
-                    onClick={handleGenerateGinooRankings}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      fontSize: '0.82rem',
-                      padding: '7px 14px',
-                      borderRadius: 6
-                    }}
-                  >
-                    <Crown size={14} color="#78350F" />
-                    Ginoo Official Rankings (Top 4 PDF)
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn btn-gold btn-sm"
-                    onClick={handleGenerateBinibiniRankings}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      fontSize: '0.82rem',
-                      padding: '7px 14px',
-                      borderRadius: 6
-                    }}
-                  >
-                    <Sparkles size={14} color="#78350F" />
-                    Binibini Official Rankings (Top 4 PDF)
-                  </button>
-                )}
+
+              {/* Judge Filter */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Users size={14} color="var(--text-muted)" />
+                <select
+                  value={selectedJudgeId}
+                  onChange={e => setSelectedJudgeId(e.target.value)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-elevated)',
+                    fontSize: '0.84rem',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)'
+                  }}
+                >
+                  <option value="all">All Scoring Judges</option>
+                  {pageantJudges.map(j => (
+                    <option key={j.id} value={j.id}>{j.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
+
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={handleGeneratePageantStageTabulation}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-primary)',
+                fontWeight: 700,
+                fontSize: '0.84rem',
+                padding: '7px 16px',
+                borderRadius: 6
+              }}
+            >
+              <FileSpreadsheet size={15} color="#D97706" />
+              {selectedStageId === 'overall'
+                ? `Print Official Overall Tabulation (PDF)`
+                : `Print Stage Tabulation Sheet (PDF)`
+              }
+            </button>
           </div>
-        )}
+
+          {/* Overall Final Standings Reports */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Award size={15} color="#D97706" />
+              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                Championship Rankings:
+              </span>
+            </div>
+            <button
+              type="button"
+              className="btn btn-gold btn-sm"
+              onClick={handleGenerateBinibiniRankings}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: '0.84rem',
+                padding: '8px 18px',
+                borderRadius: 6
+              }}
+            >
+              <Crown size={15} color="#78350F" />
+              Binibining Palayan Official Rankings (PDF)
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* ── Main Data View ────────────────────────────────────── */}
@@ -751,41 +592,14 @@ export default function AdminResults() {
         <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}><div className="spinner" /></div>
       ) : (
         <div className="print-area">
-          {/* CHEERDANCE */}
+          <StageAwardsSection awards={results.pageant.binibiniAwards} />
           <ResultSection
-            show={tab === 'cheerdance'}
-            title="Cheerdance Final Standings"
-            rows={results.cheerdance}
-            nameCol="team"
+            show={true}
+            title="Binibining Palayan Overall Rankings"
+            rows={results.pageant.binibini}
+            nameCol="candidate"
+            teamCol="team"
           />
-
-          {/* GINOO */}
-          {tab === 'ginoo' && (
-            <>
-              <StageAwardsSection awards={results.pageant.ginooAwards} />
-              <ResultSection
-                show={true}
-                title="Ginoo Overall Rankings"
-                rows={results.pageant.ginoo}
-                nameCol="candidate"
-                teamCol="team"
-              />
-            </>
-          )}
-
-          {/* BINIBINI */}
-          {tab === 'binibini' && (
-            <>
-              <StageAwardsSection awards={results.pageant.binibiniAwards} />
-              <ResultSection
-                show={true}
-                title="Binibini Overall Rankings"
-                rows={results.pageant.binibini}
-                nameCol="candidate"
-                teamCol="team"
-              />
-            </>
-          )}
         </div>
       )}
 

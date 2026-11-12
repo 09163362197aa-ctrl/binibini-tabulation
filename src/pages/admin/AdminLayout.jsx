@@ -19,7 +19,7 @@ import './AdminLayout.css'
 
 const NAV_ITEMS = [
   { to: '/admin',          icon: LayoutDashboard, label: 'Dashboard',       end: true },
-  { to: '/admin/teams',    icon: Users2,          label: 'Teams & Entries' },
+  { to: '/admin/teams',    icon: Users2,          label: 'Candidates'       },
   { to: '/admin/judges',   icon: Gavel,           label: 'Judges'          },
   { to: '/admin/monitor',  icon: Radio,           label: 'Judging Monitor' },
   { to: '/admin/unlock',   icon: LockOpen,        label: 'Unlock Requests' },
@@ -78,8 +78,8 @@ export default function AdminLayout() {
           <Menu size={22} color="#FFFFFF" />
         </button>
         <div className="mobile-header-brand">
-          <img src={ictLogo} alt="ICT Logo" style={{ width: 24, height: 24, objectFit: 'contain' }} />
-          <span>ScoreSystem Admin</span>
+          <img src="/palayan.png" alt="Palayan Logo" style={{ width: 26, height: 26, objectFit: 'contain' }} />
+          <span>Binibining Palayan</span>
         </div>
       </header>
 
@@ -97,9 +97,9 @@ export default function AdminLayout() {
         <div className="sidebar-logo">
           <div className="sidebar-logo-brand">
             <div className="sidebar-logo-icon">
-              <img src={ictLogo} alt="ICT Logo" style={{ width: 28, height: 28, objectFit: 'contain', display: 'block' }} />
+              <img src="/palayan.png" alt="Palayan Logo" style={{ width: 30, height: 30, objectFit: 'contain', display: 'block' }} />
             </div>
-            {!isCollapsed && <span className="sidebar-logo-text">ScoreSystem</span>}
+            {!isCollapsed && <span className="sidebar-logo-text">Binibining Palayan</span>}
           </div>
 
           {/* Desktop collapse toggle */}

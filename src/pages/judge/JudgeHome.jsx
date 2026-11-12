@@ -30,17 +30,7 @@ export default function JudgeHome() {
   const [pageantCriteria, setPageantCriteria] = useState([])
   const [loading, setLoading]       = useState(true)
 
-  const allowedComps = profile?.allowed_competitions || ['cheerdance', 'pageant']
-  const canCheer     = allowedComps.includes('cheerdance')
-  const canPageant   = allowedComps.includes('pageant')
-
-  // URL-driven navigation state
-  const selectedComp = (() => {
-    const c = searchParams.get('comp')
-    if (c && allowedComps.includes(c)) return c
-    if (allowedComps.length === 1) return allowedComps[0]
-    return null
-  })()
+  const selectedComp = 'pageant'
   const selectedStageId = searchParams.get('stage') || null
 
   const load = useCallback(async () => {
@@ -166,284 +156,23 @@ export default function JudgeHome() {
     )
   }
 
-  /* ── 1. Competition Selection Screen ────────────────────────── */
-  if (!selectedComp) {
-    const cheerStats   = getCompStats('cheerdance')
-    const pageantStats = getCompStats('pageant')
-
-    return (
-      <div className="jh-select-page" style={{ maxWidth: 880, margin: '0 auto' }}>
-        <div className="jh-select-header" style={{ marginBottom: 32 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(242,183,5,0.1)', borderRadius: 6, border: '1px solid rgba(242,183,5,0.3)', marginBottom: 8 }}>
-            <Crown size={13} color="#D97706" />
-            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Judge Scoring Portal
-            </span>
-          </div>
-          <h1 className="jh-select-title" style={{ margin: 0, fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            Select Competition
-          </h1>
-          <p className="jh-select-sub" style={{ margin: '4px 0 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-            Choose the competition division you are evaluating today
-          </p>
-        </div>
-
-        {teams.length === 0 ? (
-          <div className="card" style={{ padding: 48, textAlign: 'center', borderRadius: 12, border: '1px solid var(--border)' }}>
-            <div style={{ display: 'inline-flex', padding: 12, background: 'var(--bg-elevated)', borderRadius: '50%', marginBottom: 12 }}>
-              <Trophy size={28} color="var(--text-muted)" />
-            </div>
-            <h3 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700 }}>No teams set up yet</h3>
-            <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-              Please wait for the administrator to register teams and candidate entries.
-            </p>
-          </div>
-        ) : (
-          <div className="jh-comp-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18 }}>
-            {canCheer && (
-              <button
-                type="button"
-                className="jh-comp-card jh-comp-cheer card"
-                onClick={() => navigate('/judge?comp=cheerdance')}
-                style={{ padding: 24, borderRadius: 14, border: '1px solid var(--border)', background: 'var(--bg-surface)', textAlign: 'left', cursor: 'pointer' }}
-              >
-                <div style={{ display: 'inline-flex', padding: 10, background: 'rgba(242,183,5,0.12)', borderRadius: 10, border: '1px solid rgba(242,183,5,0.25)', marginBottom: 14 }}>
-                  <Megaphone size={24} color="#D97706" />
-                </div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>Cheerdance</div>
-                <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginTop: 2, marginBottom: 16 }}>Score full team routines and choreography</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, borderTop: '1px solid var(--border)', paddingTop: 14, marginBottom: 14 }}>
-                  <div>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>{cheerStats.total}</span>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Teams</div>
-                  </div>
-                  <div style={{ width: 1, height: 24, background: 'var(--border)' }} />
-                  <div>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--pageant-primary)', fontVariantNumeric: 'tabular-nums' }}>{cheerStats.done}</span>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Locked</div>
-                  </div>
-                  <div style={{ width: 1, height: 24, background: 'var(--border)' }} />
-                  <div>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#b45309', fontVariantNumeric: 'tabular-nums' }}>{cheerStats.draft}</span>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Draft</div>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--pageant-primary)', fontWeight: 700, fontSize: '0.85rem' }}>
-                  <span>Enter Scoring Room</span>
-                  <ArrowRight size={15} />
-                </div>
-              </button>
-            )}
-
-            {canPageant && (
-              <button
-                type="button"
-                className="jh-comp-card jh-comp-pageant card"
-                onClick={() => navigate('/judge?comp=pageant')}
-                style={{ padding: 24, borderRadius: 14, border: '1px solid var(--border)', background: 'var(--bg-surface)', textAlign: 'left', cursor: 'pointer' }}
-              >
-                <div style={{ display: 'inline-flex', padding: 10, background: 'rgba(242,183,5,0.12)', borderRadius: 10, border: '1px solid rgba(242,183,5,0.25)', marginBottom: 14 }}>
-                  <Crown size={24} color="#D97706" />
-                </div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>Pageant Competition</div>
-                <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginTop: 2, marginBottom: 16 }}>Score candidate stages (Sports Wear, Talent, Q&amp;A)</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, borderTop: '1px solid var(--border)', paddingTop: 14, marginBottom: 14 }}>
-                  <div>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>{pageantStats.total}</span>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Candidates</div>
-                  </div>
-                  <div style={{ width: 1, height: 24, background: 'var(--border)' }} />
-                  <div>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--pageant-primary)', fontVariantNumeric: 'tabular-nums' }}>{pageantStats.done}</span>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Locked</div>
-                  </div>
-                  <div style={{ width: 1, height: 24, background: 'var(--border)' }} />
-                  <div>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#b45309', fontVariantNumeric: 'tabular-nums' }}>{pageantStats.draft}</span>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Draft</div>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--pageant-primary)', fontWeight: 700, fontSize: '0.85rem' }}>
-                  <span>Enter Scoring Room</span>
-                  <ArrowRight size={15} />
-                </div>
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  /* ── 2. Cheerdance Team List ────────────────────────────────── */
-  if (selectedComp === 'cheerdance') {
-    const sorted = [...teams]
-      .sort((a, b) => {
-        const getNum = (t) => {
-          const pageant = t.team_entries?.find(e => e.competition_type === 'pageant')
-          const num = pageant?.candidates?.find(c => c.candidate_number != null)?.candidate_number
-          return num ?? 9999
-        }
-        const numA = getNum(a), numB = getNum(b)
-        if (numA !== numB) return numA - numB
-        return a.name.localeCompare(b.name)
-      })
-      .map(team => {
-        const entry = team.team_entries?.find(e => e.competition_type === 'cheerdance')
-        if (!entry) return null
-        const status = getEntryStatus(entry.id, null)
-        return { team, entry, status }
-      })
-      .filter(Boolean)
-
-    const pending = sorted.filter(x => x.status !== 'locked')
-    const locked  = sorted.filter(x => x.status === 'locked')
-
-    function CheerCard({ team, entry, status }) {
-      const isLocked = status === 'locked'
-      const isDraft = status === 'draft'
-
-      return (
-        <button
-          type="button"
-          className={`judge-team-card card ${isLocked ? 'card-locked' : ''}`}
-          onClick={() => navigate(`/judge/score/cheerdance/${entry.id}`)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 14,
-            padding: 16,
-            borderRadius: 12,
-            border: '1px solid var(--border)',
-            background: isLocked ? 'var(--bg-elevated)' : 'var(--bg-surface)',
-            width: '100%',
-            textAlign: 'left',
-            cursor: 'pointer'
-          }}
-        >
-          <img
-            src={team.logo_url || '/palayan.png'}
-            alt={team.name}
-            style={{ width: 44, height: 44, borderRadius: '8px', objectFit: 'cover', border: '1.5px solid var(--border)' }}
-          />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{team.name}</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>Cheerdance Entry</div>
-          </div>
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-            fontSize: '0.74rem',
-            fontWeight: 800,
-            padding: '3px 8px',
-            borderRadius: 4,
-            background: isLocked ? '#dcfce7' : isDraft ? '#fef9c3' : 'var(--bg-elevated)',
-            color: isLocked ? '#166534' : isDraft ? '#854d0e' : 'var(--text-muted)',
-            border: isLocked ? '1px solid #bbf7d0' : isDraft ? '1px solid #fde047' : '1px solid var(--border)'
-          }}>
-            {isLocked ? <Lock size={11} strokeWidth={2.5} /> : isDraft ? <FileEdit size={11} strokeWidth={2} /> : null}
-            {isLocked ? 'Locked' : isDraft ? 'Draft' : 'Not Started'}
-          </span>
-          <ArrowRight size={16} color="var(--text-muted)" />
-        </button>
-      )
-    }
-
+  /* ── Binibining Palayan Stage Picker ────────────────────────────────── */
+  if (!selectedStageId) {
     return (
       <div style={{ maxWidth: 880, margin: '0 auto' }}>
         <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
           <div className="page-header-left">
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              onClick={() => {
-                load()
-                navigate('/judge')
-              }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 8px', marginBottom: 8 }}
-            >
-              <ArrowLeft size={14} /> Back to Competitions
-            </button>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(217,119,6,0.1)', borderRadius: 6, border: '1px solid rgba(217,119,6,0.25)', marginBottom: 8 }}>
+              <Crown size={14} color="#D97706" />
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Binibining Palayan Judge Portal
+              </span>
+            </div>
             <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-              Cheerdance Scoring
+              Evaluation Stages
             </h1>
             <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-              Select a team to evaluate performance criteria
-            </p>
-          </div>
-          <button
-            type="button"
-            className="btn btn-sm"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--border)',
-              color: 'var(--text-primary)',
-              fontWeight: 700,
-              padding: '8px 14px',
-              borderRadius: 6
-            }}
-            onClick={() => navigate('/judge/summary?comp=cheerdance')}
-          >
-            <FileSpreadsheet size={15} color="#D97706" />
-            Review My Scores
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {pending.length === 0 && locked.length > 0 ? (
-            <div className="card" style={{ padding: 24, textAlign: 'center', borderRadius: 12, border: '1px solid rgba(46,125,50,0.3)', background: 'rgba(46,125,50,0.04)', color: 'var(--pageant-primary)', fontWeight: 700, fontSize: '0.9rem' }}>
-              All teams have been scored and certified!
-            </div>
-          ) : (
-            pending.map(({ team, entry, status }) => (
-              <CheerCard key={team.id} team={team} entry={entry} status={status} />
-            ))
-          )}
-
-          {locked.length > 0 && (
-            <div style={{ marginTop: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, fontSize: '0.82rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>
-                <Lock size={13} />
-                <span>Certified &amp; Locked Teams ({locked.length})</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {locked.map(({ team, entry, status }) => (
-                  <CheerCard key={team.id} team={team} entry={entry} status={status} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  /* ── 3. Pageant Stage Picker ────────────────────────────────── */
-  if (selectedComp === 'pageant' && !selectedStageId) {
-    return (
-      <div style={{ maxWidth: 880, margin: '0 auto' }}>
-        <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
-          <div className="page-header-left">
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              onClick={() => {
-                load()
-                navigate('/judge')
-              }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 8px', marginBottom: 8 }}
-            >
-              <ArrowLeft size={14} /> Back to Competitions
-            </button>
-            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-              Pageant Stages
-            </h1>
-            <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-              Choose which stage segment you are evaluating
+              Choose a competition segment to evaluate and score candidates
             </p>
           </div>
           <button
@@ -574,15 +303,14 @@ export default function JudgeHome() {
     .flatMap(team => {
       const entry = team.team_entries?.find(e => e.competition_type === 'pageant')
       if (!entry) return []
-      return (entry.candidates || []).map(c => ({ candidate: c, team }))
+      return (entry.candidates || [])
+        .filter(c => c.category === 'binibini')
+        .map(c => ({ candidate: c, team }))
     })
     .sort((a, b) => {
       const numA = a.candidate.candidate_number != null ? a.candidate.candidate_number : 99999
       const numB = b.candidate.candidate_number != null ? b.candidate.candidate_number : 99999
       if (numA !== numB) return numA - numB
-      if (a.candidate.category !== b.candidate.category) {
-        return a.candidate.category === 'binibini' ? -1 : 1
-      }
       return (a.candidate.name || '').localeCompare(b.candidate.name || '')
     })
 
@@ -597,16 +325,9 @@ export default function JudgeHome() {
     const status = getCandidateStageStatus(c.id, selectedStageId)
     const isLocked = status === 'locked'
     const isDraft = status === 'draft'
-    const isGinoo = c.category === 'ginoo'
 
-    // Palayan City Theme Colors:
-    // Ginoo = Palayan Emerald Green
-    // Binibini = Royal Sunburst Gold/Amber
-    const stripeColor = isGinoo ? '#2e7d32' : '#d97706'
-    const numBorderColor = isGinoo ? 'rgba(74,222,128,0.8)' : 'rgba(251,191,36,0.8)'
-    const numBgColor = isGinoo
-      ? 'radial-gradient(circle at 40% 35%, #ffffff, #bbf7d0 45%, #4ade80 100%)'
-      : 'radial-gradient(circle at 40% 35%, #ffffff, #fef08a 45%, #fcd34d 100%)'
+    // Binibining Palayan Colors
+    const stripeColor = '#d97706'
 
     return (
       <button
@@ -782,7 +503,7 @@ export default function JudgeHome() {
             className="btn btn-ghost btn-sm"
             onClick={() => {
               load()
-              navigate('/judge?comp=pageant')
+              navigate('/judge')
             }}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 8px', marginBottom: 8 }}
           >
@@ -790,7 +511,7 @@ export default function JudgeHome() {
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
             <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--pageant-primary)', textTransform: 'uppercase', background: 'rgba(46,125,50,0.08)', padding: '2px 8px', borderRadius: 4, border: '1px solid rgba(46,125,50,0.2)' }}>
-              Pageant Division
+              Binibining Palayan
             </span>
             {selectedStageInfo && (
               <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
