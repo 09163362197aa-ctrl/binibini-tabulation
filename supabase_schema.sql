@@ -3,8 +3,9 @@
 -- Run this script in your Supabase SQL Editor (SQL Editor -> New Query -> Run)
 -- ==============================================================================
 
--- Enable UUID extension
+-- Enable Extensions
 create extension if not exists "uuid-ossp";
+create extension if not exists "pgcrypto";
 
 -- 1. PROFILES TABLE (Admins and Judges)
 create table if not exists public.profiles (
@@ -162,4 +163,29 @@ create policy "Allow update to team-photos" on storage.objects
 
 create policy "Allow delete from team-photos" on storage.objects
   for delete using (bucket_id = 'team-photos');
+
+-- ==============================================================================
+-- AUTO-CREATE PROFILE TRIGGER FOR NEW USERS
+-- Whenever a user is created in Supabase Auth, automatically create their profile!
+-- ==============================================================================
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, name, username, role, allowed_competitions)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'name', 'Administrator'),
+    coalesce(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)),
+    case when new.email like 'admin%' then 'admin' else 'judge' end,
+    array['pageant']
+  )
+  on conflict (id) do nothing;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
 
