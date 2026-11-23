@@ -92,14 +92,23 @@ function drawHeader(doc, { sysTitle, title, subtitle }) {
 /**
  * Draw the judge signature block at the bottom.
  * Each judge gets: a horizontal line + bold name + italic role title.
+ * Rows with fewer judges (e.g., 5th judge, or 6/7 judges) are automatically centered.
  */
 function drawSignatureBlock(doc, judges, roleLabel) {
-  const usableW = PAGE_W - MARGIN * 2
-  const cols    = Math.min(judges.length, 4)
-  const colW    = usableW / cols
+  if (!judges || judges.length === 0) return
 
-  // Measure remaining space — place block near page bottom
-  const blockH   = 28
+  const maxCols = 4
+  const usableW = PAGE_W - MARGIN * 2
+  const colW    = usableW / maxCols
+
+  // Split judges into rows of at most maxCols (e.g. 4 on first row, remainder on next row)
+  const rows = []
+  for (let i = 0; i < judges.length; i += maxCols) {
+    rows.push(judges.slice(i, i + maxCols))
+  }
+
+  const rowSpacing = 20
+  const blockH   = 14 + (rows.length * rowSpacing)
   const startY   = PAGE_H - MARGIN - blockH
 
   // Section label
@@ -115,29 +124,35 @@ function drawSignatureBlock(doc, judges, roleLabel) {
   const lblW = doc.getTextWidth(labelText)
   doc.line(PAGE_W / 2 - lblW / 2 - 2, startY + 1.5, PAGE_W / 2 + lblW / 2 + 2, startY + 1.5)
 
-  let sigY = startY + 10
-  judges.forEach((j, i) => {
-    const col = i % cols
-    const row = Math.floor(i / cols)
-    const cx  = MARGIN + col * colW + colW / 2
-    const cy  = sigY + row * 22
+  const sigStartY = startY + 11
 
-    // Signature line
-    doc.setDrawColor(...CLR_HEADING)
-    doc.setLineWidth(0.5)
-    doc.line(cx - colW / 2 + 4, cy, cx + colW / 2 - 4, cy)
+  rows.forEach((rowJudges, rIdx) => {
+    const k = rowJudges.length
+    // Center this row within the page
+    const rowW = k * colW
+    const rowStartX = (PAGE_W - rowW) / 2
+    const cy = sigStartY + (rIdx * rowSpacing)
 
-    // Judge name
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(8)
-    doc.setTextColor(...CLR_HEADING)
-    doc.text(j.name || '—', cx, cy + 4, { align: 'center' })
+    rowJudges.forEach((j, cIdx) => {
+      const cx = rowStartX + cIdx * colW + colW / 2
 
-    // Role
-    doc.setFont('helvetica', 'italic')
-    doc.setFontSize(7)
-    doc.setTextColor(...CLR_SUBTEXT)
-    doc.text(roleLabel, cx, cy + 8, { align: 'center' })
+      // Signature line (width: colW - 8mm)
+      doc.setDrawColor(...CLR_HEADING)
+      doc.setLineWidth(0.5)
+      doc.line(cx - colW / 2 + 4, cy, cx + colW / 2 - 4, cy)
+
+      // Judge name
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8)
+      doc.setTextColor(...CLR_HEADING)
+      doc.text(j.name || '—', cx, cy + 4, { align: 'center' })
+
+      // Role
+      doc.setFont('helvetica', 'italic')
+      doc.setFontSize(7)
+      doc.setTextColor(...CLR_SUBTEXT)
+      doc.text(roleLabel, cx, cy + 8, { align: 'center' })
+    })
   })
 }
 
