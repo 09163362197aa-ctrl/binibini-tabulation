@@ -239,6 +239,13 @@ export default function ScoreForm() {
   }
 
   async function handleLock() {
+    // 80-POINT MINIMUM PAGEANT RULE ENFORCEMENT
+    if (competition === 'pageant' && stageDisplayScore < 80) {
+      showToast(`Cannot submit: Stage score must be at least 80.00 points (Current: ${stageDisplayScore.toFixed(2)}).`, 'error')
+      setShowLockConfirm(false)
+      return
+    }
+
     setLocking(true)
     try {
       const savePromises = activeCriteriaIds.map(async cid => {
@@ -743,14 +750,36 @@ export default function ScoreForm() {
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontWeight: 900, fontSize: '1.45rem', color: '#B45309', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+              <div style={{
+                fontWeight: 900,
+                fontSize: '1.45rem',
+                color: (competition === 'pageant' && stageDisplayScore < 80) ? '#DC2626' : '#B45309',
+                fontVariantNumeric: 'tabular-nums',
+                lineHeight: 1
+              }}>
                 {stageDisplayScore % 1 === 0 ? stageDisplayScore : stageDisplayScore.toFixed(2)}
                 <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-muted)', marginLeft: 3 }}>
                   / {stageChildMax}
                 </span>
               </div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#D97706', marginTop: 3 }}>
-                Converted: {convertedScore}% / {stageWeight}%
+              <div style={{
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                color: (competition === 'pageant' && stageDisplayScore < 80) ? '#DC2626' : '#D97706',
+                marginTop: 3,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                gap: 4
+              }}>
+                {competition === 'pageant' && stageDisplayScore < 80 ? (
+                  <>
+                    <AlertTriangle size={12} color="#DC2626" />
+                    <span>Min 80.00 pts required ({convertedScore}% / {stageWeight}%)</span>
+                  </>
+                ) : (
+                  <span>Converted: {convertedScore}% / {stageWeight}%</span>
+                )}
               </div>
             </div>
           </div>
@@ -804,44 +833,137 @@ export default function ScoreForm() {
 
       {/* Total Score Summary Bar */}
       {!loading && (
-        <div className="card" style={{ marginTop: 8, padding: '12px 18px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-surface)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="card" style={{
+          marginTop: 8,
+          padding: '14px 20px',
+          borderRadius: 14,
+          border: (competition === 'pageant' && stageDisplayScore < 80)
+            ? '1.5px solid #FCA5A5'
+            : '1.5px solid rgba(212, 175, 55, 0.35)',
+          background: (competition === 'pageant' && stageDisplayScore < 80)
+            ? '#FEF2F2'
+            : 'var(--bg-surface)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+        }}>
           <div>
-            <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-              Total Score
+            <div style={{
+              fontSize: '0.84rem',
+              fontWeight: 800,
+              color: (competition === 'pageant' && stageDisplayScore < 80) ? '#991B1B' : '#B45309',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6
+            }}>
+              {competition === 'pageant' && stageDisplayScore < 80 && <AlertTriangle size={15} color="#DC2626" />}
+              <span>Total Stage Score</span>
             </div>
-            <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>Sum of all entered scores</div>
+            <div style={{ fontSize: '0.78rem', color: (competition === 'pageant' && stageDisplayScore < 80) ? '#7F1D1D' : 'var(--text-muted)', marginTop: 2 }}>
+              {competition === 'pageant' && stageDisplayScore < 80
+                ? '⚠️ Minimum 80.00 points required to submit'
+                : 'Sum of all entered criteria scores'
+              }
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <div style={{ fontSize: '1.85rem', fontWeight: 900, color: 'var(--pageant-primary)', fontVariantNumeric: 'tabular-nums' }}>
+            <div style={{
+              fontSize: '1.95rem',
+              fontWeight: 900,
+              color: (competition === 'pageant' && stageDisplayScore < 80) ? '#DC2626' : '#B45309',
+              fontVariantNumeric: 'tabular-nums'
+            }}>
               {grandTotal % 1 === 0 ? grandTotal : grandTotal.toFixed(2)}
             </div>
-            <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-muted)' }}>/ {maxTotal}</div>
+            <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-muted)' }}>/ {maxTotal}</div>
           </div>
         </div>
       )}
 
-      {/* Lock Action */}
+      {/* Lock Action & Minimum Score Enforcement */}
       {!isLocked && !loading && (
         <div style={{ marginTop: 24, textAlign: 'center' }}>
+          {/* Below 80 Warning Box */}
+          {competition === 'pageant' && stageDisplayScore < 80 && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '14px 18px',
+              borderRadius: 14,
+              background: '#FEF2F2',
+              border: '1.5px solid #F87171',
+              color: '#991B1B',
+              maxWidth: 580,
+              margin: '0 auto 16px',
+              textAlign: 'left',
+              boxShadow: '0 4px 12px rgba(220, 38, 38, 0.08)'
+            }}>
+              <AlertTriangle size={24} color="#DC2626" style={{ flexShrink: 0 }} />
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.94rem', color: '#991B1B' }}>
+                  Score Below Minimum Required (80 Points)
+                </div>
+                <div style={{ fontSize: '0.82rem', marginTop: 3, color: '#7F1D1D', lineHeight: 1.45 }}>
+                  Official competition rules state that <strong>80.00 points</strong> is the minimum stage score. Current score is <strong>{stageDisplayScore.toFixed(2)}</strong>. Submission is blocked until scores meet or exceed 80.00 points.
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Meets Minimum 80 Points Badge */}
+          {competition === 'pageant' && stageDisplayScore >= 80 && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '5px 16px',
+              borderRadius: 20,
+              background: '#DCFCE7',
+              border: '1.5px solid #86EFAC',
+              color: '#166534',
+              fontSize: '0.8rem',
+              fontWeight: 800,
+              marginBottom: 14
+            }}>
+              <CheckCircle2 size={15} color="#16A34A" /> Meets minimum requirement (≥ 80.00 points)
+            </div>
+          )}
+
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 12 }}>
             Once locked, scores cannot be edited without administrator authorization.
           </p>
+
           <button
             type="button"
             className="btn btn-lg"
-            onClick={() => setShowLockConfirm(true)}
+            onClick={() => {
+              if (competition === 'pageant' && stageDisplayScore < 80) {
+                showToast(`Cannot submit: Stage score is below 80.00 points (Current: ${stageDisplayScore.toFixed(2)}).`, 'error')
+                return
+              }
+              setShowLockConfirm(true)
+            }}
+            disabled={competition === 'pageant' && stageDisplayScore < 80}
             style={{
-              background: 'var(--pageant-primary)',
-              color: '#FFFFFF',
+              background: (competition === 'pageant' && stageDisplayScore < 80)
+                ? 'var(--bg-elevated)'
+                : 'linear-gradient(135deg, #D4AF37 0%, #B45309 100%)',
+              color: (competition === 'pageant' && stageDisplayScore < 80) ? 'var(--text-muted)' : '#FFFFFF',
               fontWeight: 800,
-              padding: '12px 28px',
-              borderRadius: 8,
-              border: 'none',
+              padding: '13px 32px',
+              borderRadius: 10,
+              border: (competition === 'pageant' && stageDisplayScore < 80) ? '1.5px dashed var(--border)' : 'none',
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              fontSize: '0.95rem',
-              cursor: 'pointer'
+              fontSize: '0.96rem',
+              cursor: (competition === 'pageant' && stageDisplayScore < 80) ? 'not-allowed' : 'pointer',
+              boxShadow: (competition === 'pageant' && stageDisplayScore < 80) ? 'none' : '0 3px 12px rgba(180, 130, 30, 0.28)',
+              transition: 'all 0.2s ease'
             }}
           >
             <Lock size={16} strokeWidth={2.5} /> Submit &amp; Lock Stage Scores

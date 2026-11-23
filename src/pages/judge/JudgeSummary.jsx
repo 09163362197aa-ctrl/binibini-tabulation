@@ -549,17 +549,46 @@ export default function JudgeSummary() {
                                 </span>
                               ) : sData.isCompleted ? (
                                 <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }}>
-                                    <Edit3 size={11} /> Draft
-                                  </span>
-                                  <button
-                                    type="button"
-                                    className="btn btn-ghost btn-xs"
-                                    style={{ fontSize: '0.72rem', padding: '2px 6px' }}
-                                    onClick={() => navigate(`/judge/score/pageant/${c.id}?stage=${activeStageObject.id}`)}
-                                  >
-                                    Edit Score
-                                  </button>
+                                  {sData.stageSubtotal < 80 ? (
+                                    <>
+                                      <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 4,
+                                        fontSize: '0.7rem',
+                                        fontWeight: 800,
+                                        padding: '2px 7px',
+                                        borderRadius: 4,
+                                        background: '#FEE2E2',
+                                        color: '#991B1B',
+                                        border: '1px solid #FCA5A5'
+                                      }}>
+                                        <AlertTriangle size={11} color="#DC2626" /> Below 80
+                                      </span>
+                                      <button
+                                        type="button"
+                                        className="btn btn-ghost btn-xs"
+                                        style={{ fontSize: '0.72rem', padding: '2px 6px', color: '#DC2626', fontWeight: 700 }}
+                                        onClick={() => navigate(`/judge/score/pageant/${c.id}?stage=${activeStageObject.id}`)}
+                                      >
+                                        Adjust Score
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }}>
+                                        <Edit3 size={11} /> Ready (Draft)
+                                      </span>
+                                      <button
+                                        type="button"
+                                        className="btn btn-ghost btn-xs"
+                                        style={{ fontSize: '0.72rem', padding: '2px 6px' }}
+                                        onClick={() => navigate(`/judge/score/pageant/${c.id}?stage=${activeStageObject.id}`)}
+                                      >
+                                        Edit Score
+                                      </button>
+                                    </>
+                                  )}
                                 </div>
                               ) : (
                                 <button

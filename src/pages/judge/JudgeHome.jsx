@@ -13,6 +13,7 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
+  AlertTriangle,
   Layers,
   Trophy,
   FileSpreadsheet,
@@ -96,6 +97,14 @@ export default function JudgeHome() {
     if (relevant.length === 0) return 'not-started'
     if (relevant.every(s => s.is_locked)) return 'locked'
     return 'draft'
+  }
+
+  function getCandidateStageScore(candidateId, stageId) {
+    const stageCritIds = getStageCriterionIds(stageId)
+    if (stageCritIds.length === 0) return 0
+    return scores
+      .filter(s => s.candidate_id === candidateId && stageCritIds.includes(s.criterion_id))
+      .reduce((sum, s) => sum + (Number(s.value) || 0), 0)
   }
 
   function getEntryStatus(entryId, candidateId) {
@@ -391,6 +400,8 @@ export default function JudgeHome() {
     const status = getCandidateStageStatus(c.id, selectedStageId)
     const isLocked = status === 'locked'
     const isDraft = status === 'draft'
+    const stageScore = getCandidateStageScore(c.id, selectedStageId)
+    const isBelow80 = isDraft && stageScore < 80
 
     // Binibining Palayan Colors
     const stripeColor = '#d97706'
@@ -549,13 +560,13 @@ export default function JudgeHome() {
           fontWeight: 800,
           padding: '4px 9px',
           borderRadius: 6,
-          background: isLocked ? '#dcfce7' : isDraft ? '#fef9c3' : 'var(--bg-elevated)',
-          color: isLocked ? '#166534' : isDraft ? '#854d0e' : 'var(--text-muted)',
-          border: isLocked ? '1px solid #bbf7d0' : isDraft ? '1px solid #fde047' : '1px solid var(--border)',
+          background: isLocked ? '#dcfce7' : isBelow80 ? '#fee2e2' : isDraft ? '#fef9c3' : 'var(--bg-elevated)',
+          color: isLocked ? '#166534' : isBelow80 ? '#991b1b' : isDraft ? '#854d0e' : 'var(--text-muted)',
+          border: isLocked ? '1px solid #bbf7d0' : isBelow80 ? '1px solid #fca5a5' : isDraft ? '1px solid #fde047' : '1px solid var(--border)',
           flexShrink: 0
         }}>
-          {isLocked ? <Lock size={12} strokeWidth={2.5} /> : isDraft ? <FileEdit size={12} strokeWidth={2} /> : null}
-          {isLocked ? 'Locked' : isDraft ? 'Draft' : 'Not Started'}
+          {isLocked ? <Lock size={12} strokeWidth={2.5} /> : isBelow80 ? <AlertTriangle size={12} color="#DC2626" /> : isDraft ? <FileEdit size={12} strokeWidth={2} /> : null}
+          {isLocked ? 'Locked' : isBelow80 ? `Draft (${stageScore.toFixed(0)} < 80)` : isDraft ? 'Draft' : 'Not Started'}
         </span>
         <ArrowRight size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
       </button>
