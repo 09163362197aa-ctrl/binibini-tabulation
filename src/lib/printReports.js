@@ -344,7 +344,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
   // Build head / body with stage conversion weights
   const stageWeight = stage.max_score || 100
   const maxStageTotal = stageKids.reduce((sum, k) => sum + (k.max_score || 0), 0) || 100
-  const head = [['No.', 'Candidate Name', 'Barangay', ...stageKids.map(k => `${k.label}\n(${k.max_score}%)`), `Stage Total (100%)\n(Converted: ${stageWeight}%)`, 'Rank']]
+  const head = [['Rank', 'Candidate Name', 'Barangay', ...stageKids.map(k => `${k.label}\n(${k.max_score}%)`), `Stage Total (100%)\n(Converted: ${stageWeight}%)`]]
 
   const rowData = filtered.map(c => {
     let stageTotal = 0
@@ -379,12 +379,11 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
   const body = rowData.map((r, idx) => {
     const converted = ((r.stageTotal / maxStageTotal) * stageWeight).toFixed(2)
     return [
-      r.numLabel,
+      idx + 1,
       r.candidate,
       r.team,
       ...r.critCells,
-      { content: `${r.stageTotal.toFixed(2)} pts\n(${converted}%)`, styles: { fontStyle: 'bold', halign: 'center' } },
-      { content: (idx + 1).toString(), styles: { fontStyle: 'bold', halign: 'center' } }
+      { content: `${r.stageTotal.toFixed(2)} pts\n(${converted}%)`, styles: { fontStyle: 'bold', halign: 'center' } }
     ]
   })
 
@@ -536,7 +535,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
   })
 
   const totalMaxPts = stageColMeta.reduce((sum, s) => sum + s.weight, 0)
-  const head = [['No.', 'Candidate Name', 'Barangay', ...stageColMeta.map(s => s.header), `Preliminary Total\n(${totalMaxPts}% Max)`, 'Rank']]
+  const head = [['Rank', 'Candidate Name', 'Barangay', ...stageColMeta.map(s => s.header), `Preliminary Total\n(${totalMaxPts}% Max)`]]
 
   const rowData = filtered.map(c => {
     let overallTotal = 0
@@ -577,12 +576,11 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
   rowData.sort((a, b) => b.overallTotal - a.overallTotal)
 
   const body = rowData.map((r, idx) => [
-    r.numLabel,
+    idx + 1,
     r.candidate,
     r.team,
     ...r.stageCells,
-    { content: `${(r.overallTotal % 1 === 0 ? r.overallTotal.toString() : r.overallTotal.toFixed(2))}%`, styles: { fontStyle: 'bold', halign: 'center' } },
-    { content: (idx + 1).toString(), styles: { fontStyle: 'bold', halign: 'center' } }
+    { content: `${(r.overallTotal % 1 === 0 ? r.overallTotal.toString() : r.overallTotal.toFixed(2))}%`, styles: { fontStyle: 'bold', halign: 'center' } }
   ])
 
   autoTable(doc, {
@@ -610,7 +608,6 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
       1: { halign: 'left',   cellWidth: 38 },
       2: { halign: 'left',   cellWidth: 30 },
       [stageColMeta.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: CLR_TOTAL_BG },
-      [stageColMeta.length + 4]: { halign: 'center', fontStyle: 'bold', cellWidth: 14 },
     },
     alternateRowStyles: { fillColor: [248, 250, 252] },
   })
