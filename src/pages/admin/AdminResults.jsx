@@ -458,209 +458,157 @@ export default function AdminResults() {
       {/* ── Page Header ───────────────────────────────────────── */}
       <div className="page-header" style={{ marginBottom: 24 }}>
         <div className="page-header-left">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(242,183,5,0.1)', borderRadius: 6, border: '1px solid rgba(242,183,5,0.3)', marginBottom: 8 }}>
-            <Trophy size={13} color="#D97706" />
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(217,119,6,0.1)', borderRadius: 20, border: '1px solid rgba(217,119,6,0.3)', marginBottom: 8 }}>
+            <Crown size={13} color="#D97706" />
             <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Official Tabulation &amp; Standings
+              50% Preliminary Competition
             </span>
           </div>
           <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            Final Results &amp; Reports
+            Preliminary Results &amp; Tabulation
           </h1>
           <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Official ranked summaries based on certified judge scores
+            Official ranked summaries based on certified scores across Tourism Video (10%), Talent (20%), and Festival-Inspired Costume (20%)
           </p>
         </div>
       </div>
 
-      {/* ── Official Reports & Verification Executive Hub ─────── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-        gap: 16,
+      {/* ── 50% Preliminary Tabulation & Reports Hub ─────── */}
+      <div className="card" style={{
+        padding: 24,
+        borderRadius: 16,
+        border: '1.5px solid rgba(212,175,55,0.4)',
+        background: 'linear-gradient(145deg, #FFFDF8 0%, #FBF6EA 100%)',
+        boxShadow: '0 4px 18px rgba(180,130,30,0.06)',
         marginBottom: 32
       }}>
-        {/* Card 1: Official Championship & Proclamation (Golden Hero Hub) */}
-        <div className="card" style={{
-          padding: 22,
-          borderRadius: 16,
-          border: '1.5px solid rgba(212,175,55,0.45)',
-          background: 'linear-gradient(145deg, #FFFDF8 0%, #FBF6EA 100%)',
-          boxShadow: '0 4px 18px rgba(180,130,30,0.08)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          gap: 16,
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          {/* Subtle Royal Watermark */}
-          <div style={{ position: 'absolute', right: -12, top: -12, opacity: 0.06, pointerEvents: 'none' }}>
-            <Crown size={120} color="#B45309" />
-          </div>
-
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(217,119,6,0.12)', borderRadius: 20, border: '1px solid rgba(217,119,6,0.3)', marginBottom: 10 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', background: 'rgba(217,119,6,0.12)', borderRadius: 20, border: '1px solid rgba(217,119,6,0.3)', marginBottom: 8 }}>
               <Crown size={13} color="#D97706" />
               <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                Coronation &amp; Final Proclamation
+                50% Preliminary Tabulation
               </span>
             </div>
-            <h3 style={{ margin: '0 0 6px', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-              Official Grand Tabulation &amp; Winners
+            <h3 style={{ margin: '0 0 6px', fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+              Preliminary Stage Reports &amp; Verification
             </h3>
-            <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>
-              Generate certified print-ready PDF documents for coronation night proclamation and auditor sign-off.
+            <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>
+              Generate certified print-ready PDF reports for individual stages (Tourism Video 10%, Talent 20%, Festival-Inspired Costume 20%) or the combined 50% preliminary standings.
             </p>
           </div>
+        </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, paddingTop: 6 }}>
+        {/* Filters and Action Buttons Row */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 16,
+          paddingTop: 14,
+          borderTop: '1px solid rgba(180,130,30,0.16)'
+        }}>
+          {/* Controls: Stage and Judge Selectors */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', flex: '1 1 360px' }}>
+            {/* Stage Selector */}
+            <div style={{ flex: '1 1 200px' }}>
+              <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Evaluation Stage
+              </label>
+              <select
+                value={selectedStageId}
+                onChange={e => setSelectedStageId(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '9px 12px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(180,130,30,0.3)',
+                  background: 'var(--bg-surface)',
+                  fontSize: '0.86rem',
+                  fontWeight: 600,
+                  color: 'var(--text-primary)'
+                }}
+              >
+                <option value="overall">All 3 Stages Combined (50% Preliminary)</option>
+                {pageantParents.map(p => (
+                  <option key={p.id} value={p.id}>{p.label} ({p.max_score}% Weight)</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Judge Filter */}
+            <div style={{ flex: '1 1 180px' }}>
+              <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Filter Judge
+              </label>
+              <select
+                value={selectedJudgeId}
+                onChange={e => setSelectedJudgeId(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '9px 12px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(180,130,30,0.3)',
+                  background: 'var(--bg-surface)',
+                  fontSize: '0.86rem',
+                  fontWeight: 600,
+                  color: 'var(--text-primary)'
+                }}
+              >
+                <option value="all">All Scoring Judges</option>
+                {pageantJudges.map(j => (
+                  <option key={j.id} value={j.id}>{j.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <button
               type="button"
               className="btn btn-gold btn-sm"
-              onClick={handleGenerateBinibiniRankings}
+              onClick={handleGeneratePageantStageTabulation}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 7,
-                fontSize: '0.84rem',
+                fontSize: '0.86rem',
                 fontWeight: 800,
-                padding: '9px 18px',
+                padding: '10px 20px',
                 borderRadius: 10,
                 boxShadow: '0 3px 10px rgba(180,130,30,0.22)'
               }}
             >
-              <Trophy size={15} />
-              <span>Print Official Rankings (PDF)</span>
+              <FileSpreadsheet size={16} />
+              <span>
+                {selectedStageId === 'overall'
+                  ? 'Print 50% Tabulation Matrix (PDF)'
+                  : 'Print Stage Tabulation Sheet (PDF)'
+                }
+              </span>
             </button>
 
             <button
               type="button"
               className="btn btn-sm"
-              onClick={() => {
-                setSelectedStageId('overall')
-                setTimeout(() => handleGeneratePageantStageTabulation(), 50)
-              }}
+              onClick={handleGenerateBinibiniRankings}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 7,
-                fontSize: '0.84rem',
+                fontSize: '0.86rem',
                 fontWeight: 700,
-                padding: '9px 16px',
+                padding: '10px 18px',
                 borderRadius: 10,
                 background: 'var(--bg-surface)',
                 border: '1px solid rgba(180,130,30,0.3)',
                 color: '#B45309'
               }}
             >
-              <FileSpreadsheet size={15} color="#D97706" />
-              <span>Print Full Matrix (PDF)</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Card 2: Stage & Segment Breakdown Hub */}
-        <div className="card" style={{
-          padding: 22,
-          borderRadius: 16,
-          border: '1px solid var(--border)',
-          background: 'var(--bg-surface)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          gap: 16
-        }}>
-          <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'var(--bg-elevated)', borderRadius: 20, border: '1px solid var(--border)', marginBottom: 10 }}>
-              <Layers size={13} color="var(--text-muted)" />
-              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                Stage-by-Stage Tabulation
-              </span>
-            </div>
-            <h3 style={{ margin: '0 0 6px', fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-              Segment Breakdown Reports
-            </h3>
-            <p style={{ margin: '0 0 14px', fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>
-              Filter by specific competition segment and judge to generate individual stage tabulation sheets.
-            </p>
-
-            {/* Segment Selector & Filter Row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              {/* Segment Dropdown */}
-              <div style={{ flex: '1 1 180px' }}>
-                <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 4, textTransform: 'uppercase' }}>
-                  Competition Stage
-                </label>
-                <select
-                  value={selectedStageId}
-                  onChange={e => setSelectedStageId(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    borderRadius: 8,
-                    border: '1px solid var(--border)',
-                    background: 'var(--bg-elevated)',
-                    fontSize: '0.84rem',
-                    fontWeight: 600,
-                    color: 'var(--text-primary)'
-                  }}
-                >
-                  <option value="overall">All Stages Combined (Overall)</option>
-                  {pageantParents.map(p => (
-                    <option key={p.id} value={p.id}>{p.label} Competition</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Judge Filter Dropdown */}
-              <div style={{ flex: '1 1 150px' }}>
-                <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 4, textTransform: 'uppercase' }}>
-                  Filter Judge
-                </label>
-                <select
-                  value={selectedJudgeId}
-                  onChange={e => setSelectedJudgeId(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    borderRadius: 8,
-                    border: '1px solid var(--border)',
-                    background: 'var(--bg-elevated)',
-                    fontSize: '0.84rem',
-                    fontWeight: 600,
-                    color: 'var(--text-primary)'
-                  }}
-                >
-                  <option value="all">All Scoring Judges</option>
-                  {pageantJudges.map(j => (
-                    <option key={j.id} value={j.id}>{j.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ paddingTop: 6 }}>
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={handleGeneratePageantStageTabulation}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 7,
-                background: 'var(--bg-elevated)',
-                border: '1px solid var(--border)',
-                color: 'var(--text-primary)',
-                fontWeight: 700,
-                fontSize: '0.84rem',
-                padding: '9px 18px',
-                borderRadius: 10
-              }}
-            >
-              <FileSpreadsheet size={15} color="#D97706" />
-              <span>Print Segment Breakdown (PDF)</span>
+              <Trophy size={16} color="#D97706" />
+              <span>Print Preliminary Standings (PDF)</span>
             </button>
           </div>
         </div>
@@ -674,7 +622,7 @@ export default function AdminResults() {
           <StageAwardsSection awards={results.pageant.binibiniAwards} />
           <ResultSection
             show={true}
-            title="Binibining Palayan Overall Rankings"
+            title="Binibining Palayan — 50% Preliminary Standings"
             rows={results.pageant.binibini}
             nameCol="candidate"
             teamCol="team"

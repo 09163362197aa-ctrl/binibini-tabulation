@@ -412,70 +412,70 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
 
 export function printPageantOverallRankings({ category, topCandidates, judges }) {
   const doc      = newDoc()
-  const top4     = topCandidates.slice(0, 4)
+  const candidatesToShow = topCandidates.slice(0, 6)
   const divLabel = category === 'ginoo' ? 'GINOO' : 'BINIBINI'
-  const rankLabels = ['CHAMPION', '1ST RUNNER-UP', '2ND RUNNER-UP', '3RD RUNNER-UP']
+  const rankLabels = ['RANK 1 — PRELIMINARY LEADER', 'RANK 2', 'RANK 3', 'RANK 4', 'RANK 5', 'RANK 6']
 
   let y = drawHeader(doc, {
-    sysTitle: 'Binibining Palayan — Official Final Rankings',
-    title:    `${divLabel} — Official Champion & Winners Sheet`,
-    subtitle: `Preliminary Competition (50% Overall): Tourism Video (10%), Talent (20%), Festival Costume (20%)`,
+    sysTitle: 'Binibining Palayan — 50% Preliminary Competition',
+    title:    `${divLabel} — Official Preliminary Standings Sheet`,
+    subtitle: `Preliminary Phase (50% Overall): Tourism Video (10%), Talent (20%), Festival-Inspired Costume (20%)`,
   })
 
   y += 4
 
-  top4.forEach((c, idx) => {
-    const isChamp = idx === 0
-    const boxH    = isChamp ? 36 : 28
+  candidatesToShow.forEach((c, idx) => {
+    const isLead  = idx === 0
+    const boxH    = isLead ? 32 : 24
     const boxX    = MARGIN
     const boxW    = PAGE_W - MARGIN * 2
 
-    if (isChamp) {
+    if (isLead) {
       doc.setFillColor(255, 252, 220)
     } else {
       doc.setFillColor(248, 250, 252)
     }
     doc.roundedRect(boxX, y, boxW, boxH, 3, 3, 'F')
-    doc.setDrawColor(isChamp ? 180 : 203, isChamp ? 130 : 213, isChamp ? 20 : 225)
-    doc.setLineWidth(isChamp ? 0.8 : 0.3)
+    doc.setDrawColor(isLead ? 180 : 203, isLead ? 130 : 213, isLead ? 20 : 225)
+    doc.setLineWidth(isLead ? 0.8 : 0.3)
     doc.roundedRect(boxX, y, boxW, boxH, 3, 3, 'S')
 
     // Rank label
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(isChamp ? 12 : 9)
-    doc.setTextColor(...(isChamp ? CLR_GOLD : CLR_SUBTEXT))
-    doc.text(divLabel + ' ' + rankLabels[idx], boxX + 6, y + (isChamp ? 10 : 8))
+    doc.setFontSize(isLead ? 10 : 8.5)
+    doc.setTextColor(...(isLead ? CLR_GOLD : CLR_SUBTEXT))
+    doc.text(divLabel + ' · ' + (rankLabels[idx] || `RANK ${idx + 1}`), boxX + 6, y + (isLead ? 9 : 7))
 
     // Candidate name + number
     const nameStr = c.candidate + (c.candidate_number != null ? `  (#${c.candidate_number})` : '')
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(isChamp ? 15 : 12)
+    doc.setFontSize(isLead ? 14 : 11)
     doc.setTextColor(...CLR_HEADING)
-    doc.text(nameStr, boxX + 6, y + (isChamp ? 20 : 17))
+    doc.text(nameStr, boxX + 6, y + (isLead ? 19 : 15))
 
     // Team
     doc.setFont('helvetica', 'normal')
-    doc.setFontSize(isChamp ? 9 : 8)
+    doc.setFontSize(isLead ? 8.5 : 7.5)
     doc.setTextColor(...CLR_SUBTEXT)
-    doc.text(c.team, boxX + 6, y + (isChamp ? 27 : 23))
+    doc.text(c.team || '', boxX + 6, y + (isLead ? 26 : 21))
 
     // Score (right-aligned)
     const scoreNum = Number(c.final_score) || 0
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(isChamp ? 20 : 15)
-    doc.setTextColor(...(isChamp ? CLR_GOLD : CLR_HEADING))
-    doc.text(`${(scoreNum % 1 === 0 ? scoreNum.toString() : scoreNum.toFixed(2))}%`, boxX + boxW - 6, y + (isChamp ? 20 : 17), { align: 'right' })
+    doc.setFontSize(isLead ? 18 : 13)
+    doc.setTextColor(...(isLead ? CLR_GOLD : CLR_HEADING))
+    doc.text(`${(scoreNum % 1 === 0 ? scoreNum.toString() : scoreNum.toFixed(2))}%`, boxX + boxW - 6, y + (isLead ? 18 : 15), { align: 'right' })
 
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(6.5)
     doc.setTextColor(...CLR_SUBTEXT)
-    doc.text('Preliminary Total (50% Max)', boxX + boxW - 6, y + (isChamp ? 27 : 23), { align: 'right' })
+    doc.text('Preliminary Total (50% Max)', boxX + boxW - 6, y + (isLead ? 25 : 21), { align: 'right' })
 
-    y += boxH + 5
+    y += boxH + 4
   })
 
   drawSignatureBlock(doc, judges, 'Official Pageant Judge')
-  openPdf(doc, `Pageant_${divLabel}_Official_Rankings`)
+  openPdf(doc, `Pageant_${divLabel}_Preliminary_Standings`)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
