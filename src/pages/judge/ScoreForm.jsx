@@ -715,32 +715,43 @@ export default function ScoreForm() {
       {competition === 'pageant' && !loading && (() => {
         const activeStage = parents.find(p => p.id === selectedStageId)
         if (!activeStage) return null
+        const stageChildMax = children.filter(c => c.parent_id === activeStageParents[0]?.id).reduce((s, c) => s + (c.max_score || 0), 0) || 100
+        const stageWeight = activeStage.max_score || stageChildMax
+        const convertedScore = ((stageDisplayScore / stageChildMax) * stageWeight).toFixed(2)
+
         return (
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'var(--bg-elevated)',
-            border: '1.5px solid rgba(46,125,50,0.3)',
-            borderRadius: 12,
-            padding: '12px 18px',
-            marginBottom: 20
+            background: 'linear-gradient(135deg, rgba(255, 253, 248, 0.95) 0%, rgba(251, 246, 234, 0.95) 100%)',
+            border: '1.5px solid rgba(212, 175, 55, 0.45)',
+            borderRadius: 14,
+            padding: '14px 20px',
+            marginBottom: 20,
+            boxShadow: '0 2px 8px rgba(180, 130, 30, 0.08)'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Layers size={20} color="#D97706" />
+              <div style={{ padding: 8, background: 'rgba(217,119,6,0.12)', borderRadius: 10 }}>
+                <Layers size={20} color="#D97706" />
+              </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{activeStage.label} Stage</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Evaluating {activeStage.label} criteria</div>
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)' }}>{activeStage.label}</div>
+                <div style={{ fontSize: '0.78rem', color: '#B45309', fontWeight: 700 }}>
+                  100 Points Rubric • Converted to {stageWeight}% Overall
+                </div>
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontWeight: 900, fontSize: '1.4rem', color: 'var(--pageant-primary)', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+              <div style={{ fontWeight: 900, fontSize: '1.45rem', color: '#B45309', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
                 {stageDisplayScore % 1 === 0 ? stageDisplayScore : stageDisplayScore.toFixed(2)}
-                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-muted)', marginLeft: 2 }}>
-                  / {children.filter(c => c.parent_id === activeStageParents[0]?.id).reduce((s, c) => s + (c.max_score || 0), 0)}
+                <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-muted)', marginLeft: 3 }}>
+                  / {stageChildMax}
                 </span>
               </div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 2 }}>Stage Total</div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#D97706', marginTop: 3 }}>
+                Converted: {convertedScore}% / {stageWeight}%
+              </div>
             </div>
           </div>
         )

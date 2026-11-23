@@ -498,10 +498,17 @@ export default function JudgeSummary() {
 
                             <td style={{ padding: '12px 14px', textAlign: 'center', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
                               {sData.isCompleted ? (
-                                <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--pageant-primary)', fontVariantNumeric: 'tabular-nums' }}>
-                                  {sData.stageSubtotal % 1 === 0 ? sData.stageSubtotal : sData.stageSubtotal.toFixed(2)}
-                                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', marginLeft: 2 }}>/ {sData.stageMaxTotal}</span>
-                                </span>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                  <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>
+                                    {sData.stageSubtotal % 1 === 0 ? sData.stageSubtotal : sData.stageSubtotal.toFixed(2)}
+                                    <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', marginLeft: 2 }}>/ {sData.stageMaxTotal}</span>
+                                  </span>
+                                  {activeStageObject?.max_score != null && (
+                                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#D97706', marginTop: 1 }}>
+                                      {((sData.stageSubtotal / (sData.stageMaxTotal || 100)) * activeStageObject.max_score).toFixed(2)}%
+                                    </span>
+                                  )}
+                                </div>
                               ) : (
                                 <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>Pending</span>
                               )}

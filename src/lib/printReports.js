@@ -326,8 +326,10 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
     subtitle: `Category: ${catLabel}   |   ${judgeNote}`,
   })
 
-  // Build head / body with direct max points
-  const head = [['No.', 'Candidate Name', 'Barangay', ...stageKids.map(k => `${k.label}\n(Max: ${k.max_score} pts)`), 'Stage Total']]
+  // Build head / body with stage conversion weights
+  const stageWeight = stage.max_score || 100
+  const maxStageTotal = stageKids.reduce((sum, k) => sum + (k.max_score || 0), 0) || 100
+  const head = [['No.', 'Candidate Name', 'Barangay', ...stageKids.map(k => `${k.label}\n(${k.max_score}%)`), `Stage Total (100%)\n(Converted: ${stageWeight}%)`, 'Rank']]
 
   const rowData = filtered.map(c => {
     let stageTotal = 0
@@ -359,13 +361,17 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
   // Sort by stage total descending
   rowData.sort((a, b) => b.stageTotal - a.stageTotal)
 
-  const body = rowData.map(r => [
-    r.numLabel,
-    r.candidate,
-    r.team,
-    ...r.critCells,
-    { content: r.stageTotal % 1 === 0 ? r.stageTotal.toString() : r.stageTotal.toFixed(2), styles: { fontStyle: 'bold' } }
-  ])
+  const body = rowData.map((r, idx) => {
+    const converted = ((r.stageTotal / maxStageTotal) * stageWeight).toFixed(2)
+    return [
+      r.numLabel,
+      r.candidate,
+      r.team,
+      ...r.critCells,
+      { content: `${r.stageTotal.toFixed(2)} pts\n(${converted}%)`, styles: { fontStyle: 'bold', halign: 'center' } },
+      { content: (idx + 1).toString(), styles: { fontStyle: 'bold', halign: 'center' } }
+    ]
+  })
 
   autoTable(doc, {
     startY: y,
@@ -413,7 +419,7 @@ export function printPageantOverallRankings({ category, topCandidates, judges })
   let y = drawHeader(doc, {
     sysTitle: 'Binibining Palayan — Official Final Rankings',
     title:    `${divLabel} — Official Champion & Winners Sheet`,
-    subtitle: `Combined Total: All Stages, All Judges`,
+    subtitle: `Preliminary Competition (50% Overall): Tourism Video (10%), Talent (20%), Festival Costume (20%)`,
   })
 
   y += 4
@@ -458,12 +464,12 @@ export function printPageantOverallRankings({ category, topCandidates, judges })
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(isChamp ? 20 : 15)
     doc.setTextColor(...(isChamp ? CLR_GOLD : CLR_HEADING))
-    doc.text(scoreNum % 1 === 0 ? scoreNum.toString() : scoreNum.toFixed(2), boxX + boxW - 6, y + (isChamp ? 20 : 17), { align: 'right' })
+    doc.text(`${(scoreNum % 1 === 0 ? scoreNum.toString() : scoreNum.toFixed(2))}%`, boxX + boxW - 6, y + (isChamp ? 20 : 17), { align: 'right' })
 
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(6.5)
     doc.setTextColor(...CLR_SUBTEXT)
-    doc.text('Final Combined Total', boxX + boxW - 6, y + (isChamp ? 27 : 23), { align: 'right' })
+    doc.text('Preliminary Total (50% Max)', boxX + boxW - 6, y + (isChamp ? 27 : 23), { align: 'right' })
 
     y += boxH + 5
   })
@@ -496,28 +502,30 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
 
   let y = drawHeader(doc, {
     sysTitle: 'Binibining Palayan — Official Pageant Tabulation Report',
-    title:    `${divLabel} — Combined Overall Tabulation Sheet`,
+    title:    `${divLabel} — Combined Preliminary Tabulation Sheet`,
     subtitle: `Category: ${catLabel}   |   ${judgeNote}`,
   })
 
-  // Build stage column titles with their max total points
+  // Build stage column titles with their weights (Overall 50%)
   const stageColMeta = parentStages.map(stage => {
     const kids = criteria.filter(c => c.parent_id === stage.id)
-    const maxPts = kids.reduce((sum, k) => sum + (k.max_score || 0), 0)
+    const maxPts = kids.reduce((sum, k) => sum + (Number(k.max_score) || 0), 0) || 100
+    const weight = Number(stage.max_score) || maxPts
     return {
       stage,
       kids,
       maxPts,
-      header: `${stage.label}\n(Max: ${maxPts} pts)`
+      weight,
+      header: `${stage.label}\n(Weight: ${weight}%)`
     }
   })
 
-  const totalMaxPts = stageColMeta.reduce((sum, s) => sum + s.maxPts, 0)
-  const head = [['No.', 'Candidate Name', 'Barangay', ...stageColMeta.map(s => s.header), `Combined Total\n(Max: ${totalMaxPts} pts)`, 'Rank']]
+  const totalMaxPts = stageColMeta.reduce((sum, s) => sum + s.weight, 0)
+  const head = [['No.', 'Candidate Name', 'Barangay', ...stageColMeta.map(s => s.header), `Preliminary Total\n(${totalMaxPts}% Max)`, 'Rank']]
 
   const rowData = filtered.map(c => {
     let overallTotal = 0
-    const stageCells = stageColMeta.map(({ kids }) => {
+    const stageCells = stageColMeta.map(({ kids, maxPts, weight }) => {
       let stageSubtotal = 0
       let hasAnyScore = false
 
@@ -535,8 +543,9 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
       })
 
       if (!hasAnyScore) return '—'
-      overallTotal += stageSubtotal
-      return stageSubtotal % 1 === 0 ? stageSubtotal.toString() : stageSubtotal.toFixed(2)
+      const stageWeighted = (stageSubtotal / maxPts) * weight
+      overallTotal += stageWeighted
+      return `${stageWeighted.toFixed(2)}%\n(${stageSubtotal.toFixed(1)}/100)`
     })
 
     const numLabel = c.candidate_number != null ? `#${c.candidate_number}` : '—'
@@ -557,7 +566,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
     r.candidate,
     r.team,
     ...r.stageCells,
-    { content: r.overallTotal % 1 === 0 ? r.overallTotal.toString() : r.overallTotal.toFixed(2), styles: { fontStyle: 'bold' } },
+    { content: `${(r.overallTotal % 1 === 0 ? r.overallTotal.toString() : r.overallTotal.toFixed(2))}%`, styles: { fontStyle: 'bold', halign: 'center' } },
     { content: (idx + 1).toString(), styles: { fontStyle: 'bold', halign: 'center' } }
   ])
 

@@ -127,29 +127,44 @@ create index if not exists idx_unlock_requests_candidate on public.unlock_reques
 create index if not exists idx_rankings_candidate on public.rankings (candidate_id);
 
 -- ==============================================================================
--- DEFAULT CRITERIA SEED DATA (Binibining Palayan)
+-- DEFAULT CRITERIA SEED DATA (Binibining Palayan - 50% Preliminary Competition)
 -- ==============================================================================
 
--- Pageant Parent Stages
+-- Pageant Parent Stages (Overall 50%)
 insert into public.criteria (id, key, label, max_score, display_order, parent_id, competition_type)
 values
-  ('stage_sw', 'sportswear', 'Sports Wear Competition', 30, 1, null, 'pageant'),
-  ('stage_tl', 'talent', 'Talent Competition', 35, 2, null, 'pageant'),
-  ('stage_qa', 'qa', 'Q & A', 35, 3, null, 'pageant')
-on conflict (id) do nothing;
+  ('stage_tv', 'tourism_video', 'Tourism Video', 10, 1, null, 'pageant'),
+  ('stage_tl', 'talent', 'Talent Competition', 20, 2, null, 'pageant'),
+  ('stage_fc', 'festival_costume', 'Festival-Inspired Costume', 20, 3, null, 'pageant')
+on conflict (id) do update set
+  label = excluded.label,
+  max_score = excluded.max_score,
+  display_order = excluded.display_order;
 
--- Pageant Sub-Criteria (Children)
+-- Pageant Sub-Criteria (Children - Each Stage sums to 100%)
 insert into public.criteria (id, key, label, max_score, display_order, parent_id, competition_type)
 values
-  ('sw_poise', 'sw_poise', 'Poise and Bearing', 15, 1, 'stage_sw', 'pageant'),
-  ('sw_personality', 'sw_personality', 'Personality and Confidence', 15, 2, 'stage_sw', 'pageant'),
-  ('tl_execution', 'tl_execution', 'Talent Execution', 20, 1, 'stage_tl', 'pageant'),
-  ('tl_creativity', 'tl_creativity', 'Creativity and Originality', 10, 2, 'stage_tl', 'pageant'),
-  ('tl_impact', 'tl_impact', 'Audience Impact', 5, 3, 'stage_tl', 'pageant'),
-  ('qa_content', 'qa_content', 'Content of Answer', 15, 1, 'stage_qa', 'pageant'),
-  ('qa_clarity', 'qa_clarity', 'Clarity of Thought', 10, 2, 'stage_qa', 'pageant'),
-  ('qa_delivery', 'qa_delivery', 'Confidence and Delivery', 10, 3, 'stage_qa', 'pageant')
-on conflict (id) do nothing;
+  -- Tourism Video (10% Overall, 100% Stage)
+  ('tv_creativity', 'tv_creativity', 'Creativity & Originality', 30, 1, 'stage_tv', 'pageant'),
+  ('tv_promotion', 'tv_promotion', 'Tourism Promotion & Destination Showcase', 30, 2, 'stage_tv', 'pageant'),
+  ('tv_production', 'tv_production', 'Video Production & Technical Quality', 20, 3, 'stage_tv', 'pageant'),
+  ('tv_cultural', 'tv_cultural', 'Cultural Identity & Local Storytelling', 20, 4, 'stage_tv', 'pageant'),
+
+  -- Talent Competition (20% Overall, 100% Stage)
+  ('tl_creativity', 'tl_creativity', 'Creativity & Originality', 40, 1, 'stage_tl', 'pageant'),
+  ('tl_mastery', 'tl_mastery', 'Mastery & Technical Skill', 30, 2, 'stage_tl', 'pageant'),
+  ('tl_presence', 'tl_presence', 'Stage Presence & Confidence', 20, 3, 'stage_tl', 'pageant'),
+  ('tl_impact', 'tl_impact', 'Audience Impact', 10, 4, 'stage_tl', 'pageant'),
+
+  -- Festival-Inspired Costume (20% Overall, 100% Stage)
+  ('fc_creativity', 'fc_creativity', 'Creativity & Design Concept', 30, 1, 'stage_fc', 'pageant'),
+  ('fc_relevance', 'fc_relevance', 'Relevance to Culture & Heritage (The Chosen Palayan Delicacy)', 30, 2, 'stage_fc', 'pageant'),
+  ('fc_poise', 'fc_poise', 'Poise, Confidence & Projection', 20, 3, 'stage_fc', 'pageant'),
+  ('fc_impact', 'fc_impact', 'Overall Impact & Visual Appeal', 20, 4, 'stage_fc', 'pageant')
+on conflict (id) do update set
+  label = excluded.label,
+  max_score = excluded.max_score,
+  display_order = excluded.display_order;
 
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES

@@ -251,7 +251,7 @@ export default function JudgeHome() {
 
                     <div className="jh-stage-title">{stage.label}</div>
                     <div className="jh-stage-subtitle">
-                      {stageKids.length > 0 ? `${stageKids.length} Criteria • Max ${maxScore} pts` : 'Pageant Evaluation Segment'}
+                      {stageKids.length > 0 ? `${stageKids.length} Criteria (100 pts) • Converted to ${stage.max_score || maxScore}% Overall` : 'Pageant Evaluation Segment'}
                     </div>
 
                     {/* Progress Bar */}

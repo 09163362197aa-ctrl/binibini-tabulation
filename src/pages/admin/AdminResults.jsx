@@ -152,7 +152,7 @@ export default function AdminResults() {
         }
       })
 
-      // Helper: build ranked candidate list for a category
+      // Helper: build ranked candidate list for a category with stage conversion weights (Overall 50%)
       function buildCategoryList(category) {
         return (candidates || [])
           .filter(c => c.category === category)
@@ -160,7 +160,27 @@ export default function AdminResults() {
             const stats = pageantScoresByCand[c.id]
             const rankInfo = rankData?.find(r => r.candidate_id === c.id)
             const judgeCount = stats?.judges.size || rankInfo?.judges_scored || 1
-            const finalScore = stats ? (stats.total / (judgeCount || 1)) : (rankInfo?.final_score || 0)
+
+            // Compute weighted final score across all stages (TV 10%, Talent 20%, Costume 20% = 50%)
+            let weightedFinalScore = 0
+            const stageAverages = {}
+
+            parents.forEach(parent => {
+              const stageKids = children.filter(k => k.parent_id === parent.id)
+              const stageChildMaxSum = stageKids.reduce((sum, k) => sum + (Number(k.max_score) || 0), 0) || 100
+              const stageWeight = Number(parent.max_score) || stageChildMaxSum
+
+              const stageJudgeCount = stats?.stageJudges?.[parent.id]?.size || 0
+              const stageSum = stats?.stageScores?.[parent.id] || 0
+              const stageAvg = stageJudgeCount > 0 ? (stageSum / stageJudgeCount) : 0
+              stageAverages[parent.id] = stageAvg
+
+              const stageWeighted = (stageAvg / stageChildMaxSum) * stageWeight
+              weightedFinalScore += stageWeighted
+            })
+
+            const finalScore = stats ? weightedFinalScore : (rankInfo?.final_score || 0)
+
             return {
               candidate_id: c.id,
               candidate: c.name || '?',
@@ -169,7 +189,8 @@ export default function AdminResults() {
               category: c.category,
               final_score: finalScore,
               judges_scored: judgeCount,
-              stageScores: stats?.stageScores || {}
+              stageScores: stats?.stageScores || {},
+              stageAverages
             }
           })
           .filter(r => r.final_score > 0)
@@ -971,7 +992,7 @@ function ResultSection({ show, title, rows, nameCol, teamCol }) {
             {title}
           </h2>
           <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            Combined standings across all locked stage scores
+            Preliminary Standings (50% Overall): Tourism Video (10%) + Talent (20%) + Festival-Inspired Costume (20%)
           </p>
         </div>
       </div>
@@ -995,7 +1016,7 @@ function ResultSection({ show, title, rows, nameCol, teamCol }) {
                 <th style={{ padding: '11px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>{nameCol === 'team' ? 'Team Name' : 'Candidate Name'}</th>
                 {teamCol && <th style={{ padding: '11px 18px', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Barangay</th>}
                 <th style={{ padding: '11px 18px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Judges Scored</th>
-                <th style={{ padding: '11px 18px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Final Combined Score</th>
+                <th style={{ padding: '11px 18px', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.74rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>Preliminary Total (50%)</th>
               </tr>
             </thead>
             <tbody>
