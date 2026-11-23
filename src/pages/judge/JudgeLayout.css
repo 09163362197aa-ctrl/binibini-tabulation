@@ -1,28 +1,31 @@
-/* Judge Shell */
+/* Judge Shell - Royal Velvet & Gold Pageant Theme */
 .judge-shell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--bg-main, #FAF8F3);
 }
 
 .judge-header {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 0 32px;
-  height: 68px;
-  background: linear-gradient(90deg, #1B5E20 0%, #2E7D32 60%, #388E3C 100%);
-  border-bottom: none;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  height: 70px;
+  background: linear-gradient(90deg, #181A1F 0%, #121316 100%);
+  border-bottom: 1.5px solid rgba(212, 175, 55, 0.35);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
 }
 
 .judge-header-logo {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 .judge-logo-icon {
   display: flex;
@@ -30,66 +33,155 @@
   justify-content: center;
 }
 .judge-logo-text {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 800;
+  font-family: var(--font-display, 'Cabinet Grotesk', system-ui, sans-serif);
+  font-size: 1.15rem;
+  font-weight: 900;
   color: #FFFFFF;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
 .judge-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-left: auto;
+}
+
+/* Prominent Judge Tablet Distribution Badge */
+.judge-identity-pill {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+  padding: 5px 14px 5px 6px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(180, 83, 9, 0.14) 100%);
+  border: 1.5px solid rgba(212, 175, 55, 0.5);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+  transition: all 0.2s ease;
 }
-.judge-user {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+
 .judge-avatar {
-  width: 34px; height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50% !important;
-  background: rgba(255,255,255,0.20);
+  background: linear-gradient(135deg, #FDE68A 0%, #D97706 50%, #B45309 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-family: var(--font-display);
-  font-size: 0.88rem;
-  color: #FFFFFF;
-  border: 1.5px solid rgba(255,255,255,0.40);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  font-weight: 900;
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.95rem;
+  color: #78350F;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
 }
-.judge-name {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.90);
+
+.judge-identity-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
+}
+
+.judge-role-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #FCD34D;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.judge-fullname {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .judge-main {
   flex: 1;
-  padding: 40px;
-  max-width: 900px;
+  padding: 32px 24px;
+  max-width: 940px;
   margin: 0 auto;
   width: 100%;
 }
 
 .judge-header .judge-signout {
   color: rgba(255, 255, 255, 0.85);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  background: transparent;
+  border: 1.5px solid rgba(212, 175, 55, 0.35);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 7px 12px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 .judge-header .judge-signout:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #FCA5A5;
 }
 
-@media (max-width: 640px) {
-  .judge-header { padding: 0 16px; }
-  .judge-main   { padding: 24px 16px; }
-  .judge-name   { display: none; }
+/* Tablet & Mobile Responsiveness - Name NEVER hidden! */
+@media (max-width: 768px) {
+  .judge-header {
+    padding: 0 14px;
+    height: 64px;
+  }
+  .judge-fullname {
+    max-width: 170px;
+    font-size: 0.86rem;
+  }
+  .judge-main {
+    padding: 20px 14px;
+  }
+}
+
+@media (max-width: 540px) {
+  /* On compact phones/small tablet widths, prioritize Judge Name and shrink logo text */
+  .judge-logo-text {
+    font-size: 0.95rem;
+  }
+  .judge-identity-pill {
+    padding: 4px 10px 4px 4px;
+    gap: 8px;
+  }
+  .judge-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+  .judge-fullname {
+    max-width: 130px;
+    font-size: 0.82rem;
+  }
+  .judge-signout-text {
+    display: none;
+  }
+  .judge-header .judge-signout {
+    padding: 7px 9px;
+  }
+}
+
+@media (max-width: 400px) {
+  .judge-logo-text {
+    display: none; /* Keep the Palayan emblem icon so Judge Name has maximum room */
+  }
+  .judge-fullname {
+    max-width: 150px;
+  }
 }

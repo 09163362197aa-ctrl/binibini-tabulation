@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { LogOut } from 'lucide-react'
+import { LogOut, Crown } from 'lucide-react'
 import ictLogo from '../../assets/ict.png'
 import './JudgeLayout.css'
 
@@ -33,13 +33,29 @@ export default function JudgeLayout() {
         </div>
 
         <div className="judge-header-right">
-          <div className="judge-user">
-            <div className="judge-avatar">{(profile?.name || 'J')[0].toUpperCase()}</div>
-            <span className="judge-name">{profile?.name || 'Judge'}</span>
+          {/* Prominent Judge Identity Badge (Always clearly visible on tablet and responsive) */}
+          <div className="judge-identity-pill" title={`Logged in as ${profile?.name || 'Judge'}`}>
+            <div className="judge-avatar">
+              {(profile?.name || 'J')[0].toUpperCase()}
+            </div>
+            <div className="judge-identity-details">
+              <span className="judge-role-label">
+                <Crown size={10} color="#D4AF37" />
+                <span>OFFICIAL JUDGE</span>
+              </span>
+              <span className="judge-fullname">
+                {profile?.name || 'Judge'}
+              </span>
+            </div>
           </div>
-          <button className="judge-signout btn btn-ghost btn-sm" onClick={() => setShowSignOutModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-            <LogOut size={13} color="#FCD34D" strokeWidth={2} />
-            Sign out
+
+          <button
+            className="judge-signout btn btn-ghost btn-sm"
+            onClick={() => setShowSignOutModal(true)}
+            title="Sign out of tablet"
+          >
+            <LogOut size={14} color="#FCD34D" strokeWidth={2} />
+            <span className="judge-signout-text">Sign out</span>
           </button>
         </div>
       </header>

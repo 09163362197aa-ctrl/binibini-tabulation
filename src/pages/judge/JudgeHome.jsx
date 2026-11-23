@@ -165,6 +165,67 @@ export default function JudgeHome() {
   if (!selectedStageId) {
     return (
       <div style={{ maxWidth: 880, margin: '0 auto' }}>
+        {/* Tablet Distribution Banner: Clearly confirms judge assignment to prevent distribution confusion */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 12,
+          padding: '12px 18px',
+          borderRadius: 14,
+          background: 'linear-gradient(135deg, rgba(255, 253, 248, 0.95) 0%, rgba(251, 246, 234, 0.95) 100%)',
+          border: '1.5px solid rgba(212, 175, 55, 0.45)',
+          boxShadow: '0 2px 10px rgba(180, 130, 30, 0.08)',
+          marginBottom: 20
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #FDE68A 0%, #D97706 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#78350F',
+              fontWeight: 900,
+              fontSize: '1.05rem',
+              boxShadow: '0 2px 6px rgba(180, 130, 30, 0.3)',
+              flexShrink: 0
+            }}>
+              {(profile?.name || 'J')[0].toUpperCase()}
+            </div>
+            <div>
+              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Tablet Assigned Official Judge
+              </div>
+              <div style={{ fontSize: '1.08rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+                {profile?.name || 'Official Judge'}
+                {profile?.username && (
+                  <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#D97706', marginLeft: 8 }}>
+                    (@{profile.username})
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <span style={{
+            fontSize: '0.76rem',
+            fontWeight: 800,
+            padding: '5px 12px',
+            borderRadius: 20,
+            background: 'rgba(217,119,6,0.12)',
+            color: '#B45309',
+            border: '1px solid rgba(217,119,6,0.3)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6
+          }}>
+            <Crown size={13} color="#D97706" /> Authorized Tablet
+          </span>
+        </div>
+
         <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
           <div className="page-header-left">
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(217,119,6,0.1)', borderRadius: 6, border: '1px solid rgba(217,119,6,0.25)', marginBottom: 8 }}>
