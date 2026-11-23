@@ -408,7 +408,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
       minCellHeight: 12,
     },
     columnStyles: {
-      0: { halign: 'center', cellWidth: 12 },
+      0: { halign: 'center', cellWidth: 16 },
       1: { halign: 'left',   cellWidth: 40 },
       2: { halign: 'left',   cellWidth: 32 },
       [stageKids.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: CLR_TOTAL_BG },
@@ -604,7 +604,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
       minCellHeight: 12,
     },
     columnStyles: {
-      0: { halign: 'center', cellWidth: 12 },
+      0: { halign: 'center', cellWidth: 16 },
       1: { halign: 'left',   cellWidth: 38 },
       2: { halign: 'left',   cellWidth: 30 },
       [stageColMeta.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: CLR_TOTAL_BG },
