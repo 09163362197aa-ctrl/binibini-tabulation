@@ -14,14 +14,16 @@ import {
   Save,
   Layers,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  MapPin,
+  Crown
 } from 'lucide-react'
 import { CandidateRibbon, CandidatePill } from '../../components/CandidateBadge'
 import './ScoreForm.css'
 
 export default function ScoreForm() {
   const { competition, id } = useParams()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const stageParam = searchParams.get('stage')
@@ -315,105 +317,87 @@ export default function ScoreForm() {
         </div>
       )}
 
-      {/* Sticky Top Navigation Bar */}
+      {/* Sticky Top Bar (Clean, compact, no huge buttons) */}
       <div style={{
         position: 'sticky',
-        top: 68,
+        top: 0,
         zIndex: 40,
-        background: 'rgba(250, 247, 239, 0.96)',
+        background: 'rgba(250, 247, 239, 0.98)',
         backdropFilter: 'blur(10px)',
-        margin: '-24px -16px 20px',
-        padding: '12px 18px',
-        borderBottom: '1.5px solid var(--border)',
+        margin: '-12px -16px 16px',
+        padding: '10px 16px',
+        borderBottom: '1px solid rgba(212, 175, 55, 0.3)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: 12,
-        boxShadow: '0 2px 10px rgba(0,0,0,0.04)'
+        gap: 10,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
+        {/* Compact Back Button */}
         <button
           type="button"
           onClick={() => navigate(backUrl)}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 8,
-            padding: '9px 18px',
+            gap: 6,
+            padding: '6px 14px',
             background: 'var(--bg-surface)',
-            border: '2px solid var(--pageant-primary)',
-            borderRadius: 10,
+            border: '1.5px solid rgba(212, 175, 55, 0.5)',
+            borderRadius: 8,
             fontWeight: 800,
-            fontSize: '0.9rem',
-            color: 'var(--pageant-primary)',
-            boxShadow: '0 2px 8px rgba(46, 125, 50, 0.12)',
+            fontSize: '0.84rem',
+            color: '#B45309',
+            boxShadow: '0 1px 4px rgba(180, 130, 30, 0.1)',
             cursor: 'pointer',
             transition: 'all 0.15s ease'
           }}
         >
-          <ArrowLeft size={18} strokeWidth={2.6} />
-          <span>Back to Contestants List</span>
+          <ArrowLeft size={16} strokeWidth={2.4} />
+          <span>Back to Contestants</span>
         </button>
 
-        {subject && (
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            fontSize: '0.84rem',
-            color: 'var(--text-secondary)',
-            fontWeight: 600
-          }}>
-            <span>Scoring:</span>
-            <strong style={{ color: 'var(--text-primary)', fontWeight: 800 }}>
-              {subject.name || (subject.type === 'cheer' ? 'Cheerdance Team' : 'Candidate')}
-            </strong>
-            {subject.candidateNumber != null && (
-              <CandidatePill number={subject.candidateNumber} category={subject.type} />
-            )}
-          </div>
-        )}
+        {/* Right Info: Logged-in Judge Tablet Identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {profile?.name && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: '0.78rem',
+              color: 'var(--text-muted)',
+              background: 'rgba(217, 119, 6, 0.08)',
+              padding: '4px 12px',
+              borderRadius: 20,
+              border: '1px solid rgba(217, 119, 6, 0.25)'
+            }}>
+              <Crown size={12} color="#D97706" />
+              <span>Judge: <strong style={{ color: '#B45309', fontWeight: 800 }}>{profile.name}</strong></span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Subject Header Card */}
+      {/* Streamlined Candidate Header Card */}
       {subject && (() => {
-        const isGinoo = false // Only Binibini division exists
-        const isBinibini = subject.type === 'binibini'
-
         return (
           <div className="card" style={{
             padding: 16,
-            borderRadius: 16,
-            border: '1px solid var(--border)',
-            background: 'var(--bg-surface)',
-            marginBottom: 20,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.06)'
+            borderRadius: 14,
+            border: '1.5px solid rgba(212, 175, 55, 0.35)',
+            background: 'linear-gradient(145deg, #FFFDF8 0%, #FAF6ED 100%)',
+            marginBottom: 16,
+            boxShadow: '0 2px 10px rgba(180, 130, 30, 0.06)'
           }}>
-            {/* 1. Division Badge at the Very Top */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-              <span style={{
-                fontSize: '0.72rem',
-                fontWeight: 800,
-                padding: '3px 12px',
-                borderRadius: 6,
-                background: isBinibini ? '#b45309' : '#15803d',
-                color: '#ffffff',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                lineHeight: 1.2
-              }}>
-                {isBinibini ? 'Binibini Division' : 'Binibining Palayan'}
-              </span>
-            </div>
-
-            {/* 2. CHEERDANCE: Wide landscape banner photo */}
+            {/* CHEERDANCE: Wide landscape banner photo */}
             {subject.type === 'cheer' ? (
               <div style={{ marginBottom: 10 }}>
                 <div style={{
                   position: 'relative',
                   width: '100%',
-                  height: 220,
-                  borderRadius: 12,
+                  height: 180,
+                  borderRadius: 10,
                   overflow: 'hidden',
                   background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
                   border: '1px solid var(--border)'
@@ -429,291 +413,182 @@ export default function ScoreForm() {
                       display: 'block'
                     }}
                     onError={(e) => {
-                      if (subject.logoUrl && e.target.src !== subject.logoUrl) {
-                        e.target.src = subject.logoUrl
-                      } else if (e.target.src !== '/palayan.png') {
-                        e.target.src = '/palayan.png'
-                      }
+                      if (e.target.src !== '/palayan.png') e.target.src = '/palayan.png'
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              /* PAGEANT: Well-arranged, compact horizontal layout */
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                flexWrap: 'wrap'
+              }}>
+                {/* Candidate Photo: Compact, elegant portrait */}
+                <div style={{
+                  position: 'relative',
+                  width: 105,
+                  height: 135,
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                  background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                  border: '1.5px solid rgba(212, 175, 55, 0.45)',
+                  flexShrink: 0,
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)'
+                }}>
+                  <img
+                    src={subject.photoUrl || '/palayan.png'}
+                    alt={subject.name || 'Candidate'}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'center top',
+                      display: 'block'
+                    }}
+                    onError={(e) => {
+                      if (e.target.src !== '/palayan.png') e.target.src = '/palayan.png'
                     }}
                   />
 
-                  {/* Status Indicator Overlay at Top Right of Banner (Icon Only) */}
-                  <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 3 }}>
+                  {/* Candidate Number Ribbon */}
+                  {subject.candidateNumber != null && (
+                    <CandidateRibbon
+                      number={subject.candidateNumber}
+                      category="binibini"
+                      size="compact"
+                      style={{ position: 'absolute', top: 0, left: 6, zIndex: 3 }}
+                    />
+                  )}
+                </div>
+
+                {/* Candidate Details */}
+                <div style={{ flex: '1 1 240px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {/* Status & Candidate Badge Row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    {subject.candidateNumber != null && (
+                      <span style={{
+                        fontSize: '0.74rem',
+                        fontWeight: 800,
+                        padding: '2px 8px',
+                        borderRadius: 6,
+                        background: 'rgba(217, 119, 6, 0.12)',
+                        border: '1px solid rgba(217, 119, 6, 0.3)',
+                        color: '#B45309',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em'
+                      }}>
+                        Candidate #{subject.candidateNumber}
+                      </span>
+                    )}
+
                     {isLocked ? (
-                      <span
-                        title="Locked & Certified"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 32,
-                          height: 32,
-                          borderRadius: 8,
-                          background: '#dcfce7',
-                          color: '#166534',
-                          border: '1.5px solid #bbf7d0'
-                        }}
-                      >
-                        <Lock size={15} strokeWidth={2.5} />
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        padding: '2px 8px',
+                        borderRadius: 6,
+                        background: '#DCFCE7',
+                        color: '#166534',
+                        border: '1px solid #BBF7D0'
+                      }}>
+                        <Lock size={11} strokeWidth={2.4} /> Certified &amp; Locked
                       </span>
                     ) : saving ? (
-                      <span
-                        title="Saving…"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 32,
-                          height: 32,
-                          borderRadius: 8,
-                          background: '#fef9c3',
-                          color: '#854d0e',
-                          border: '1.5px solid #fde047'
-                        }}
-                      >
-                        <Save size={15} strokeWidth={2.2} />
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: 6,
+                        background: '#FEF9C3',
+                        color: '#854D0E',
+                        border: '1px solid #FDE047'
+                      }}>
+                        <Save size={11} /> Saving…
                       </span>
                     ) : (
-                      <span
-                        title="Draft Mode (Unsaved / In Progress)"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 32,
-                          height: 32,
-                          borderRadius: 8,
-                          background: 'rgba(15,23,42,0.7)',
-                          color: '#ffffff',
-                          border: '1px solid rgba(255,255,255,0.25)',
-                          backdropFilter: 'blur(4px)'
-                        }}
-                      >
-                        <FileEdit size={14} strokeWidth={2} />
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: 6,
+                        background: 'var(--bg-elevated)',
+                        color: 'var(--text-muted)',
+                        border: '1px solid var(--border)'
+                      }}>
+                        <FileEdit size={11} /> Draft Mode
                       </span>
                     )}
                   </div>
-                </div>
-              </div>
-            ) : null}
 
-            {/* 3. PAGEANT ONLY: Tall Portrait Photo in the Middle */}
-            {subject.type !== 'cheer' && (
-              <div style={{
-                position: 'relative',
-                width: 240,
-                minWidth: 220,
-                height: 320,
-                borderRadius: 12,
-                overflow: 'hidden',
-                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                border: '1px solid var(--border)',
-                margin: '0 auto'
-              }}>
-                <img
-                  src={subject.photoUrl || subject.logoUrl || '/palayan.png'}
-                  alt={subject.name || 'Candidate'}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    objectPosition: 'center top',
-                    display: 'block'
-                  }}
-                  onError={(e) => {
-                    if (subject.logoUrl && e.target.src !== subject.logoUrl) {
-                      e.target.src = subject.logoUrl
-                    } else if (e.target.src !== '/palayan.png') {
-                      e.target.src = '/palayan.png'
-                    }
-                  }}
-                />
+                  {/* Candidate Name */}
+                  <h2 style={{
+                    margin: 0,
+                    fontSize: '1.45rem',
+                    fontWeight: 900,
+                    color: 'var(--text-primary)',
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1.2
+                  }}>
+                    {subject.name || 'Unnamed Contestant'}
+                  </h2>
 
-                {/* Candidate Number Ribbon in Top-Left Corner */}
-                {subject.candidateNumber != null && (
-                  <CandidateRibbon
-                    number={subject.candidateNumber}
-                    category={subject.type}
-                    size="compact"
-                    style={{ position: 'absolute', top: 0, left: 12, zIndex: 3 }}
-                  />
-                )}
-
-                {/* Status Indicator Overlay at Top-Right Corner (Icon Only) */}
-                <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 3 }}>
-                  {isLocked ? (
-                    <span
-                      title="Stage Locked & Certified"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: 32,
-                        height: 32,
-                        borderRadius: 8,
-                        background: '#dcfce7',
-                        color: '#166534',
-                        border: '1.5px solid #bbf7d0'
-                      }}
-                    >
-                      <Lock size={15} strokeWidth={2.5} />
-                    </span>
-                  ) : saving ? (
-                    <span
-                      title="Saving…"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: 32,
-                        height: 32,
-                        borderRadius: 8,
-                        background: '#fef9c3',
-                        color: '#854d0e',
-                        border: '1.5px solid #fde047'
-                      }}
-                    >
-                      <Save size={15} strokeWidth={2.2} />
-                    </span>
-                  ) : (
-                    <span
-                      title="Draft Mode (Unsaved / In Progress)"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: 32,
-                        height: 32,
-                        borderRadius: 8,
-                        background: 'rgba(15,23,42,0.7)',
-                        color: '#ffffff',
-                        border: '1px solid rgba(255,255,255,0.25)',
-                        backdropFilter: 'blur(4px)'
-                      }}
-                    >
-                      <FileEdit size={14} strokeWidth={2} />
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* 4. Centered Candidate Name & Team at the Bottom */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-              marginTop: 12,
-              marginBottom: 8
-            }}>
-              {/* Candidate Full Name */}
-              <h2 style={{
-                margin: 0,
-                fontSize: '1.65rem',
-                fontWeight: 900,
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.02em',
-                lineHeight: 1.2
-              }}>
-                {subject.name || (subject.type === 'cheer' ? 'Cheerdance Team' : 'Unnamed Contestant')}
-              </h2>
-
-              {/* Team Identity Pill (Centered) */}
-              {(subject.team || subject.logoUrl) && (
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  marginTop: 8,
-                  padding: '3px 12px 3px 4px',
-                  borderRadius: 999,
-                  background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
-                }}>
-                  {subject.logoUrl ? (
-                    <img
-                      src={subject.logoUrl}
-                      alt={subject.team || 'Barangay Logo'}
-                      style={{
-                        width: 22,
-                        height: 22,
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                        border: '1px solid var(--border)',
-                        flexShrink: 0
-                      }}
-                    />
-                  ) : (
+                  {/* Clean Barangay Name (No awkward crop/vegetable photo!) */}
+                  {subject.team && (
                     <div style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: '50%',
-                      background: 'rgba(217,119,6,0.15)',
-                      display: 'flex',
+                      display: 'inline-flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.68rem',
-                      fontWeight: 800,
-                      color: '#b45309',
-                      flexShrink: 0
+                      gap: 5,
+                      fontSize: '0.86rem',
+                      fontWeight: 700,
+                      color: '#B45309'
                     }}>
-                      {(subject.team || 'B').charAt(0)}
+                      <MapPin size={14} color="#D97706" />
+                      <span>Barangay {subject.team}</span>
                     </div>
                   )}
-                  <span style={{
-                    fontSize: '0.88rem',
-                    fontWeight: 700,
-                    color: 'var(--text-primary)',
-                    letterSpacing: '-0.01em'
-                  }}>
-                    {subject.team || 'Palayan City'}
-                  </span>
                 </div>
-              )}
-            </div>
 
-            {/* 5. Action / Lock Details at Bottom of Card */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: 10,
-              paddingTop: 10,
-              borderTop: '1px solid var(--border)',
-              marginTop: 4
-            }}>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                {isLocked ? 'Scores for this stage are certified and locked.' : 'Enter your scores below. Autosaves as draft.'}
+                {/* Unlock Button if Locked */}
+                {isLocked && (
+                  <div style={{ marginLeft: 'auto' }}>
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      style={{
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        padding: '6px 12px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        background: hasPendingRequest ? '#fef3c7' : 'rgba(242, 183, 5, 0.12)',
+                        color: hasPendingRequest ? '#92400e' : '#B45309',
+                        border: hasPendingRequest ? '1px solid #fde68a' : '1px solid rgba(242, 183, 5, 0.35)',
+                        borderRadius: 6,
+                        cursor: hasPendingRequest ? 'default' : 'pointer'
+                      }}
+                      disabled={requesting || hasPendingRequest}
+                      onClick={requestUnlock}
+                    >
+                      <LockOpen size={13} color="#D97706" strokeWidth={2.2} />
+                      {requesting ? 'Sending…' : hasPendingRequest ? 'Unlock Pending' : 'Request Unlock'}
+                    </button>
+                  </div>
+                )}
               </div>
-
-              {isLocked && (
-                <button
-                  type="button"
-                  className="btn btn-sm"
-                  style={{
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    padding: '6px 12px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    background: hasPendingRequest ? '#fef3c7' : 'rgba(242, 183, 5, 0.12)',
-                    color: hasPendingRequest ? '#92400e' : '#B45309',
-                    border: hasPendingRequest ? '1px solid #fde68a' : '1px solid rgba(242, 183, 5, 0.35)',
-                    borderRadius: 6,
-                    cursor: hasPendingRequest ? 'default' : 'pointer'
-                  }}
-                  disabled={requesting || hasPendingRequest}
-                  onClick={requestUnlock}
-                >
-                  <LockOpen size={13} color="#D97706" strokeWidth={2.2} />
-                  {requesting ? 'Sending…' : hasPendingRequest ? 'Unlock Pending' : 'Request Unlock'}
-                </button>
-              )}
-            </div>
+            )}
           </div>
         )
       })()}

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { LogOut, Crown } from 'lucide-react'
 import ictLogo from '../../assets/ict.png'
@@ -8,8 +8,12 @@ import './JudgeLayout.css'
 export default function JudgeLayout() {
   const { profile, signOut } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [showSignOutModal, setShowSignOutModal] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+
+  // Hide top navigation bar while judge is actively scoring to maximize screen space
+  const isScoringPage = location.pathname.includes('/score')
 
   async function handleConfirmSignOut() {
     setSigningOut(true)
@@ -23,44 +27,46 @@ export default function JudgeLayout() {
   }
 
   return (
-    <div className="judge-shell">
-      <header className="judge-header">
-        <div className="judge-header-logo">
-          <div className="judge-logo-icon">
-            <img src="/palayan.png" alt="Palayan Logo" style={{ width: 32, height: 32, objectFit: 'contain', display: 'block' }} />
-          </div>
-          <span className="judge-logo-text">Binibining Palayan</span>
-        </div>
-
-        <div className="judge-header-right">
-          {/* Prominent Judge Identity Badge (Always clearly visible on tablet and responsive) */}
-          <div className="judge-identity-pill" title={`Logged in as ${profile?.name || 'Judge'}`}>
-            <div className="judge-avatar">
-              {(profile?.name || 'J')[0].toUpperCase()}
+    <div className={`judge-shell ${isScoringPage ? 'scoring-mode' : ''}`}>
+      {!isScoringPage && (
+        <header className="judge-header">
+          <div className="judge-header-logo">
+            <div className="judge-logo-icon">
+              <img src="/palayan.png" alt="Palayan Logo" style={{ width: 32, height: 32, objectFit: 'contain', display: 'block' }} />
             </div>
-            <div className="judge-identity-details">
-              <span className="judge-role-label">
-                <Crown size={10} color="#D4AF37" />
-                <span>OFFICIAL JUDGE</span>
-              </span>
-              <span className="judge-fullname">
-                {profile?.name || 'Judge'}
-              </span>
-            </div>
+            <span className="judge-logo-text">Binibining Palayan</span>
           </div>
 
-          <button
-            className="judge-signout btn btn-ghost btn-sm"
-            onClick={() => setShowSignOutModal(true)}
-            title="Sign out of tablet"
-          >
-            <LogOut size={14} color="#FCD34D" strokeWidth={2} />
-            <span className="judge-signout-text">Sign out</span>
-          </button>
-        </div>
-      </header>
+          <div className="judge-header-right">
+            {/* Prominent Judge Identity Badge (Always clearly visible on tablet and responsive) */}
+            <div className="judge-identity-pill" title={`Logged in as ${profile?.name || 'Judge'}`}>
+              <div className="judge-avatar">
+                {(profile?.name || 'J')[0].toUpperCase()}
+              </div>
+              <div className="judge-identity-details">
+                <span className="judge-role-label">
+                  <Crown size={10} color="#D4AF37" />
+                  <span>OFFICIAL JUDGE</span>
+                </span>
+                <span className="judge-fullname">
+                  {profile?.name || 'Judge'}
+                </span>
+              </div>
+            </div>
 
-      <main className="judge-main">
+            <button
+              className="judge-signout btn btn-ghost btn-sm"
+              onClick={() => setShowSignOutModal(true)}
+              title="Sign out of tablet"
+            >
+              <LogOut size={14} color="#FCD34D" strokeWidth={2} />
+              <span className="judge-signout-text">Sign out</span>
+            </button>
+          </div>
+        </header>
+      )}
+
+      <main className={`judge-main ${isScoringPage ? 'judge-main-scoring' : ''}`}>
         <Outlet />
       </main>
 
