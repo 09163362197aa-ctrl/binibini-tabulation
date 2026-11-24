@@ -18,7 +18,9 @@ import {
   MapPin,
   Crown,
   Maximize2,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 import { CandidateRibbon, CandidatePill } from '../../components/CandidateBadge'
 import './ScoreForm.css'
@@ -43,7 +45,12 @@ export default function ScoreForm() {
   const [hasPendingRequest, setHasPendingRequest] = useState(false)
   const [requesting, setRequesting] = useState(false)
   const [pageantCandidates, setPageantCandidates] = useState([])
+  const [candidateList, setCandidateList] = useState([])
   const [activeCandidateId, setActiveCandidateId] = useState(id)
+
+  useEffect(() => {
+    setActiveCandidateId(id)
+  }, [id])
 
   const teamEntryId   = competition === 'cheerdance' ? id : null
   const candidateId   = competition === 'pageant'    ? activeCandidateId : null
@@ -74,24 +81,47 @@ export default function ScoreForm() {
       const targetCandId = competition === 'pageant' ? activeCandidateId : null
 
       if (competition === 'cheerdance') {
-        const { data } = await supabase
-          .from('team_entries')
-          .select('id, photo_url, team:teams(name, logo_url)')
-          .eq('id', id)
-          .single()
+        const [{ data: cheerData }, { data: allTeams }] = await Promise.all([
+          supabase
+            .from('team_entries')
+            .select('id, photo_url, team:teams(name, logo_url)')
+            .eq('id', id)
+            .single(),
+          supabase
+            .from('team_entries')
+            .select('id, photo_url, team:teams(name)')
+            .eq('competition_type', 'cheerdance')
+        ])
         setSubject({
           type: 'cheer',
-          name: data?.team?.name,
+          name: cheerData?.team?.name,
           entryId: id,
-          photoUrl: data?.photo_url,
-          logoUrl: data?.team?.logo_url
+          photoUrl: cheerData?.photo_url,
+          logoUrl: cheerData?.team?.logo_url
         })
+        setCandidateList(allTeams || [])
       } else {
-        const { data: candData } = await supabase
-          .from('candidates')
-          .select('id, name, category, photo_url, candidate_number, team_entry_id, team_entry:team_entry_id(team:teams(name, logo_url), candidates(id, category, name, photo_url, candidate_number))')
-          .eq('id', targetCandId)
-          .single()
+        const [{ data: candData }, { data: allCands }] = await Promise.all([
+          supabase
+            .from('candidates')
+            .select('id, name, category, photo_url, candidate_number, team_entry_id, team_entry:team_entry_id(team:teams(name, logo_url), candidates(id, category, name, photo_url, candidate_number))')
+            .eq('id', targetCandId)
+            .single(),
+          supabase
+            .from('candidates')
+            .select('id, name, category, candidate_number, photo_url, team_entry:team_entry_id(team:teams(name))')
+            .eq('category', 'binibini')
+        ])
+
+        if (allCands) {
+          const sorted = allCands.sort((a, b) => {
+            const numA = a.candidate_number != null ? Number(a.candidate_number) : 99999
+            const numB = b.candidate_number != null ? Number(b.candidate_number) : 99999
+            if (numA !== numB) return numA - numB
+            return (a.name || '').localeCompare(b.name || '')
+          })
+          setCandidateList(sorted)
+        }
 
         if (candData) {
           setPageantCandidates(candData.team_entry?.candidates || [])
@@ -312,6 +342,19 @@ export default function ScoreForm() {
     ? '/judge?comp=cheerdance'
     : (selectedStageId && selectedStageId !== 'all' ? `/judge?comp=pageant&stage=${selectedStageId}` : '/judge?comp=pageant')
 
+  const currentTargetId = competition === 'pageant' ? (activeCandidateId || id) : id
+  const currentIndex = candidateList.findIndex(c => c.id === currentTargetId)
+  const prevCandidate = currentIndex > 0 ? candidateList[currentIndex - 1] : null
+  const nextCandidate = (currentIndex >= 0 && currentIndex < candidateList.length - 1) ? candidateList[currentIndex + 1] : null
+
+  function goToCandidate(targetCand) {
+    if (!targetCand) return
+    const stageQuery = stageParam
+      ? `?stage=${stageParam}`
+      : (selectedStageId && selectedStageId !== 'all' ? `?stage=${selectedStageId}` : '')
+    navigate(`/judge/score/${competition}/${targetCand.id}${stageQuery}`)
+  }
+
   return (
     <div className="score-form-page" style={{ maxWidth: 1080, margin: '0 auto' }}>
       {toast && (
@@ -320,7 +363,7 @@ export default function ScoreForm() {
         </div>
       )}
 
-      {/* Sticky Top Bar (Clean, compact, no huge buttons) */}
+      {/* Sticky Top Bar (Clean, compact, with Quick Candidate Switcher) */}
       <div style={{
         position: 'sticky',
         top: 0,
@@ -337,7 +380,7 @@ export default function ScoreForm() {
         gap: 10,
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}>
-        {/* Compact Back Button */}
+        {/* Left: Compact Back Button */}
         <button
           type="button"
           onClick={() => navigate(backUrl)}
@@ -358,8 +401,80 @@ export default function ScoreForm() {
           }}
         >
           <ArrowLeft size={16} strokeWidth={2.4} />
-          <span>Back to Contestants</span>
+          <span>Back to List</span>
         </button>
+
+        {/* Center: Candidate Switcher Controls */}
+        {candidateList.length > 0 && (
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            background: 'rgba(217, 119, 6, 0.08)',
+            padding: '4px 8px',
+            borderRadius: 10,
+            border: '1px solid rgba(212, 175, 55, 0.35)'
+          }}>
+            <button
+              type="button"
+              disabled={!prevCandidate}
+              onClick={() => goToCandidate(prevCandidate)}
+              title={prevCandidate ? `Go to ${prevCandidate.name}` : 'No previous candidate'}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '5px 10px',
+                borderRadius: 6,
+                border: '1px solid var(--border)',
+                background: prevCandidate ? 'var(--bg-surface)' : 'transparent',
+                color: prevCandidate ? 'var(--text-primary)' : 'var(--text-muted)',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: prevCandidate ? 'pointer' : 'not-allowed',
+                opacity: prevCandidate ? 1 : 0.4
+              }}
+            >
+              <ChevronLeft size={15} />
+              <span>Prev</span>
+            </button>
+
+            <span style={{
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              color: '#B45309',
+              padding: '0 6px',
+              whiteSpace: 'nowrap'
+            }}>
+              {currentIndex >= 0 ? `${currentIndex + 1} of ${candidateList.length}` : ''}
+            </span>
+
+            <button
+              type="button"
+              disabled={!nextCandidate}
+              onClick={() => goToCandidate(nextCandidate)}
+              title={nextCandidate ? `Go to ${nextCandidate.name}` : 'No next candidate'}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                padding: '5px 14px',
+                borderRadius: 6,
+                border: nextCandidate ? '1.5px solid #D97706' : '1px solid var(--border)',
+                background: nextCandidate ? 'linear-gradient(135deg, #FDE68A 0%, #D97706 100%)' : 'transparent',
+                color: nextCandidate ? '#78350F' : 'var(--text-muted)',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                cursor: nextCandidate ? 'pointer' : 'not-allowed',
+                opacity: nextCandidate ? 1 : 0.4,
+                boxShadow: nextCandidate ? '0 2px 6px rgba(180, 130, 30, 0.25)' : 'none'
+              }}
+            >
+              <span>Next Candidate</span>
+              <ChevronRight size={15} strokeWidth={2.5} />
+            </button>
+          </div>
+        )}
 
         {/* Right Info: Logged-in Judge Tablet Identity */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -384,13 +499,32 @@ export default function ScoreForm() {
 
       {/* Two-Column Split Layout for Tablet & Desktop Judging */}
       <div className="scoring-layout-split">
-        {/* ── LEFT COLUMN: Highlighted Candidate Showcase (Responsive & Sticky) ── */}
+        {/* ── LEFT COLUMN: Highlighted Candidate Showcase (Sticky on scroll) ── */}
         <div className="scoring-left-col">
           {subject && (
-            <div className="card candidate-showcase-card">
-              {/* Highlighted Portrait Photo (Auto-adjusts to device screen height) */}
+            <div className="card" style={{
+              padding: 16,
+              borderRadius: 16,
+              border: '1.5px solid rgba(212, 175, 55, 0.45)',
+              background: 'linear-gradient(145deg, #FFFDF8 0%, #FAF6ED 100%)',
+              boxShadow: '0 4px 16px rgba(180, 130, 30, 0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12
+            }}>
+              {/* Highlighted Portrait Photo (Large & Prominent) */}
               <div
-                className="candidate-showcase-photo-frame"
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  height: 300,
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                  border: '2px solid rgba(212, 175, 55, 0.55)',
+                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
+                  cursor: 'pointer'
+                }}
                 onClick={() => setZoomPhoto(true)}
                 title="Tap to inspect full-size photo"
               >
@@ -415,41 +549,41 @@ export default function ScoreForm() {
                     number={subject.candidateNumber}
                     category="binibini"
                     size="compact"
-                    style={{ position: 'absolute', top: 0, left: 8, zIndex: 3 }}
+                    style={{ position: 'absolute', top: 0, left: 10, zIndex: 3 }}
                   />
                 )}
 
                 {/* Tap to Enlarge Badge */}
                 <div style={{
                   position: 'absolute',
-                  bottom: 6,
-                  right: 6,
-                  background: 'rgba(0,0,0,0.7)',
+                  bottom: 8,
+                  right: 8,
+                  background: 'rgba(0,0,0,0.68)',
                   color: '#FFFFFF',
                   backdropFilter: 'blur(4px)',
-                  padding: '3px 7px',
-                  borderRadius: 5,
-                  fontSize: '0.68rem',
+                  padding: '4px 8px',
+                  borderRadius: 6,
+                  fontSize: '0.7rem',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 4,
                   border: '1px solid rgba(255,255,255,0.25)'
                 }}>
-                  <Maximize2 size={10} />
+                  <Maximize2 size={11} />
                   <span>Tap to zoom</span>
                 </div>
               </div>
 
-              {/* Candidate Identity Details (Compact, never cut off) */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap' }}>
+              {/* Candidate Identity Details */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
                   {subject.candidateNumber != null && (
                     <span style={{
-                      fontSize: '0.72rem',
+                      fontSize: '0.75rem',
                       fontWeight: 800,
-                      padding: '2px 7px',
-                      borderRadius: 5,
+                      padding: '2px 8px',
+                      borderRadius: 6,
                       background: 'rgba(217, 119, 6, 0.12)',
                       border: '1px solid rgba(217, 119, 6, 0.3)',
                       color: '#B45309',
@@ -465,53 +599,53 @@ export default function ScoreForm() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 4,
-                      fontSize: '0.7rem',
+                      fontSize: '0.72rem',
                       fontWeight: 800,
-                      padding: '2px 7px',
-                      borderRadius: 5,
+                      padding: '2px 8px',
+                      borderRadius: 6,
                       background: '#DCFCE7',
                       color: '#166534',
                       border: '1px solid #BBF7D0'
                     }}>
-                      <Lock size={10} strokeWidth={2.4} /> Certified &amp; Locked
+                      <Lock size={11} strokeWidth={2.4} /> Certified &amp; Locked
                     </span>
                   ) : saving ? (
                     <span style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 4,
-                      fontSize: '0.7rem',
+                      fontSize: '0.72rem',
                       fontWeight: 700,
-                      padding: '2px 7px',
-                      borderRadius: 5,
+                      padding: '2px 8px',
+                      borderRadius: 6,
                       background: '#FEF9C3',
                       color: '#854D0E',
                       border: '1px solid #FDE047'
                     }}>
-                      <Save size={10} /> Saving…
+                      <Save size={11} /> Saving…
                     </span>
                   ) : (
                     <span style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 4,
-                      fontSize: '0.7rem',
+                      fontSize: '0.72rem',
                       fontWeight: 700,
-                      padding: '2px 7px',
-                      borderRadius: 5,
+                      padding: '2px 8px',
+                      borderRadius: 6,
                       background: 'var(--bg-elevated)',
                       color: 'var(--text-muted)',
                       border: '1px solid var(--border)'
                     }}>
-                      <FileEdit size={10} /> Draft Mode
+                      <FileEdit size={11} /> Draft Mode
                     </span>
                   )}
                 </div>
 
                 {/* Candidate Full Name */}
                 <h2 style={{
-                  margin: '2px 0 0',
-                  fontSize: '1.25rem',
+                  margin: '4px 0 0',
+                  fontSize: '1.45rem',
                   fontWeight: 900,
                   color: 'var(--text-primary)',
                   letterSpacing: '-0.02em',
@@ -520,47 +654,47 @@ export default function ScoreForm() {
                   {subject.name || 'Unnamed Contestant'}
                 </h2>
 
-                {/* Clean Barangay Name */}
+                {/* Clean Barangay Name (No photo on Malate!) */}
                 {subject.team && (
                   <div style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 4,
-                    fontSize: '0.84rem',
+                    gap: 5,
+                    fontSize: '0.88rem',
                     fontWeight: 700,
                     color: '#B45309',
-                    marginTop: 1
+                    marginTop: 2
                   }}>
-                    <MapPin size={13} color="#D97706" />
+                    <MapPin size={15} color="#D97706" />
                     <span>Barangay {subject.team}</span>
                   </div>
                 )}
 
                 {/* Unlock Button if Locked */}
                 {isLocked && (
-                  <div style={{ marginTop: 4, paddingTop: 6, borderTop: '1px solid var(--border)' }}>
+                  <div style={{ marginTop: 8, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
                     <button
                       type="button"
                       className="btn btn-sm"
                       style={{
                         width: '100%',
-                        fontSize: '0.76rem',
+                        fontSize: '0.8rem',
                         fontWeight: 800,
-                        padding: '6px 10px',
+                        padding: '8px 12px',
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: 5,
+                        gap: 6,
                         background: hasPendingRequest ? '#fef3c7' : 'rgba(242, 183, 5, 0.12)',
                         color: hasPendingRequest ? '#92400e' : '#B45309',
                         border: hasPendingRequest ? '1px solid #fde68a' : '1px solid rgba(242, 183, 5, 0.35)',
-                        borderRadius: 6,
+                        borderRadius: 8,
                         cursor: hasPendingRequest ? 'default' : 'pointer'
                       }}
                       disabled={requesting || hasPendingRequest}
                       onClick={requestUnlock}
                     >
-                      <LockOpen size={12} color="#D97706" strokeWidth={2.2} />
+                      <LockOpen size={13} color="#D97706" strokeWidth={2.2} />
                       {requesting ? 'Sending…' : hasPendingRequest ? 'Unlock Pending' : 'Request Stage Unlock'}
                     </button>
                   </div>
@@ -858,6 +992,78 @@ export default function ScoreForm() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Next Candidate Navigation Banner at the Bottom */}
+          {candidateList.length > 1 && (
+            <div style={{ marginTop: 14 }}>
+              {nextCandidate ? (
+                <button
+                  type="button"
+                  onClick={() => goToCandidate(nextCandidate)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 18px',
+                    borderRadius: 12,
+                    background: 'linear-gradient(135deg, #FFFDF8 0%, #FAF6ED 100%)',
+                    border: '1.5px solid rgba(212, 175, 55, 0.55)',
+                    color: '#B45309',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    boxShadow: '0 3px 10px rgba(180, 130, 30, 0.1)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 700 }}>
+                      Next Evaluation
+                    </div>
+                    <div style={{ fontSize: '0.96rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+                      Candidate #{nextCandidate.candidate_number != null ? nextCandidate.candidate_number : ''} — {nextCandidate.name}
+                    </div>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    background: 'linear-gradient(135deg, #FDE68A 0%, #D97706 100%)',
+                    color: '#78350F',
+                    padding: '7px 14px',
+                    borderRadius: 8,
+                    fontWeight: 800,
+                    fontSize: '0.84rem'
+                  }}>
+                    <span>Next Candidate</span>
+                    <ChevronRight size={16} strokeWidth={2.6} />
+                  </div>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => navigate(backUrl)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 18px',
+                    borderRadius: 12,
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text-secondary)',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <CheckCircle2 size={16} color="#16A34A" />
+                  <span>All Candidates Evaluated • Return to List</span>
+                </button>
+              )}
             </div>
           )}
         </div>
