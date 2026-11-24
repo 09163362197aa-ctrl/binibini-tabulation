@@ -3,23 +3,60 @@
 /* Two-Column Split Layout for Tablet & Desktop Judging */
 .scoring-layout-split {
   display: grid;
-  grid-template-columns: 290px 1fr;
-  gap: 20px;
+  grid-template-columns: 270px 1fr;
+  gap: 18px;
   align-items: start;
 }
 
 .scoring-left-col {
   position: sticky;
-  top: 56px;
+  top: 48px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  max-height: calc(100vh - 56px);
+}
+
+.candidate-showcase-card {
+  padding: 12px 14px !important;
+  border-radius: 14px !important;
+  border: 1.5px solid rgba(212, 175, 55, 0.45) !important;
+  background: linear-gradient(145deg, #FFFDF8 0%, #FAF6ED 100%) !important;
+  box-shadow: 0 4px 16px rgba(180, 130, 30, 0.08) !important;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.candidate-showcase-photo-frame {
+  position: relative;
+  width: 100%;
+  height: clamp(150px, 30vh, 230px);
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid rgba(212, 175, 55, 0.55);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.candidate-showcase-photo-frame:active {
+  transform: scale(0.99);
+}
+
+@media (max-height: 720px) {
+  .candidate-showcase-photo-frame {
+    height: clamp(130px, 26vh, 180px);
+  }
 }
 
 .scoring-right-col {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -27,10 +64,14 @@
   .scoring-layout-split {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
   }
   .scoring-left-col {
     position: static;
+    max-height: none;
+  }
+  .candidate-showcase-photo-frame {
+    height: clamp(180px, 32vh, 240px);
   }
 }
 

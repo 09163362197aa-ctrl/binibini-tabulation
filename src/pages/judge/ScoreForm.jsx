@@ -384,32 +384,13 @@ export default function ScoreForm() {
 
       {/* Two-Column Split Layout for Tablet & Desktop Judging */}
       <div className="scoring-layout-split">
-        {/* ── LEFT COLUMN: Highlighted Candidate Showcase (Sticky on scroll) ── */}
+        {/* ── LEFT COLUMN: Highlighted Candidate Showcase (Responsive & Sticky) ── */}
         <div className="scoring-left-col">
           {subject && (
-            <div className="card" style={{
-              padding: 16,
-              borderRadius: 16,
-              border: '1.5px solid rgba(212, 175, 55, 0.45)',
-              background: 'linear-gradient(145deg, #FFFDF8 0%, #FAF6ED 100%)',
-              boxShadow: '0 4px 16px rgba(180, 130, 30, 0.08)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12
-            }}>
-              {/* Highlighted Portrait Photo (Large & Prominent) */}
+            <div className="card candidate-showcase-card">
+              {/* Highlighted Portrait Photo (Auto-adjusts to device screen height) */}
               <div
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                  height: 300,
-                  borderRadius: 12,
-                  overflow: 'hidden',
-                  background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                  border: '2px solid rgba(212, 175, 55, 0.55)',
-                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
-                  cursor: 'pointer'
-                }}
+                className="candidate-showcase-photo-frame"
                 onClick={() => setZoomPhoto(true)}
                 title="Tap to inspect full-size photo"
               >
@@ -434,41 +415,41 @@ export default function ScoreForm() {
                     number={subject.candidateNumber}
                     category="binibini"
                     size="compact"
-                    style={{ position: 'absolute', top: 0, left: 10, zIndex: 3 }}
+                    style={{ position: 'absolute', top: 0, left: 8, zIndex: 3 }}
                   />
                 )}
 
                 {/* Tap to Enlarge Badge */}
                 <div style={{
                   position: 'absolute',
-                  bottom: 8,
-                  right: 8,
-                  background: 'rgba(0,0,0,0.68)',
+                  bottom: 6,
+                  right: 6,
+                  background: 'rgba(0,0,0,0.7)',
                   color: '#FFFFFF',
                   backdropFilter: 'blur(4px)',
-                  padding: '4px 8px',
-                  borderRadius: 6,
-                  fontSize: '0.7rem',
+                  padding: '3px 7px',
+                  borderRadius: 5,
+                  fontSize: '0.68rem',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 4,
                   border: '1px solid rgba(255,255,255,0.25)'
                 }}>
-                  <Maximize2 size={11} />
+                  <Maximize2 size={10} />
                   <span>Tap to zoom</span>
                 </div>
               </div>
 
-              {/* Candidate Identity Details */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+              {/* Candidate Identity Details (Compact, never cut off) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap' }}>
                   {subject.candidateNumber != null && (
                     <span style={{
-                      fontSize: '0.75rem',
+                      fontSize: '0.72rem',
                       fontWeight: 800,
-                      padding: '2px 8px',
-                      borderRadius: 6,
+                      padding: '2px 7px',
+                      borderRadius: 5,
                       background: 'rgba(217, 119, 6, 0.12)',
                       border: '1px solid rgba(217, 119, 6, 0.3)',
                       color: '#B45309',
@@ -484,53 +465,53 @@ export default function ScoreForm() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 4,
-                      fontSize: '0.72rem',
+                      fontSize: '0.7rem',
                       fontWeight: 800,
-                      padding: '2px 8px',
-                      borderRadius: 6,
+                      padding: '2px 7px',
+                      borderRadius: 5,
                       background: '#DCFCE7',
                       color: '#166534',
                       border: '1px solid #BBF7D0'
                     }}>
-                      <Lock size={11} strokeWidth={2.4} /> Certified &amp; Locked
+                      <Lock size={10} strokeWidth={2.4} /> Certified &amp; Locked
                     </span>
                   ) : saving ? (
                     <span style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 4,
-                      fontSize: '0.72rem',
+                      fontSize: '0.7rem',
                       fontWeight: 700,
-                      padding: '2px 8px',
-                      borderRadius: 6,
+                      padding: '2px 7px',
+                      borderRadius: 5,
                       background: '#FEF9C3',
                       color: '#854D0E',
                       border: '1px solid #FDE047'
                     }}>
-                      <Save size={11} /> Saving…
+                      <Save size={10} /> Saving…
                     </span>
                   ) : (
                     <span style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 4,
-                      fontSize: '0.72rem',
+                      fontSize: '0.7rem',
                       fontWeight: 700,
-                      padding: '2px 8px',
-                      borderRadius: 6,
+                      padding: '2px 7px',
+                      borderRadius: 5,
                       background: 'var(--bg-elevated)',
                       color: 'var(--text-muted)',
                       border: '1px solid var(--border)'
                     }}>
-                      <FileEdit size={11} /> Draft Mode
+                      <FileEdit size={10} /> Draft Mode
                     </span>
                   )}
                 </div>
 
                 {/* Candidate Full Name */}
                 <h2 style={{
-                  margin: '4px 0 0',
-                  fontSize: '1.45rem',
+                  margin: '2px 0 0',
+                  fontSize: '1.25rem',
                   fontWeight: 900,
                   color: 'var(--text-primary)',
                   letterSpacing: '-0.02em',
@@ -539,47 +520,47 @@ export default function ScoreForm() {
                   {subject.name || 'Unnamed Contestant'}
                 </h2>
 
-                {/* Clean Barangay Name (No photo on Malate!) */}
+                {/* Clean Barangay Name */}
                 {subject.team && (
                   <div style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 5,
-                    fontSize: '0.88rem',
+                    gap: 4,
+                    fontSize: '0.84rem',
                     fontWeight: 700,
                     color: '#B45309',
-                    marginTop: 2
+                    marginTop: 1
                   }}>
-                    <MapPin size={15} color="#D97706" />
+                    <MapPin size={13} color="#D97706" />
                     <span>Barangay {subject.team}</span>
                   </div>
                 )}
 
                 {/* Unlock Button if Locked */}
                 {isLocked && (
-                  <div style={{ marginTop: 8, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
+                  <div style={{ marginTop: 4, paddingTop: 6, borderTop: '1px solid var(--border)' }}>
                     <button
                       type="button"
                       className="btn btn-sm"
                       style={{
                         width: '100%',
-                        fontSize: '0.8rem',
+                        fontSize: '0.76rem',
                         fontWeight: 800,
-                        padding: '8px 12px',
+                        padding: '6px 10px',
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: 6,
+                        gap: 5,
                         background: hasPendingRequest ? '#fef3c7' : 'rgba(242, 183, 5, 0.12)',
                         color: hasPendingRequest ? '#92400e' : '#B45309',
                         border: hasPendingRequest ? '1px solid #fde68a' : '1px solid rgba(242, 183, 5, 0.35)',
-                        borderRadius: 8,
+                        borderRadius: 6,
                         cursor: hasPendingRequest ? 'default' : 'pointer'
                       }}
                       disabled={requesting || hasPendingRequest}
                       onClick={requestUnlock}
                     >
-                      <LockOpen size={13} color="#D97706" strokeWidth={2.2} />
+                      <LockOpen size={12} color="#D97706" strokeWidth={2.2} />
                       {requesting ? 'Sending…' : hasPendingRequest ? 'Unlock Pending' : 'Request Stage Unlock'}
                     </button>
                   </div>
