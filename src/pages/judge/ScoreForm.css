@@ -1,5 +1,39 @@
 /* Overhaul ScoreForm with Stage & Scoreboard identity */
 
+/* Two-Column Split Layout for Tablet & Desktop Judging */
+.scoring-layout-split {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.scoring-left-col {
+  position: sticky;
+  top: 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scoring-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .scoring-layout-split {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .scoring-left-col {
+    position: static;
+  }
+}
+
 /* Full-bleed stage spotlight header */
 .score-header {
   position: relative;
