@@ -25,6 +25,32 @@ import {
 import { CandidateRibbon, CandidatePill } from '../../components/CandidateBadge'
 import './ScoreForm.css'
 
+// Preload candidate photo into browser cache before unveiling profile to avoid image swap flicker
+function preloadImage(url) {
+  if (!url || typeof url !== 'string') return Promise.resolve()
+  return new Promise(resolve => {
+    const img = new Image()
+    let settled = false
+    const timeout = setTimeout(() => {
+      settled = true
+      resolve(url)
+    }, 2500) // 2.5s safeguard timeout
+    img.onload = () => {
+      if (!settled) {
+        clearTimeout(timeout)
+        resolve(url)
+      }
+    }
+    img.onerror = () => {
+      if (!settled) {
+        clearTimeout(timeout)
+        resolve(url)
+      }
+    }
+    img.src = url
+  })
+}
+
 export default function ScoreForm() {
   const { competition, id } = useParams()
   const { user, profile } = useAuth()
@@ -46,10 +72,10 @@ export default function ScoreForm() {
   const [requesting, setRequesting] = useState(false)
   const [pageantCandidates, setPageantCandidates] = useState([])
   const [candidateList, setCandidateList] = useState([])
-  const [activeCandidateId, setActiveCandidateId] = useState(id)
+  const candidateId = competition === 'pageant' ? id : null
+  const teamEntryId = competition === 'cheerdance' ? id : null
 
   useEffect(() => {
-    setActiveCandidateId(id)
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
@@ -61,17 +87,18 @@ export default function ScoreForm() {
     return () => clearTimeout(timer)
   }, [id])
 
-  const teamEntryId = competition === 'cheerdance' ? id : null
-  const candidateId = competition === 'pageant' ? activeCandidateId : null
-
   function showToast(msg, type = 'success') {
     setToast({ msg, type })
     setTimeout(() => setToast(null), 3000)
   }
 
   useEffect(() => {
+    let isCurrent = true
+
     async function load() {
       setLoading(true)
+      // Reset subject immediately so previous candidate's image/details never leak to the new candidate
+      setSubject(null)
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
       document.documentElement.scrollTop = 0
       document.body.scrollTop = 0
@@ -88,9 +115,10 @@ export default function ScoreForm() {
         allCriteria = criteriaData || []
       }
 
+      if (!isCurrent) return
       setCriteria(allCriteria)
 
-      const targetCandId = competition === 'pageant' ? activeCandidateId : null
+      const targetCandId = competition === 'pageant' ? id : null
 
       if (competition === 'cheerdance') {
         const [{ data: cheerData }, { data: allTeams }] = await Promise.all([
@@ -104,6 +132,14 @@ export default function ScoreForm() {
             .select('id, photo_url, team:teams(name)')
             .eq('competition_type', 'cheerdance')
         ])
+
+        if (!isCurrent) return
+
+        if (cheerData?.photo_url) {
+          await preloadImage(cheerData.photo_url)
+        }
+        if (!isCurrent) return
+
         setSubject({
           type: 'cheer',
           name: cheerData?.team?.name,
@@ -124,6 +160,14 @@ export default function ScoreForm() {
             .select('id, name, category, candidate_number, photo_url, team_entry:team_entry_id(team:teams(name))')
             .eq('category', 'binibini')
         ])
+
+        if (!isCurrent) return
+
+        // Preload candidate photo into browser memory so it renders instantly with zero flicker
+        if (candData?.photo_url) {
+          await preloadImage(candData.photo_url)
+        }
+        if (!isCurrent) return
 
         if (allCands) {
           const sorted = allCands.sort((a, b) => {
@@ -150,6 +194,8 @@ export default function ScoreForm() {
         }
       }
 
+      if (!isCurrent) return
+
       const query = supabase
         .from('scores')
         .select('id, criterion_id, value, is_locked')
@@ -158,6 +204,7 @@ export default function ScoreForm() {
       if (competition === 'pageant') query.eq('candidate_id', targetCandId)
 
       const { data: scoreRows } = await query
+      if (!isCurrent) return
 
       const raw = {}
       const saved = {}
@@ -178,6 +225,7 @@ export default function ScoreForm() {
       if (competition === 'pageant') reqQuery.eq('candidate_id', targetCandId)
 
       const { data: reqRows } = await reqQuery
+      if (!isCurrent) return
       setHasPendingRequest((reqRows || []).length > 0)
 
       setLoading(false)
@@ -205,9 +253,10 @@ export default function ScoreForm() {
       .subscribe()
 
     return () => {
+      isCurrent = false
       supabase.removeChannel(channel)
     }
-  }, [competition, id, activeCandidateId, user])
+  }, [competition, id, user])
 
   const parents = criteria.filter(c => !c.parent_id)
   const children = criteria.filter(c => c.parent_id)
@@ -359,7 +408,7 @@ export default function ScoreForm() {
     ? '/judge?comp=cheerdance'
     : (selectedStageId && selectedStageId !== 'all' ? `/judge?comp=pageant&stage=${selectedStageId}` : '/judge?comp=pageant')
 
-  const currentTargetId = competition === 'pageant' ? (activeCandidateId || id) : id
+  const currentTargetId = id
   const currentIndex = candidateList.findIndex(c => c.id === currentTargetId)
   const prevCandidate = currentIndex > 0 ? candidateList[currentIndex - 1] : null
   const nextCandidate = (currentIndex >= 0 && currentIndex < candidateList.length - 1) ? candidateList[currentIndex + 1] : null
@@ -559,6 +608,7 @@ export default function ScoreForm() {
                 title="Tap to inspect full-size photo"
               >
                 <img
+                  key={subject.candidateId || subject.photoUrl || subject.name}
                   src={subject.photoUrl || '/palayan.png'}
                   alt={subject.name || 'Candidate'}
                   onError={(e) => {
