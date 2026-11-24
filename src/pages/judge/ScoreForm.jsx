@@ -551,42 +551,16 @@ export default function ScoreForm() {
         {/* ── LEFT COLUMN: Highlighted Candidate Showcase (Sticky on scroll) ── */}
         <div className="scoring-left-col">
           {subject && (
-            <div className="card" style={{
-              padding: 16,
-              borderRadius: 16,
-              border: '1.5px solid rgba(212, 175, 55, 0.45)',
-              background: 'linear-gradient(145deg, #FFFDF8 0%, #FAF6ED 100%)',
-              boxShadow: '0 4px 16px rgba(180, 130, 30, 0.08)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12
-            }}>
-              {/* Highlighted Portrait Photo (Large & Prominent) */}
+            <div className="card candidate-spotlight-card">
+              {/* Highlighted Portrait Photo (Responsive & Fitted) */}
               <div
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                  height: 300,
-                  borderRadius: 12,
-                  overflow: 'hidden',
-                  background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                  border: '2px solid rgba(212, 175, 55, 0.55)',
-                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
-                  cursor: 'pointer'
-                }}
+                className="candidate-spotlight-photo"
                 onClick={() => setZoomPhoto(true)}
                 title="Tap to inspect full-size photo"
               >
                 <img
                   src={subject.photoUrl || '/palayan.png'}
                   alt={subject.name || 'Candidate'}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    objectPosition: 'center top',
-                    display: 'block'
-                  }}
                   onError={(e) => {
                     if (e.target.src !== '/palayan.png') e.target.src = '/palayan.png'
                   }}
@@ -624,14 +598,15 @@ export default function ScoreForm() {
                 </div>
               </div>
 
-              {/* Candidate Identity Details */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+              {/* Candidate Identity Details (Centered) */}
+              <div className="candidate-spotlight-details">
+                {/* Badges Row (Centered) */}
+                <div className="candidate-spotlight-badges">
                   {subject.candidateNumber != null && (
                     <span style={{
                       fontSize: '0.75rem',
                       fontWeight: 800,
-                      padding: '2px 8px',
+                      padding: '3px 10px',
                       borderRadius: 6,
                       background: 'rgba(217, 119, 6, 0.12)',
                       border: '1px solid rgba(217, 119, 6, 0.3)',
@@ -650,7 +625,7 @@ export default function ScoreForm() {
                       gap: 4,
                       fontSize: '0.72rem',
                       fontWeight: 800,
-                      padding: '2px 8px',
+                      padding: '3px 10px',
                       borderRadius: 6,
                       background: '#DCFCE7',
                       color: '#166534',
@@ -665,7 +640,7 @@ export default function ScoreForm() {
                       gap: 4,
                       fontSize: '0.72rem',
                       fontWeight: 700,
-                      padding: '2px 8px',
+                      padding: '3px 10px',
                       borderRadius: 6,
                       background: '#FEF9C3',
                       color: '#854D0E',
@@ -680,7 +655,7 @@ export default function ScoreForm() {
                       gap: 4,
                       fontSize: '0.72rem',
                       fontWeight: 700,
-                      padding: '2px 8px',
+                      padding: '3px 10px',
                       borderRadius: 6,
                       background: 'var(--bg-elevated)',
                       color: 'var(--text-muted)',
@@ -691,29 +666,14 @@ export default function ScoreForm() {
                   )}
                 </div>
 
-                {/* Candidate Full Name */}
-                <h2 style={{
-                  margin: '4px 0 0',
-                  fontSize: '1.45rem',
-                  fontWeight: 900,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.02em',
-                  lineHeight: 1.2
-                }}>
+                {/* Candidate Full Name (Centered) */}
+                <h2 className="candidate-spotlight-name">
                   {subject.name || 'Unnamed Contestant'}
                 </h2>
 
-                {/* Clean Barangay Name (No photo on Malate!) */}
+                {/* Clean Barangay Name (Centered) */}
                 {subject.team && (
-                  <div style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 5,
-                    fontSize: '0.88rem',
-                    fontWeight: 700,
-                    color: '#B45309',
-                    marginTop: 2
-                  }}>
+                  <div className="candidate-spotlight-barangay">
                     <MapPin size={15} color="#D97706" />
                     <span>Barangay {subject.team}</span>
                   </div>
@@ -721,15 +681,17 @@ export default function ScoreForm() {
 
                 {/* Unlock Button if Locked */}
                 {isLocked && (
-                  <div style={{ marginTop: 8, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
+                  <div style={{ marginTop: 6, paddingTop: 8, borderTop: '1px solid var(--border)', width: '100%' }}>
                     <button
                       type="button"
                       className="btn btn-sm"
                       style={{
                         width: '100%',
+                        maxWidth: 240,
+                        margin: '0 auto',
                         fontSize: '0.8rem',
                         fontWeight: 800,
-                        padding: '8px 12px',
+                        padding: '7px 12px',
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',

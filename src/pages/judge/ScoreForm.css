@@ -3,17 +3,112 @@
 /* Two-Column Split Layout for Tablet & Desktop Judging */
 .scoring-layout-split {
   display: grid;
-  grid-template-columns: 290px 1fr;
+  grid-template-columns: 280px 1fr;
   gap: 20px;
   align-items: start;
 }
 
 .scoring-left-col {
   position: sticky;
-  top: 56px;
+  top: 58px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   gap: 12px;
+  width: 100%;
+}
+
+/* Candidate Spotlight Showcase Card (Left Column) - Fixed, fitted, centered */
+.candidate-spotlight-card {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(212, 175, 55, 0.45);
+  background: linear-gradient(145deg, #FFFDF8 0%, #FAF6ED 100%);
+  box-shadow: 0 4px 16px rgba(180, 130, 30, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  box-sizing: border-box;
+  max-height: calc(100dvh - 74px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 175, 55, 0.4) transparent;
+}
+
+.candidate-spotlight-photo {
+  position: relative;
+  width: 100%;
+  max-width: 250px;
+  height: clamp(160px, 34vh, 280px);
+  aspect-ratio: 3 / 4;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid rgba(212, 175, 55, 0.55);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.candidate-spotlight-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.candidate-spotlight-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.candidate-spotlight-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.candidate-spotlight-name {
+  margin: 2px 0 0;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-align: center;
+  width: 100%;
+  word-break: break-word;
+}
+
+.candidate-spotlight-barangay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #B45309;
+  margin-top: 1px;
+  text-align: center;
+  width: 100%;
 }
 
 .scoring-right-col {
@@ -23,14 +118,74 @@
   min-width: 0;
 }
 
-@media (max-width: 768px) {
+/* Tablet Portrait Mode (iPad & Android Tablets in Portrait e.g. 640px to 920px) */
+@media (min-width: 641px) and (max-width: 920px) {
+  .scoring-layout-split {
+    grid-template-columns: 220px 1fr;
+    gap: 14px;
+  }
+  .scoring-left-col {
+    position: sticky;
+    top: 56px;
+  }
+  .candidate-spotlight-card {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .candidate-spotlight-photo {
+    height: clamp(150px, 28vh, 220px);
+  }
+  .candidate-spotlight-name {
+    font-size: 1.15rem;
+  }
+}
+
+/* Landscape Viewports with Shorter Heights (Laptops / Tablets in Landscape <= 720px height) */
+@media (max-height: 720px) and (orientation: landscape) {
+  .scoring-layout-split {
+    gap: 14px;
+  }
+  .candidate-spotlight-card {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .candidate-spotlight-photo {
+    height: clamp(120px, 30vh, 180px);
+  }
+  .candidate-spotlight-name {
+    font-size: 1.12rem;
+  }
+  .candidate-spotlight-barangay {
+    font-size: 0.8rem;
+  }
+}
+
+/* Very short height landscape screens (e.g. <= 580px) */
+@media (max-height: 580px) and (orientation: landscape) {
+  .candidate-spotlight-card {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+  .candidate-spotlight-photo {
+    height: clamp(90px, 26vh, 130px);
+  }
+}
+
+/* Mobile Screens (<= 640px) */
+@media (max-width: 640px) {
   .scoring-layout-split {
     display: flex;
     flex-direction: column;
     gap: 16px;
   }
   .scoring-left-col {
-    position: static;
+    position: relative;
+    top: 0;
+    width: 100%;
+  }
+  .candidate-spotlight-card {
+    max-width: 380px;
+    margin: 0 auto;
   }
 }
 
