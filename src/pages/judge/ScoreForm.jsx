@@ -664,7 +664,7 @@ export default function ScoreForm() {
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><div className="spinner" /></div>
       ) : (
-        <div className="criteria-sections" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="criteria-sections" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
           {competition === 'cheerdance' ? (
             <div className="card" style={{ padding: '16px 18px 8px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
               <h3 style={{ margin: '0 0 12px', fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>Scoring Criteria</h3>
