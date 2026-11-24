@@ -32,16 +32,16 @@ export default function ScoreForm() {
   const [searchParams] = useSearchParams()
   const stageParam = searchParams.get('stage')
 
-  const [criteria, setCriteria]   = useState([])
-  const [scores, setScores]       = useState({})
-  const [savedScores, setSaved]   = useState({})
-  const [subject, setSubject]     = useState(null)
-  const [loading, setLoading]     = useState(true)
-  const [saving, setSaving]       = useState(false)
-  const [locking, setLocking]     = useState(false)
+  const [criteria, setCriteria] = useState([])
+  const [scores, setScores] = useState({})
+  const [savedScores, setSaved] = useState({})
+  const [subject, setSubject] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [locking, setLocking] = useState(false)
   const [showLockConfirm, setShowLockConfirm] = useState(false)
   const [zoomPhoto, setZoomPhoto] = useState(false)
-  const [toast, setToast]         = useState(null)
+  const [toast, setToast] = useState(null)
   const [hasPendingRequest, setHasPendingRequest] = useState(false)
   const [requesting, setRequesting] = useState(false)
   const [pageantCandidates, setPageantCandidates] = useState([])
@@ -50,10 +50,19 @@ export default function ScoreForm() {
 
   useEffect(() => {
     setActiveCandidateId(id)
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    }, 40)
+    return () => clearTimeout(timer)
   }, [id])
 
-  const teamEntryId   = competition === 'cheerdance' ? id : null
-  const candidateId   = competition === 'pageant'    ? activeCandidateId : null
+  const teamEntryId = competition === 'cheerdance' ? id : null
+  const candidateId = competition === 'pageant' ? activeCandidateId : null
 
   function showToast(msg, type = 'success') {
     setToast({ msg, type })
@@ -63,6 +72,9 @@ export default function ScoreForm() {
   useEffect(() => {
     async function load() {
       setLoading(true)
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
       let allCriteria = []
 
       if (competition === 'pageant') {
@@ -143,7 +155,7 @@ export default function ScoreForm() {
         .select('id, criterion_id, value, is_locked')
         .eq('judge_id', user.id)
       if (competition === 'cheerdance') query.eq('team_entry_id', id)
-      if (competition === 'pageant')    query.eq('candidate_id', targetCandId)
+      if (competition === 'pageant') query.eq('candidate_id', targetCandId)
 
       const { data: scoreRows } = await query
 
@@ -151,7 +163,7 @@ export default function ScoreForm() {
       const saved = {}
       scoreRows?.forEach(row => {
         // Direct scoring: stored value IS the judge's entered score — no conversion needed
-        raw[row.criterion_id]   = parseFloat(row.value.toFixed(4))
+        raw[row.criterion_id] = parseFloat(row.value.toFixed(4))
         saved[row.criterion_id] = { id: row.id, is_locked: row.is_locked }
       })
       setScores(raw)
@@ -163,12 +175,17 @@ export default function ScoreForm() {
         .eq('judge_id', user.id)
         .eq('status', 'pending')
       if (competition === 'cheerdance') reqQuery.eq('team_entry_id', id)
-      if (competition === 'pageant')    reqQuery.eq('candidate_id', targetCandId)
+      if (competition === 'pageant') reqQuery.eq('candidate_id', targetCandId)
 
       const { data: reqRows } = await reqQuery
       setHasPendingRequest((reqRows || []).length > 0)
 
       setLoading(false)
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+        document.documentElement.scrollTop = 0
+        document.body.scrollTop = 0
+      })
     }
     load()
 
@@ -192,8 +209,8 @@ export default function ScoreForm() {
     }
   }, [competition, id, activeCandidateId, user])
 
-  const parents  = criteria.filter(c => !c.parent_id)
-  const children = criteria.filter(c =>  c.parent_id)
+  const parents = criteria.filter(c => !c.parent_id)
+  const children = criteria.filter(c => c.parent_id)
 
   const [selectedStageId, setSelectedStageId] = useState(stageParam || parents[0]?.id || 'all')
 
@@ -214,8 +231,8 @@ export default function ScoreForm() {
   const activeCriteria = competition === 'cheerdance'
     ? criteria
     : (selectedStageId !== 'all'
-        ? children.filter(c => c.parent_id === selectedStageId)
-        : children)
+      ? children.filter(c => c.parent_id === selectedStageId)
+      : children)
 
   const activeCriteriaIds = activeCriteria.map(c => c.id)
   const isLocked = activeCriteriaIds.length > 0 && activeCriteriaIds.every(cid => savedScores[cid]?.is_locked)
@@ -224,10 +241,10 @@ export default function ScoreForm() {
     setRequesting(true)
     try {
       const payload = {
-        judge_id:      user.id,
-        candidate_id:  candidateId || null,
+        judge_id: user.id,
+        candidate_id: candidateId || null,
         team_entry_id: candidateId ? null : teamEntryId,
-        status:        'pending',
+        status: 'pending',
       }
       if (selectedStageId && selectedStageId !== 'all') {
         payload.stage_id = selectedStageId
@@ -349,6 +366,9 @@ export default function ScoreForm() {
 
   function goToCandidate(targetCand) {
     if (!targetCand) return
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
     const stageQuery = stageParam
       ? `?stage=${stageParam}`
       : (selectedStageId && selectedStageId !== 'all' ? `?stage=${selectedStageId}` : '')
@@ -497,8 +517,37 @@ export default function ScoreForm() {
         </div>
       </div>
 
-      {/* Two-Column Split Layout for Tablet & Desktop Judging */}
-      <div className="scoring-layout-split">
+      {/* Royal Crown Preloader while switching or loading contestant evaluation */}
+      {loading ? (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 460,
+          padding: 48,
+          background: 'linear-gradient(145deg, rgba(255, 253, 248, 0.95) 0%, rgba(251, 246, 234, 0.95) 100%)',
+          borderRadius: 16,
+          border: '1.5px solid rgba(212, 175, 55, 0.35)',
+          boxShadow: '0 4px 20px rgba(180, 130, 30, 0.08)',
+          textAlign: 'center',
+          margin: '20px 0'
+        }}>
+          <div style={{ position: 'relative', width: 72, height: 72, marginBottom: 20 }}>
+            <div className="spinner" style={{ width: 72, height: 72, borderWidth: 3.5, borderColor: 'rgba(212, 175, 55, 0.2)', borderTopColor: '#D97706' }} />
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Crown size={28} color="#D97706" />
+            </div>
+          </div>
+          <div style={{ fontSize: '1.18rem', fontWeight: 900, color: '#B45309', letterSpacing: '-0.01em' }}>
+            Loading Contestant Evaluation...
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '8px 0 0', maxWidth: 360, lineHeight: 1.5 }}>
+            Fetching candidate profile, rubrics, and certified scoring records
+          </p>
+        </div>
+      ) : (
+        <div className="scoring-layout-split">
         {/* ── LEFT COLUMN: Highlighted Candidate Showcase (Sticky on scroll) ── */}
         <div className="scoring-left-col">
           {subject && (
@@ -774,10 +823,7 @@ export default function ScoreForm() {
           })()}
 
           {/* Criteria Evaluation Card */}
-          {loading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}><div className="spinner" /></div>
-          ) : (
-            <div className="criteria-sections" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
+          <div className="criteria-sections" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
               {competition === 'cheerdance' ? (
                 <div className="card" style={{ padding: '16px 18px 8px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
                   <h3 style={{ margin: '0 0 12px', fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>Scoring Criteria</h3>
@@ -789,7 +835,7 @@ export default function ScoreForm() {
                         value={scores[c.id] ?? 0}
                         locked={isLocked}
                         onChangeScore={v => handleScoreChange(c.id, v)}
-                        onBlurScore={v  => handleBlur(c.id, v)}
+                        onBlurScore={v => handleBlur(c.id, v)}
                       />
                     ))}
                   </div>
@@ -817,7 +863,6 @@ export default function ScoreForm() {
                 ))
               )}
             </div>
-          )}
 
           {/* Total Score Summary Bar */}
           {!loading && (
@@ -1068,6 +1113,7 @@ export default function ScoreForm() {
           )}
         </div>
       </div>
+      )}
 
       {/* Full-Screen HD Photo Lightbox Modal */}
       {zoomPhoto && subject?.photoUrl && (
