@@ -1,21 +1,57 @@
 /* Overhaul ScoreForm with Stage & Scoreboard identity */
 
+.score-form-page {
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+/* Compact Top Candidate Switcher Bar */
+.score-form-top-bar {
+  flex-shrink: 0;
+  z-index: 40;
+  background: rgba(250, 247, 239, 0.98);
+  backdrop-filter: blur(10px);
+  margin-bottom: 12px;
+  padding: 8px 16px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
 /* Two-Column Split Layout for Tablet & Desktop Judging */
 .scoring-layout-split {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: clamp(230px, 26vw, 300px) 1fr;
   gap: 18px;
-  align-items: start;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  align-items: stretch;
 }
 
 .scoring-left-col {
-  position: sticky;
-  top: 56px;
+  height: 100%;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: calc(100dvh - 72px);
-  max-height: calc(100dvh - 72px);
+  overflow: hidden; /* Left side NEVER scrolls - completely stationary */
+  position: relative;
+  top: 0;
   box-sizing: border-box;
 }
 
@@ -23,6 +59,7 @@
 .candidate-spotlight-card {
   width: 100%;
   height: 100%;
+  max-height: 100%;
   margin: 0;
   padding: 16px;
   border-radius: 16px;
@@ -36,7 +73,7 @@
   text-align: center;
   gap: 12px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: hidden; /* Strictly locked and non-scrollable */
 }
 
 /* Candidate Portrait Photo - Flexibly scales down and shrinks when screen height is thin */
@@ -111,10 +148,33 @@
 }
 
 .scoring-right-col {
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto; /* ONLY the right column is scrollable */
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 14px;
   min-width: 0;
+  padding-right: 8px;
+  padding-bottom: 28px;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 175, 55, 0.4) transparent;
+}
+
+.scoring-right-col::-webkit-scrollbar {
+  width: 6px;
+}
+.scoring-right-col::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scoring-right-col::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.35);
+  border-radius: 4px;
+}
+.scoring-right-col::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.6);
 }
 
 /* When vertical screen length is getting smaller, make card thinner and scale down proportionally */
@@ -186,9 +246,16 @@
 
 /* Mobile Screens (<= 640px) */
 @media (max-width: 640px) {
+  .score-form-page {
+    height: auto;
+    overflow: visible;
+  }
+
   .scoring-layout-split {
     display: flex;
     flex-direction: column;
+    height: auto;
+    overflow: visible;
     gap: 16px;
   }
 
@@ -196,20 +263,31 @@
     position: relative;
     top: 0;
     height: auto;
-    min-height: 0;
+    max-height: none;
+    overflow: visible;
     width: 100%;
   }
 
   .candidate-spotlight-card {
     height: auto;
+    max-height: none;
     max-width: 400px;
     margin: 0 auto;
+    overflow: visible;
   }
 
   .candidate-spotlight-photo {
     flex: none;
     height: 320px;
     aspect-ratio: 3 / 4;
+  }
+
+  .scoring-right-col {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+    padding-bottom: 24px;
   }
 }
 

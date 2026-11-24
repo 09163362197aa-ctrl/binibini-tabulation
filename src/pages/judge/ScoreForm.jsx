@@ -75,14 +75,18 @@ export default function ScoreForm() {
   const candidateId = competition === 'pageant' ? id : null
   const teamEntryId = competition === 'cheerdance' ? id : null
 
-  useEffect(() => {
+  function resetScrollTop() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
+    const rightCol = document.querySelector('.scoring-right-col')
+    if (rightCol) rightCol.scrollTop = 0
+  }
+
+  useEffect(() => {
+    resetScrollTop()
     const timer = setTimeout(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-      document.documentElement.scrollTop = 0
-      document.body.scrollTop = 0
+      resetScrollTop()
     }, 40)
     return () => clearTimeout(timer)
   }, [id])
@@ -99,9 +103,7 @@ export default function ScoreForm() {
       setLoading(true)
       // Reset subject immediately so previous candidate's image/details never leak to the new candidate
       setSubject(null)
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-      document.documentElement.scrollTop = 0
-      document.body.scrollTop = 0
+      resetScrollTop()
       let allCriteria = []
 
       if (competition === 'pageant') {
@@ -230,9 +232,7 @@ export default function ScoreForm() {
 
       setLoading(false)
       requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-        document.documentElement.scrollTop = 0
-        document.body.scrollTop = 0
+        resetScrollTop()
       })
     }
     load()
@@ -415,9 +415,7 @@ export default function ScoreForm() {
 
   function goToCandidate(targetCand) {
     if (!targetCand) return
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-    document.documentElement.scrollTop = 0
-    document.body.scrollTop = 0
+    resetScrollTop()
     const stageQuery = stageParam
       ? `?stage=${stageParam}`
       : (selectedStageId && selectedStageId !== 'all' ? `?stage=${selectedStageId}` : '')
@@ -425,30 +423,15 @@ export default function ScoreForm() {
   }
 
   return (
-    <div className="score-form-page" style={{ maxWidth: 1080, margin: '0 auto' }}>
+    <div className="score-form-page">
       {toast && (
         <div className="toast-container">
           <div className={`toast toast-${toast.type}`}>{toast.msg}</div>
         </div>
       )}
 
-      {/* Sticky Top Bar (Clean, compact, with Quick Candidate Switcher) */}
-      <div style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 40,
-        background: 'rgba(250, 247, 239, 0.98)',
-        backdropFilter: 'blur(10px)',
-        margin: '-12px -16px 16px',
-        padding: '10px 16px',
-        borderBottom: '1px solid rgba(212, 175, 55, 0.3)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 10,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-      }}>
+      {/* Top Bar (Clean, compact, with Quick Candidate Switcher) */}
+      <div className="score-form-top-bar">
         {/* Left: Compact Back Button */}
         <button
           type="button"

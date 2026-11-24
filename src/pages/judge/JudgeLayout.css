@@ -6,6 +6,12 @@
   background: var(--bg-main, #FAF8F3);
 }
 
+.judge-shell.scoring-mode {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
 .judge-header {
   display: flex;
   align-items: center;
@@ -117,8 +123,14 @@
 }
 
 .judge-main.judge-main-scoring {
-  padding: 12px 18px 40px;
-  max-width: 1080px;
+  height: 100%;
+  max-height: 100%;
+  padding: 10px 18px 12px;
+  max-width: 1140px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .judge-header .judge-signout {
@@ -188,5 +200,20 @@
   }
   .judge-fullname {
     max-width: 150px;
+  }
+}
+
+@media (max-width: 640px) {
+  .judge-shell.scoring-mode {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .judge-main.judge-main-scoring {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 10px 14px 32px;
   }
 }
