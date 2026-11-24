@@ -650,13 +650,13 @@ export default function ScoreForm() {
 
               {/* Candidate Identity Details (Centered) */}
               <div className="candidate-spotlight-details">
-                {/* Badges Row (Centered) */}
-                <div className="candidate-spotlight-badges">
-                  {subject.candidateNumber != null && (
+                {/* Candidate Number Pill (Centered) */}
+                {subject.candidateNumber != null && (
+                  <div className="candidate-spotlight-badges">
                     <span style={{
-                      fontSize: '0.75rem',
+                      fontSize: '0.78rem',
                       fontWeight: 800,
-                      padding: '3px 10px',
+                      padding: '3px 12px',
                       borderRadius: 6,
                       background: 'rgba(217, 119, 6, 0.12)',
                       border: '1px solid rgba(217, 119, 6, 0.3)',
@@ -666,55 +666,8 @@ export default function ScoreForm() {
                     }}>
                       Candidate #{subject.candidateNumber}
                     </span>
-                  )}
-
-                  {isLocked ? (
-                    <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      fontSize: '0.72rem',
-                      fontWeight: 800,
-                      padding: '3px 10px',
-                      borderRadius: 6,
-                      background: '#DCFCE7',
-                      color: '#166534',
-                      border: '1px solid #BBF7D0'
-                    }}>
-                      <Lock size={11} strokeWidth={2.4} /> Certified &amp; Locked
-                    </span>
-                  ) : saving ? (
-                    <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      fontSize: '0.72rem',
-                      fontWeight: 700,
-                      padding: '3px 10px',
-                      borderRadius: 6,
-                      background: '#FEF9C3',
-                      color: '#854D0E',
-                      border: '1px solid #FDE047'
-                    }}>
-                      <Save size={11} /> Saving…
-                    </span>
-                  ) : (
-                    <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      fontSize: '0.72rem',
-                      fontWeight: 700,
-                      padding: '3px 10px',
-                      borderRadius: 6,
-                      background: 'var(--bg-elevated)',
-                      color: 'var(--text-muted)',
-                      border: '1px solid var(--border)'
-                    }}>
-                      <FileEdit size={11} /> Draft Mode
-                    </span>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Candidate Full Name (Centered) */}
                 <h2 className="candidate-spotlight-name">
@@ -791,8 +744,56 @@ export default function ScoreForm() {
                     <Layers size={18} color="#D97706" />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 800, fontSize: '0.96rem', color: 'var(--text-primary)' }}>{activeStage.label}</div>
-                    <div style={{ fontSize: '0.76rem', color: '#B45309', fontWeight: 700 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 800, fontSize: '0.98rem', color: 'var(--text-primary)' }}>{activeStage.label}</span>
+                      {isLocked ? (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          fontSize: '0.72rem',
+                          fontWeight: 800,
+                          padding: '2px 8px',
+                          borderRadius: 6,
+                          background: '#DCFCE7',
+                          color: '#166534',
+                          border: '1px solid #BBF7D0'
+                        }}>
+                          <Lock size={11} strokeWidth={2.4} /> Certified &amp; Locked
+                        </span>
+                      ) : saving ? (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: 6,
+                          background: '#FEF9C3',
+                          color: '#854D0E',
+                          border: '1px solid #FDE047'
+                        }}>
+                          <Save size={11} /> Saving…
+                        </span>
+                      ) : (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: 6,
+                          background: 'var(--bg-elevated)',
+                          color: 'var(--text-muted)',
+                          border: '1px solid var(--border)'
+                        }}>
+                          <FileEdit size={11} /> Draft Mode
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: '0.76rem', color: '#B45309', fontWeight: 700, marginTop: 2 }}>
                       100 Points Rubric • Converted to {stageWeight}% Overall
                     </div>
                   </div>
