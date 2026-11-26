@@ -21,7 +21,8 @@ import {
   printPageantStageTabulation,
   printPageantOverallRankings,
   printPageantOverallTabulation,
-  printPageantCoronationTransferSheet
+  printPageantCoronationTransferSheet,
+  printPageantRawScoreTabulation
 } from '../../lib/printReports'
 
 export default function AdminResults() {
@@ -456,6 +457,27 @@ export default function AdminResults() {
     }))
   }
 
+  function handleGenerateRawScoreTabulation() {
+    const currentCategory = tab
+    const pageantCandidates = (candidatesData || []).map(c => ({
+      candidate_id: c.id,
+      candidate: c.name || '?',
+      candidate_number: c.candidate_number,
+      category: c.category,
+      team: c.team_entry?.team?.name || '?'
+    }))
+    const pageantScores = rawScores.filter(s => pageantJudges.some(j => j.id === s.judge_id))
+    generateWithCheck(buildPageantOverallWarnings(currentCategory, 'all'), () =>
+      printPageantRawScoreTabulation({
+        category: currentCategory,
+        candidates: pageantCandidates,
+        criteria: rawCriteria,
+        scores: pageantScores,
+        judges: pageantJudges
+      })
+    )
+  }
+
   function handleGenerateCoronationTransferSheet() {
     const currentCategory = tab // 'binibini'
     const pageantCandidates = (candidatesData || []).map(c => ({
@@ -469,7 +491,8 @@ export default function AdminResults() {
     const pageantScores = rawScores.filter(s => pageantJudges.some(j => j.id === s.judge_id))
 
     generateWithCheck(buildPageantOverallWarnings(currentCategory, 'all'), () =>
-      printPageantCoronationTransferSheet({
+      printPageantCoronationTransferSheet,
+  printPageantRawScoreTabulation({
         category: currentCategory,
         candidates: pageantCandidates,
         criteria: rawCriteria,
@@ -618,29 +641,25 @@ export default function AdminResults() {
               </span>
             </button>
 
-            {/* Official 50% Preliminary Scores Transfer Sheet for Coronation Night AU System */}
+            {/* Raw (non-converted) preliminary score tabulation */}
             <button
               type="button"
-              className="btn btn-sm"
-              onClick={handleGenerateCoronationTransferSheet}
-              title="Print official 50% preliminary transfer sheet for encoding into the AU Coronation software"
+              className="btn btn-gold btn-sm"
+              onClick={handleGenerateRawScoreTabulation}
+              title="Print preliminary scores as raw totals (not converted to 50%)"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 7,
                 fontSize: '0.86rem',
                 fontWeight: 800,
-                padding: '10px 18px',
+                padding: '10px 20px',
                 borderRadius: 10,
-                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                color: '#FDE68A',
-                border: '1.5px solid rgba(212, 175, 55, 0.45)',
-                boxShadow: '0 3px 10px rgba(0,0,0,0.18)',
-                cursor: 'pointer'
+                boxShadow: '0 3px 10px rgba(180,130,30,0.22)'
               }}
             >
-              <Crown size={16} color="#FDE68A" />
-              <span>Print AU Coronation 50% Transfer Sheet (PDF)</span>
+              <FileSpreadsheet size={16} />
+              <span>Print Raw Score Tabulation (PDF)</span>
             </button>
 
             <button
