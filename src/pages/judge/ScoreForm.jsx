@@ -75,6 +75,7 @@ export default function ScoreForm() {
   const [keypadTarget, setKeypadTarget] = useState(null) // { criterion, value }
   const [canScrollMore, setCanScrollMore] = useState(false)
   const rightColRef = useRef(null)
+  const submitSectionRef = useRef(null)
   const candidateId = competition === 'pageant' ? id : null
   const teamEntryId = competition === 'cheerdance' ? id : null
   const savedRef = useRef({})
@@ -1041,7 +1042,7 @@ export default function ScoreForm() {
 
           {/* Lock Action & Minimum Score Enforcement */}
           {!isLocked && !loading && (
-            <div style={{ marginTop: 14, textAlign: 'center' }}>
+            <div ref={submitSectionRef} style={{ marginTop: 14, textAlign: 'center' }}>
               {/* Below 80 Warning Box */}
               {competition === 'pageant' && stageDisplayScore < 80 && (
                 <div style={{
@@ -1380,6 +1381,11 @@ export default function ScoreForm() {
               handleScoreChange(keypadTarget.criterion.id, val)
               handleBlur(keypadTarget.criterion.id, val)
               setKeypadTarget(null)
+              if (!nextCriterion) {
+                setTimeout(() => {
+                  submitSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }, 60)
+              }
             }}
             onApplyAndNext={(val) => {
               handleScoreChange(keypadTarget.criterion.id, val)
