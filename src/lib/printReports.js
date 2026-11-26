@@ -246,7 +246,7 @@ function drawSignatureBlock(doc, judges, roleLabel) {
   const footerHeight = 9
   const blockH = 13 + (rows.length * rowSpacing) + footerHeight
   const tableEndY = doc.lastAutoTable?.finalY || 0
-  const minAfterTable = tableEndY + 8
+  const minAfterTable = tableEndY + 18
 
   let startY
   if (minAfterTable + blockH > PAGE_H - MARGIN) {
@@ -601,7 +601,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
       valign: 'middle',
       minCellHeight: 10,
     },
-    bodyStyles: { minCellHeight: stageRowH },
+    bodyStyles: { minCellHeight: stageRowH, halign: 'center', valign: 'middle' },
     columnStyles: {
       0: { halign: 'center', cellWidth: 16 },
       1: { halign: 'left', cellWidth: 40 },
@@ -800,7 +800,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
       valign: 'middle',
       minCellHeight: 10,
     },
-    bodyStyles: { minCellHeight: overallRowH },
+    bodyStyles: { minCellHeight: overallRowH, halign: 'center', valign: 'middle' },
     columnStyles: {
       0: { halign: 'center', cellWidth: 12 },
       1: { halign: 'left', cellWidth: 44 },
@@ -929,7 +929,7 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
       valign: 'middle',
       minCellHeight: 12,
     },
-    bodyStyles: { minCellHeight: coronRowH },
+    bodyStyles: { minCellHeight: coronRowH, halign: 'center', valign: 'middle' },
     columnStyles: {
       0: { halign: 'center', cellWidth: 16 },
       1: { halign: 'left', cellWidth: 44 },
