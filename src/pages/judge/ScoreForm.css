@@ -16,18 +16,32 @@
 .score-form-top-bar {
   flex-shrink: 0;
   z-index: 40;
-  background: rgba(250, 247, 239, 0.98);
+  background:
+    radial-gradient(circle at 18% 30%, rgba(255, 255, 255, 0.35) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 82% 65%, rgba(212, 175, 55, 0.45) 0.8px, transparent 2px),
+    linear-gradient(90deg, #0A271E 0%, #0E3429 50%, #0A271E 100%);
+  color: #FFFFFF;
   backdrop-filter: blur(10px);
   margin-bottom: 12px;
   padding: 8px 16px;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  border: 1.5px solid #D4AF37;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 14px rgba(10, 39, 30, 0.2);
+}
+
+.score-form-top-bar .btn-ghost {
+  color: #FEF3C7;
+  border-color: rgba(212, 175, 55, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+.score-form-top-bar .btn-ghost:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.22);
+  color: #FFFFFF;
 }
 
 /* Two-Column Split Layout for Tablet & Desktop Judging */
@@ -63,9 +77,11 @@
   margin: 0;
   padding: 16px;
   border-radius: 16px;
-  border: 1.5px solid rgba(212, 175, 55, 0.45);
-  background: linear-gradient(145deg, #FFFDF8 0%, #FAF6ED 100%);
-  box-shadow: 0 4px 16px rgba(180, 130, 30, 0.08);
+  border: 1.5px solid #D4AF37;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(212, 175, 55, 0.14) 0%, transparent 45%),
+    linear-gradient(160deg, #FFFFFF 0%, #F2F8F5 100%);
+  box-shadow: 0 6px 20px rgba(14, 52, 41, 0.10);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -142,7 +158,7 @@
   gap: 5px;
   font-size: 0.88rem;
   font-weight: 700;
-  color: #B45309;
+  color: #0E3429;
   margin-top: 1px;
   text-align: center;
   width: 100%;
@@ -441,9 +457,10 @@ div:has(.score-slider:focus) .score-grand-value {
 
 .criteria-section {
   border-radius: 14px;
-  border: 1px solid rgba(46, 125, 50, 0.14);
+  border: 1.5px solid rgba(14, 52, 41, 0.14);
+  border-top: 3px solid #D4AF37;
   background: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(46, 125, 50, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(14, 52, 41, 0.06);
   overflow: hidden;
 }
 
@@ -452,9 +469,10 @@ div:has(.score-slider:focus) .score-grand-value {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0;
-  border-bottom: 1px solid rgba(46, 125, 50, 0.10);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
   padding: 18px 24px 16px;
-  background: linear-gradient(135deg, rgba(46, 125, 50, 0.04) 0%, rgba(242, 183, 5, 0.03) 100%);
+  background: linear-gradient(90deg, #0A271E 0%, #0E3429 100%);
+  color: #FFFFFF;
 }
 
 .section-score-badge {
@@ -545,9 +563,9 @@ div:has(.score-slider:focus) .score-grand-value {
 
 .score-number-input-lg:focus {
   outline: none;
-  border-color: #2E7D32;
+  border-color: #0E3429;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.14), 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25), 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .score-number-input-lg:disabled {
@@ -568,14 +586,15 @@ div:has(.score-slider:focus) .score-grand-value {
   justify-content: space-between;
   padding: 18px 24px;
   margin-top: 12px;
-  border: 2px solid rgba(46, 125, 50, 0.18);
-  background: linear-gradient(135deg, rgba(46, 125, 50, 0.06) 0%, rgba(46, 125, 50, 0.02) 100%);
+  border: 2px solid #D4AF37;
+  background: linear-gradient(135deg, #0A271E 0%, #0E3429 100%);
+  color: #FFFFFF;
 }
 
 .score-total-label {
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #FEF3C7;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -584,7 +603,7 @@ div:has(.score-slider:focus) .score-grand-value {
   font-size: 2rem;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
-  color: var(--pageant-primary, #2E7D32);
+  color: #FDE68A;
   font-family: var(--font-display);
   letter-spacing: -0.02em;
 }

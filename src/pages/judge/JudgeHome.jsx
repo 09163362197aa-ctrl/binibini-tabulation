@@ -20,6 +20,9 @@ import {
   Users2
 } from 'lucide-react'
 import { CandidateRibbon, CandidatePill } from '../../components/CandidateBadge'
+import palayanLogo from '../../assets/pdf/palayan-logo.png'
+import crownImg from '../../assets/pdf/crown.png'
+import titleImg from '../../assets/pdf/title.png'
 import './JudgeHome.css'
 
 export default function JudgeHome() {
@@ -174,6 +177,15 @@ export default function JudgeHome() {
   if (!selectedStageId) {
     return (
       <div style={{ maxWidth: 880, margin: '0 auto' }}>
+        {/* Royal Emerald Green + Gold + White Glitter Pageant Hero Banner */}
+        <div className="jh-hero-banner">
+          <img src={palayanLogo} alt="Palayan City Logo" className="jh-hero-logo" />
+          <div className="jh-hero-center">
+            <img src={titleImg} alt="Binibining Palayan 2026" className="jh-hero-title-img" />
+          </div>
+          <img src={crownImg} alt="Binibining Palayan Crown" className="jh-hero-crown" />
+        </div>
+
         {/* Tablet Distribution Banner: Clearly confirms judge assignment to prevent distribution confusion */}
         <div style={{
           display: 'flex',
@@ -183,9 +195,9 @@ export default function JudgeHome() {
           gap: 12,
           padding: '12px 18px',
           borderRadius: 14,
-          background: 'linear-gradient(135deg, rgba(255, 253, 248, 0.95) 0%, rgba(251, 246, 234, 0.95) 100%)',
-          border: '1.5px solid rgba(212, 175, 55, 0.45)',
-          boxShadow: '0 2px 10px rgba(180, 130, 30, 0.08)',
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #F4F9F6 100%)',
+          border: '1.5px solid rgba(212, 175, 55, 0.5)',
+          boxShadow: '0 2px 10px rgba(14, 52, 41, 0.06)',
           marginBottom: 20
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -193,26 +205,27 @@ export default function JudgeHome() {
               width: 40,
               height: 40,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #FDE68A 0%, #D97706 100%)',
+              background: 'linear-gradient(135deg, #0E3429 0%, #15803D 100%)',
+              border: '2px solid #D4AF37',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#78350F',
+              color: '#FDE68A',
               fontWeight: 900,
               fontSize: '1.05rem',
-              boxShadow: '0 2px 6px rgba(180, 130, 30, 0.3)',
+              boxShadow: '0 2px 6px rgba(14, 52, 41, 0.25)',
               flexShrink: 0
             }}>
               {(profile?.name || 'J')[0].toUpperCase()}
             </div>
             <div>
-              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#0E3429', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Tablet Assigned Official Judge
               </div>
-              <div style={{ fontSize: '1.08rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+              <div style={{ fontSize: '1.08rem', fontWeight: 900, color: '#0A271E', letterSpacing: '-0.01em' }}>
                 {profile?.name || 'Official Judge'}
                 {profile?.username && (
-                  <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#D97706', marginLeft: 8 }}>
+                  <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#A67C14', marginLeft: 8 }}>
                     (@{profile.username})
                   </span>
                 )}
@@ -224,26 +237,26 @@ export default function JudgeHome() {
             fontWeight: 800,
             padding: '5px 12px',
             borderRadius: 20,
-            background: 'rgba(217,119,6,0.12)',
-            color: '#B45309',
-            border: '1px solid rgba(217,119,6,0.3)',
+            background: '#0E3429',
+            color: '#FDE68A',
+            border: '1px solid #D4AF37',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6
           }}>
-            <Crown size={13} color="#D97706" /> Authorized Tablet
+            <Crown size={13} color="#D4AF37" /> Authorized Tablet
           </span>
         </div>
 
         <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16, marginBottom: 24 }}>
           <div className="page-header-left">
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(217,119,6,0.1)', borderRadius: 6, border: '1px solid rgba(217,119,6,0.25)', marginBottom: 8 }}>
-              <Crown size={14} color="#D97706" />
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(14, 52, 41, 0.08)', borderRadius: 6, border: '1px solid rgba(212, 175, 55, 0.45)', marginBottom: 8 }}>
+              <Crown size={14} color="#A67C14" />
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#0E3429', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 Binibining Palayan Judge Portal
               </span>
             </div>
-            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: '#0A271E', letterSpacing: '-0.02em' }}>
               Evaluation Stages
             </h1>
             <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
@@ -257,16 +270,17 @@ export default function JudgeHome() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--border)',
-              color: 'var(--text-primary)',
+              background: '#0E3429',
+              border: '1.5px solid #D4AF37',
+              color: '#FEF3C7',
               fontWeight: 700,
               padding: '8px 14px',
-              borderRadius: 6
+              borderRadius: 8,
+              boxShadow: '0 2px 8px rgba(14, 52, 41, 0.16)'
             }}
             onClick={() => navigate('/judge/summary?comp=pageant')}
           >
-            <FileSpreadsheet size={15} color="#D97706" />
+            <FileSpreadsheet size={15} color="#D4AF37" />
             Review My Scores
           </button>
         </div>
@@ -401,8 +415,8 @@ export default function JudgeHome() {
     const isLocked = status === 'locked'
     const isDraft = status === 'draft'
 
-    // Binibining Palayan Colors
-    const stripeColor = '#d97706'
+    // Binibining Palayan Royal Emerald + Gold Colors
+    const stripeColor = isLocked ? '#15803D' : '#D4AF37'
 
     return (
       <button
@@ -415,13 +429,13 @@ export default function JudgeHome() {
           gap: 16,
           padding: '14px 18px',
           borderRadius: 14,
-          border: '1px solid var(--border)',
+          border: '1px solid rgba(14, 52, 41, 0.14)',
           borderLeft: `6px solid ${stripeColor}`,
-          background: isLocked ? 'var(--bg-elevated)' : 'var(--bg-surface)',
+          background: isLocked ? '#F4F9F6' : '#FFFFFF',
           width: '100%',
           textAlign: 'left',
           cursor: 'pointer',
-          boxShadow: isLocked ? 'none' : '0 2px 8px rgba(0,0,0,0.04)',
+          boxShadow: isLocked ? 'none' : '0 2px 8px rgba(14, 52, 41, 0.05)',
           transition: 'all 0.2s ease',
           position: 'relative'
         }}
@@ -486,8 +500,9 @@ export default function JudgeHome() {
               fontWeight: 800,
               padding: '3px 8px',
               borderRadius: 6,
-              background: '#b45309',
-              color: '#ffffff',
+              background: '#0E3429',
+              color: '#FDE68A',
+              border: '1px solid rgba(212, 175, 55, 0.45)',
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
               lineHeight: 1
@@ -610,16 +625,17 @@ export default function JudgeHome() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border)',
-            color: 'var(--text-primary)',
+            background: '#0E3429',
+            border: '1.5px solid #D4AF37',
+            color: '#FEF3C7',
             fontWeight: 700,
             padding: '8px 14px',
-            borderRadius: 6
+            borderRadius: 8,
+            boxShadow: '0 2px 8px rgba(14, 52, 41, 0.16)'
           }}
           onClick={() => navigate(`/judge/summary?comp=pageant&stage=${selectedStageId}`)}
         >
-          <FileSpreadsheet size={15} color="#D97706" />
+          <FileSpreadsheet size={15} color="#D4AF37" />
           Review My Scores
         </button>
       </div>

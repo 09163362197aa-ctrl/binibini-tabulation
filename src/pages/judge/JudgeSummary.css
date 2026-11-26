@@ -14,9 +14,9 @@
   gap: 4px;
   margin-bottom: 24px;
   padding: 5px;
-  background: #F3EFE3;
+  background: #EDF4F0;
   border-radius: 12px;
-  border: 1px solid rgba(46,125,50,0.14);
+  border: 1px solid rgba(14, 52, 41, 0.16);
   width: fit-content;
   position: relative;
   z-index: 1;
@@ -40,18 +40,18 @@
   pointer-events: auto !important;
   user-select: none;
 }
-.js-page .comp-tab:hover { color: var(--text-primary); background: rgba(255,255,255,0.70); }
+.js-page .comp-tab:hover { color: #0A271E; background: rgba(255,255,255,0.85); }
 .js-page .comp-tab.active-cheer {
-  background: linear-gradient(135deg, #2E7D32, #388E3C);
-  color: #FFFFFF;
-  border-color: transparent;
-  box-shadow: 0 2px 8px rgba(46,125,50,0.25);
+  background: linear-gradient(135deg, #0A271E, #0E3429);
+  color: #FEF3C7;
+  border-color: #D4AF37;
+  box-shadow: 0 2px 8px rgba(14, 52, 41, 0.25);
 }
 .js-page .comp-tab.active-pageant {
-  background: linear-gradient(135deg, #F2B705, #F5C842);
-  color: #1A1A1A;
-  border-color: transparent;
-  box-shadow: 0 2px 8px rgba(242,183,5,0.25);
+  background: linear-gradient(135deg, #0A271E, #0E3429);
+  color: #FEF3C7;
+  border-color: #D4AF37;
+  box-shadow: 0 2px 8px rgba(14, 52, 41, 0.25);
 }
 
 .js-section {

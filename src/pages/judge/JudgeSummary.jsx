@@ -21,6 +21,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import { CandidatePill } from '../../components/CandidateBadge'
+import crownImg from '../../assets/pdf/crown.png'
 import './JudgeSummary.css'
 
 export default function JudgeSummary() {
@@ -266,13 +267,13 @@ export default function JudgeSummary() {
                   alignItems: 'center',
                   gap: 6,
                   padding: '7px 16px',
-                  background: 'var(--bg-surface)',
-                  border: '1.5px solid rgba(212, 175, 55, 0.5)',
+                  background: '#0E3429',
+                  border: '1.5px solid #D4AF37',
                   borderRadius: 8,
                   fontWeight: 800,
                   fontSize: '0.84rem',
-                  color: '#B45309',
-                  boxShadow: '0 1px 4px rgba(180, 130, 30, 0.1)',
+                  color: '#FEF3C7',
+                  boxShadow: '0 2px 6px rgba(14, 52, 41, 0.16)',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
@@ -286,12 +287,12 @@ export default function JudgeSummary() {
                 alignItems: 'center',
                 gap: 6,
                 padding: '6px 14px',
-                background: 'rgba(217, 119, 6, 0.08)',
+                background: 'rgba(14, 52, 41, 0.08)',
                 borderRadius: 8,
-                border: '1px solid rgba(212, 175, 55, 0.35)'
+                border: '1px solid rgba(212, 175, 55, 0.45)'
               }}>
-                <Crown size={14} color="#D97706" />
-                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <img src={crownImg} alt="Crown" style={{ width: 18, height: 'auto', objectFit: 'contain' }} />
+                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#0E3429', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                   Binibining Palayan
                 </span>
               </div>
@@ -303,11 +304,11 @@ export default function JudgeSummary() {
               gap: 6,
               fontSize: '0.78rem',
               fontWeight: 800,
-              color: '#B45309',
-              background: 'rgba(217, 119, 6, 0.08)',
+              color: '#0E3429',
+              background: 'rgba(14, 52, 41, 0.08)',
               padding: '6px 14px',
               borderRadius: 20,
-              border: '1px solid rgba(212, 175, 55, 0.35)'
+              border: '1px solid rgba(212, 175, 55, 0.45)'
             }}>
               <span>{candidates.length} Official Candidates</span>
             </div>
@@ -358,14 +359,14 @@ export default function JudgeSummary() {
                       style={{
                         padding: '8px 18px',
                         borderRadius: 8,
-                        border: 'none',
-                        background: isActive ? 'linear-gradient(135deg, #B45309 0%, #92400E 100%)' : 'transparent',
-                        color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
+                        border: isActive ? '1px solid #D4AF37' : '1px solid transparent',
+                        background: isActive ? 'linear-gradient(135deg, #0A271E 0%, #0E3429 100%)' : 'transparent',
+                        color: isActive ? '#FEF3C7' : 'var(--text-secondary)',
                         fontWeight: isActive ? 800 : 700,
                         fontSize: '0.85rem',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
-                        boxShadow: isActive ? '0 2px 8px rgba(180, 83, 9, 0.25)' : 'none'
+                        boxShadow: isActive ? '0 2px 8px rgba(14, 52, 41, 0.25)' : 'none'
                       }}
                       onClick={() => setActivePageantTab(stage.id)}
                     >
@@ -382,14 +383,14 @@ export default function JudgeSummary() {
                     gap: 6,
                     padding: '8px 18px',
                     borderRadius: 8,
-                    border: 'none',
-                    background: activePageantTab === 'overall' ? 'linear-gradient(135deg, #B45309 0%, #92400E 100%)' : 'transparent',
-                    color: activePageantTab === 'overall' ? '#FFFFFF' : 'var(--text-secondary)',
+                    border: activePageantTab === 'overall' ? '1px solid #D4AF37' : '1px solid transparent',
+                    background: activePageantTab === 'overall' ? 'linear-gradient(135deg, #0A271E 0%, #0E3429 100%)' : 'transparent',
+                    color: activePageantTab === 'overall' ? '#FEF3C7' : 'var(--text-secondary)',
                     fontWeight: activePageantTab === 'overall' ? 800 : 700,
                     fontSize: '0.85rem',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
-                    boxShadow: activePageantTab === 'overall' ? '0 2px 8px rgba(180, 83, 9, 0.25)' : 'none'
+                    boxShadow: activePageantTab === 'overall' ? '0 2px 8px rgba(14, 52, 41, 0.25)' : 'none'
                   }}
                   onClick={() => setActivePageantTab('overall')}
                 >

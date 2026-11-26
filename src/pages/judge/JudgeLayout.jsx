@@ -3,6 +3,8 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { LogOut, Crown } from 'lucide-react'
 import ictLogo from '../../assets/ict.png'
+import palayanLogo from '../../assets/pdf/palayan-logo.png'
+import crownImg from '../../assets/pdf/crown.png'
 import './JudgeLayout.css'
 
 export default function JudgeLayout() {
@@ -32,9 +34,10 @@ export default function JudgeLayout() {
         <header className="judge-header">
           <div className="judge-header-logo">
             <div className="judge-logo-icon">
-              <img src="/palayan.png" alt="Palayan Logo" style={{ width: 32, height: 32, objectFit: 'contain', display: 'block' }} />
+              <img src={palayanLogo} alt="Palayan Logo" style={{ width: 34, height: 34, objectFit: 'contain', display: 'block' }} />
             </div>
             <span className="judge-logo-text">Binibining Palayan</span>
+            <img src={crownImg} alt="Crown" className="judge-header-crown" style={{ width: 26, height: 'auto', objectFit: 'contain', display: 'block', opacity: 0.92 }} />
           </div>
 
           <div className="judge-header-right">

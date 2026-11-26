@@ -441,13 +441,13 @@ export default function ScoreForm() {
             alignItems: 'center',
             gap: 6,
             padding: '6px 14px',
-            background: 'var(--bg-surface)',
-            border: '1.5px solid rgba(212, 175, 55, 0.5)',
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: '1.5px solid rgba(212, 175, 55, 0.65)',
             borderRadius: 8,
             fontWeight: 800,
             fontSize: '0.84rem',
-            color: '#B45309',
-            boxShadow: '0 1px 4px rgba(180, 130, 30, 0.1)',
+            color: '#FEF3C7',
+            boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
             cursor: 'pointer',
             transition: 'all 0.15s ease'
           }}
@@ -462,10 +462,10 @@ export default function ScoreForm() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            background: 'rgba(217, 119, 6, 0.08)',
+            background: 'rgba(255, 255, 255, 0.08)',
             padding: '4px 8px',
             borderRadius: 10,
-            border: '1px solid rgba(212, 175, 55, 0.35)'
+            border: '1px solid rgba(212, 175, 55, 0.45)'
           }}>
             <button
               type="button"
@@ -478,9 +478,9 @@ export default function ScoreForm() {
                 gap: 4,
                 padding: '5px 10px',
                 borderRadius: 6,
-                border: '1px solid var(--border)',
-                background: prevCandidate ? 'var(--bg-surface)' : 'transparent',
-                color: prevCandidate ? 'var(--text-primary)' : 'var(--text-muted)',
+                border: '1px solid rgba(212, 175, 55, 0.45)',
+                background: prevCandidate ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
+                color: prevCandidate ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)',
                 fontSize: '0.8rem',
                 fontWeight: 700,
                 cursor: prevCandidate ? 'pointer' : 'not-allowed',
@@ -494,7 +494,7 @@ export default function ScoreForm() {
             <span style={{
               fontSize: '0.78rem',
               fontWeight: 800,
-              color: '#B45309',
+              color: '#FDE68A',
               padding: '0 6px',
               whiteSpace: 'nowrap'
             }}>
@@ -512,14 +512,14 @@ export default function ScoreForm() {
                 gap: 5,
                 padding: '5px 14px',
                 borderRadius: 6,
-                border: nextCandidate ? '1.5px solid #D97706' : '1px solid var(--border)',
-                background: nextCandidate ? 'linear-gradient(135deg, #FDE68A 0%, #D97706 100%)' : 'transparent',
-                color: nextCandidate ? '#78350F' : 'var(--text-muted)',
+                border: nextCandidate ? '1.5px solid #D4AF37' : '1px solid rgba(212, 175, 55, 0.35)',
+                background: nextCandidate ? 'linear-gradient(135deg, #FDE68A 0%, #D4AF37 100%)' : 'transparent',
+                color: nextCandidate ? '#0A271E' : 'rgba(255, 255, 255, 0.4)',
                 fontSize: '0.82rem',
                 fontWeight: 800,
                 cursor: nextCandidate ? 'pointer' : 'not-allowed',
                 opacity: nextCandidate ? 1 : 0.4,
-                boxShadow: nextCandidate ? '0 2px 6px rgba(180, 130, 30, 0.25)' : 'none'
+                boxShadow: nextCandidate ? '0 2px 6px rgba(0, 0, 0, 0.25)' : 'none'
               }}
             >
               <span>Next Candidate</span>
@@ -536,14 +536,14 @@ export default function ScoreForm() {
               alignItems: 'center',
               gap: 6,
               fontSize: '0.78rem',
-              color: 'var(--text-muted)',
-              background: 'rgba(217, 119, 6, 0.08)',
+              color: '#FEF3C7',
+              background: 'rgba(212, 175, 55, 0.16)',
               padding: '4px 12px',
               borderRadius: 20,
-              border: '1px solid rgba(217, 119, 6, 0.25)'
+              border: '1px solid rgba(212, 175, 55, 0.5)'
             }}>
-              <Crown size={12} color="#D97706" />
-              <span>Judge: <strong style={{ color: '#B45309', fontWeight: 800 }}>{profile.name}</strong></span>
+              <Crown size={12} color="#FDE68A" />
+              <span>Judge: <strong style={{ color: '#FFFFFF', fontWeight: 800 }}>{profile.name}</strong></span>
             </div>
           )}
         </div>

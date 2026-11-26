@@ -1,9 +1,9 @@
-/* Judge Shell - Royal Velvet & Gold Pageant Theme */
+/* Judge Shell - Royal Emerald Green, Gold & White Glitter Theme */
 .judge-shell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-main, #FAF8F3);
+  background: var(--bg-main, #F7FAF8);
 }
 
 .judge-shell.scoring-mode {
@@ -19,12 +19,17 @@
   gap: 16px;
   padding: 0 24px;
   height: 70px;
-  background: linear-gradient(90deg, #181A1F 0%, #121316 100%);
-  border-bottom: 1.5px solid rgba(212, 175, 55, 0.35);
+  background:
+    radial-gradient(circle at 12% 30%, rgba(255, 255, 255, 0.35) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 28% 72%, rgba(212, 175, 55, 0.45) 0.8px, transparent 2px),
+    radial-gradient(circle at 65% 22%, rgba(255, 255, 255, 0.3) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 82% 68%, rgba(212, 175, 55, 0.4) 0.8px, transparent 2px),
+    linear-gradient(90deg, #0A271E 0%, #0E3429 50%, #0A271E 100%);
+  border-bottom: 2px solid #D4AF37;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 4px 18px rgba(10, 39, 30, 0.28);
 }
 
 .judge-header-logo {
