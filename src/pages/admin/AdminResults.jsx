@@ -324,10 +324,12 @@ export default function AdminResults() {
           s => s.candidate_id === cand.id && stageKids.some(k => k.id === s.criterion_id),
           stageKids.length
         )
+        const barangay = cand.team_entry?.team?.name
         if (status) issues.push({
-          judge:  judge.name,
-          target: `${cand.name} (${cand.category === 'ginoo' ? 'Ginoo' : 'Binibini'})`,
-          stage:  stageObj.label,
+          judge:    judge.name,
+          target:   `${cand.name} (${cand.category === 'ginoo' ? 'Ginoo' : 'Binibini'})`,
+          barangay: barangay || null,
+          stage:    stageObj.label,
           status
         })
       })
@@ -350,10 +352,12 @@ export default function AdminResults() {
           s => s.candidate_id === cand.id,
           pageantKids.length
         )
+        const barangay = cand.team_entry?.team?.name
         if (status) issues.push({
-          judge:  judge.name,
-          target: `${cand.name} (${cand.category === 'ginoo' ? 'Ginoo' : 'Binibini'})`,
-          stage:  'All Stages (Overall)',
+          judge:    judge.name,
+          target:   `${cand.name} (${cand.category === 'ginoo' ? 'Ginoo' : 'Binibini'})`,
+          barangay: barangay || null,
+          stage:    'All Stages (Overall)',
           status
         })
       })
@@ -666,7 +670,16 @@ export default function AdminResults() {
                   {warningModal.issues.map((issue, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '8px 12px', fontWeight: 700 }}>{issue.judge}</td>
-                      <td style={{ padding: '8px 12px', color: 'var(--text-primary)' }}>{issue.target}</td>
+                      <td style={{ padding: '8px 12px' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {issue.target}
+                        </div>
+                        {issue.barangay && (
+                          <div style={{ fontSize: '0.74rem', color: '#B45309', fontWeight: 700, marginTop: 2 }}>
+                            {issue.barangay}
+                          </div>
+                        )}
+                      </td>
                       <td style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>{issue.stage}</td>
                       <td style={{ padding: '8px 12px', textAlign: 'center' }}>
                         <span style={{
