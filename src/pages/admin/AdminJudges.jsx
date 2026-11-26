@@ -196,26 +196,39 @@ export default function AdminJudges() {
   async function handleDelete() {
     setBusy(true)
     const name = deleting.name
+    const judgeId = deleting.id
     try {
-      try {
-        await callEdge('delete', { judgeId: deleting.id })
-        showToast(`Judge "${name}" removed.`)
-      } catch (edgeErr) {
-        // Edge function failed — delete profile only; auth.users row may linger as a ghost.
-        // We warn the admin so they know re-adding the same username might not work.
-        const { error: delErr } = await supabase.from('profiles').delete().eq('id', deleting.id)
-        if (delErr) throw delErr
-        showToast(
-          `Judge "${name}" removed from profiles. If you re-add this exact username and get an error, use a different username or ask your admin to clean up the ghost auth account.`,
-          'warning'
-        )
+      // Primary: call DB RPC (SECURITY DEFINER) which deletes from auth.users
+      // and cascades to profiles automatically via FK ON DELETE CASCADE.
+      const { error: rpcErr } = await supabase.rpc('delete_judge_auth_user', { user_id: judgeId })
+
+      if (rpcErr) {
+        // RPC not available yet — try edge function
+        try {
+          await callEdge('delete', { judgeId })
+        } catch (edgeErr) {
+          // Edge function also failed — last resort: delete profile row only
+          // and warn that the auth.users ghost may remain.
+          const { error: delErr } = await supabase.from('profiles').delete().eq('id', judgeId)
+          if (delErr) throw delErr
+          showToast(
+            `Judge "${name}" profile removed, but their login account may still exist in Supabase Auth. ` +
+            `Run the SQL setup (supabase_delete_judge_rpc.sql) to enable full deletion.`,
+            'warning'
+          )
+          setDeleting(null)
+          load()
+          return
+        }
       }
+
+      showToast(`Judge "${name}" fully removed.`)
       setDeleting(null)
       load()
     } catch (err) {
       const raw = err.message || ''
       const msg = raw.includes('submitted scores')
-        ? `Cannot remove "${name}" because they have already submitted and locked scores.`
+        ? `Cannot remove "${name}" — they have already submitted and locked scores.`
         : raw
       showToast(msg, 'error')
     } finally {
