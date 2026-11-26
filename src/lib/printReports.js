@@ -22,9 +22,9 @@ function preloadImg(src) {
   return img
 }
 const IMG_PALAYAN = preloadImg(palayanLogoUrl)
-const IMG_CROWN   = preloadImg(crownUrl)
-const IMG_TITLE   = preloadImg(titleUrl)
-const IMG_ICT     = preloadImg(ictLogoUrl)
+const IMG_CROWN = preloadImg(crownUrl)
+const IMG_TITLE = preloadImg(titleUrl)
+const IMG_ICT = preloadImg(ictLogoUrl)
 
 function isImgReady(img) {
   return Boolean(img && img.complete && img.naturalWidth > 0)
@@ -37,36 +37,37 @@ const MARGIN = 8    // mm
 
 // ─── Colour tokens (Royal Emerald Green + Gold + White Glitter) ─────────────
 const CLR_EMERALD_DARK = [10, 39, 30]     // deep emerald shadow
-const CLR_EMERALD      = [14, 52, 41]     // royal emerald green
-const CLR_HEADING      = [14, 46, 36]     // deep emerald-ink
-const CLR_SUBTEXT      = [82, 107, 98]    // muted emerald-slate
+const CLR_EMERALD = [14, 52, 41]     // royal emerald green
+const CLR_HEADING = [14, 46, 36]     // deep emerald-ink
+const CLR_SUBTEXT = [82, 107, 98]    // muted emerald-slate
 const CLR_TABLE_HEADER_BG = [14, 52, 41]  // royal emerald green
 const CLR_TABLE_HEADER_FG = [255, 255, 255]
-const CLR_TOTAL_BG     = [254, 249, 231]  // soft champagne gold tint
-const CLR_GOLD         = [212, 175, 55]   // metallic gold
-const CLR_GOLD_DARK    = [166, 124, 20]   // deep gold for text
-const CLR_BORDER       = [206, 222, 215]  // soft emerald-gray border
-const CLR_ALT_ROW      = [246, 250, 248]  // subtle mint-white zebra row
+const CLR_TOTAL_BG = [254, 249, 231]  // soft champagne gold tint
+const CLR_GOLD = [212, 175, 55]   // metallic gold
+const CLR_GOLD_DARK = [166, 124, 20]   // deep gold for text
+const CLR_BORDER = [206, 222, 215]  // soft emerald-gray border
+const CLR_ALT_ROW = [246, 250, 248]  // subtle mint-white zebra row
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /**
- * Calculate optimal cellPadding so the table + signature block fill the page.
+ * Calculate the optimal body-row minCellHeight so the table fills the page
+ * WITHOUT overflowing. Uses compact cellPadding (1.5mm) and stretches row
+ * height to fill remaining vertical space.
+ *
  * @param {number} numDataRows  - number of body rows in the table
  * @param {number} numJudges    - number of judges (affects signature block height)
  * @param {number} tableStartY  - Y position (mm) where the table starts
- * @param {number} fontSize     - body font size in pt (default 8)
- * @returns {number} cellPadding in mm (clamped 1.2 – 5.5)
+ * @returns {{ cellPadding: number, minRowHeight: number }}
  */
-function calcCellPadding(numDataRows, numJudges, tableStartY, fontSize = 8) {
-  const judgeRows     = Math.ceil(Math.max(numJudges, 1) / 5)
-  const sigBlockH     = 13 + judgeRows * 20 + 9 + 14   // pill + cards + ICT footer
-  const usableH       = PAGE_H - MARGIN - tableStartY - sigBlockH - 12  // 12mm gaps
-  const totalRows     = numDataRows + 1   // body rows + 1 header row
-  const fontHeightMm  = fontSize * 0.352778
-  const perRowH       = usableH / totalRows
-  const pad           = (perRowH - fontHeightMm) / 2
-  return Math.max(1.2, Math.min(5.5, pad))
+function calcTableLayout(numDataRows, numJudges, tableStartY) {
+  const judgeRows  = Math.ceil(Math.max(numJudges, 1) / 5)
+  const sigBlockH  = 13 + judgeRows * 20 + 9 + 14   // pill + cards + ICT footer
+  const usableH    = PAGE_H - MARGIN - tableStartY - sigBlockH - 12  // 12mm gaps
+  const headerH    = 13   // estimated header row height
+  const availData  = usableH - headerH
+  const minRowH    = Math.max(7.5, Math.min(16, availData / numDataRows))
+  return { cellPadding: 1.5, minRowHeight: minRowH }
 }
 
 function newDoc() {
@@ -75,8 +76,8 @@ function newDoc() {
 
 function openPdf(doc, filename) {
   const blob = doc.output('blob')
-  const url  = URL.createObjectURL(blob)
-  const win  = window.open(url, '_blank')
+  const url = URL.createObjectURL(blob)
+  const win = window.open(url, '_blank')
   if (!win) {
     // Fallback: direct download if popup blocked
     doc.save(filename + '.pdf')
@@ -146,11 +147,11 @@ function drawHeader(doc, { sysTitle, title, subtitle }) {
 
   // 4-point white & gold sparkles
   drawSparkle(doc, MARGIN + 26, bannerY + 6.5, 1.5, [255, 255, 255])
-  drawSparkle(doc, MARGIN + 40, bannerY + 19,  1.2, [245, 215, 110])
-  drawSparkle(doc, MARGIN + 56, bannerY + 9,   1.0, [255, 255, 255])
+  drawSparkle(doc, MARGIN + 40, bannerY + 19, 1.2, [245, 215, 110])
+  drawSparkle(doc, MARGIN + 56, bannerY + 9, 1.0, [255, 255, 255])
   drawSparkle(doc, MARGIN + usableW - 28, bannerY + 6.5, 1.5, [255, 255, 255])
-  drawSparkle(doc, MARGIN + usableW - 42, bannerY + 19,  1.3, [245, 215, 110])
-  drawSparkle(doc, MARGIN + usableW - 55, bannerY + 10,  1.0, [255, 255, 255])
+  drawSparkle(doc, MARGIN + usableW - 42, bannerY + 19, 1.3, [245, 215, 110])
+  drawSparkle(doc, MARGIN + usableW - 55, bannerY + 10, 1.0, [255, 255, 255])
 
   // Subtle gold inner border around banner
   doc.setDrawColor(...CLR_GOLD)
@@ -234,17 +235,17 @@ function drawSignatureBlock(doc, judges, roleLabel) {
   // Fit up to 5 judges on a single row so 5-judge panels never wrap onto a 2nd page
   const maxCols = 5
   const usableW = PAGE_W - MARGIN * 2
-  const colW    = usableW / Math.min(maxCols, Math.max(judges.length, 4))
+  const colW = usableW / Math.min(maxCols, Math.max(judges.length, 4))
 
   const rows = []
   for (let i = 0; i < judges.length; i += maxCols) {
     rows.push(judges.slice(i, i + maxCols))
   }
 
-  const rowSpacing    = 20
-  const footerHeight  = 9
-  const blockH        = 13 + (rows.length * rowSpacing) + footerHeight
-  const tableEndY     = doc.lastAutoTable?.finalY || 0
+  const rowSpacing = 20
+  const footerHeight = 9
+  const blockH = 13 + (rows.length * rowSpacing) + footerHeight
+  const tableEndY = doc.lastAutoTable?.finalY || 0
   const minAfterTable = tableEndY + 8
 
   let startY
@@ -327,7 +328,7 @@ function drawSignatureBlock(doc, judges, roleLabel) {
 
   // Footer below judges: small ICT logo + "Powered by ICT Division"
   const lastRowY = sigStartY + (rows.length - 1) * rowSpacing + 18
-  const footerY  = lastRowY + 4
+  const footerY = lastRowY + 4
   const footerText = 'Powered by ICT Division'
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
@@ -364,7 +365,7 @@ export function printCheerdanceTabulation({ teams, criteria, scores, judges, sel
 
   let y = drawHeader(doc, {
     sysTitle: 'Binibining Palayan — Official Tabulation Report',
-    title:    'Cheerdance Competition Tabulation Sheet',
+    title: 'Cheerdance Competition Tabulation Sheet',
     subtitle,
   })
 
@@ -377,7 +378,7 @@ export function printCheerdanceTabulation({ teams, criteria, scores, judges, sel
     const critCells = criteria.map(crit => {
       const teamScores = scores.filter(s =>
         s.team_entry_id === team.team_entry_id &&
-        s.criterion_id  === crit.id &&
+        s.criterion_id === crit.id &&
         (selectedJudgeId && selectedJudgeId !== 'all' ? s.judge_id === selectedJudgeId : true)
       )
       if (teamScores.length === 0) return '—'
@@ -444,13 +445,13 @@ export function printCheerdanceTabulation({ teams, criteria, scores, judges, sel
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function printCheerdanceRankings({ rankedTeams, judges }) {
-  const doc  = newDoc()
+  const doc = newDoc()
   const top4 = rankedTeams.slice(0, 4)
   const rankLabels = ['CHAMPION', '1ST RUNNER-UP', '2ND RUNNER-UP', '3RD RUNNER-UP']
 
   let y = drawHeader(doc, {
     sysTitle: 'Binibining Palayan — Official Final Rankings Report',
-    title:    'Cheerdance Competition — Official Champion & Winners',
+    title: 'Cheerdance Competition — Official Champion & Winners',
     subtitle: 'Top 4 Final Ranking Standings',
   })
 
@@ -458,9 +459,9 @@ export function printCheerdanceRankings({ rankedTeams, judges }) {
 
   top4.forEach((team, idx) => {
     const isChamp = idx === 0
-    const boxH    = isChamp ? 34 : 27
-    const boxX    = MARGIN
-    const boxW    = PAGE_W - MARGIN * 2
+    const boxH = isChamp ? 34 : 27
+    const boxX = MARGIN
+    const boxW = PAGE_W - MARGIN * 2
 
     // Card background
     if (isChamp) {
@@ -514,9 +515,9 @@ export function printCheerdanceRankings({ rankedTeams, judges }) {
 export function printPageantStageTabulation({ stage, category, candidates, criteria, scores, judges, selectedJudgeId }) {
   const doc = newDoc()
 
-  const catLabel    = category === 'ginoo' ? 'Ginoo Division' : 'Binibini Division'
-  const filtered    = candidates.filter(c => c.category === category)
-  const stageKids   = criteria.filter(c => c.parent_id === stage.id)
+  const catLabel = category === 'ginoo' ? 'Ginoo Division' : 'Binibini Division'
+  const filtered = candidates.filter(c => c.category === category)
+  const stageKids = criteria.filter(c => c.parent_id === stage.id)
 
   const activeJudges = selectedJudgeId && selectedJudgeId !== 'all'
     ? judges.filter(j => j.id === selectedJudgeId)
@@ -528,7 +529,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
 
   let y = drawHeader(doc, {
     sysTitle: 'Binibining Palayan — Official Pageant Tabulation Report',
-    title:    `${stage.label} — Tabulation Sheet`,
+    title: `${stage.label} — Tabulation Sheet`,
     subtitle: `Category: ${catLabel}   |   ${judgeNote}`,
   })
 
@@ -541,8 +542,8 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
     let stageTotal = 0
     const critCells = stageKids.map(kid => {
       const matchScores = scores.filter(s =>
-        s.candidate_id  === c.candidate_id &&
-        s.criterion_id  === kid.id &&
+        s.candidate_id === c.candidate_id &&
+        s.criterion_id === kid.id &&
         (selectedJudgeId && selectedJudgeId !== 'all' ? s.judge_id === selectedJudgeId : true)
       )
       if (matchScores.length === 0) return '—'
@@ -578,7 +579,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
     ]
   })
 
-  const stageCellPad = calcCellPadding(filtered.length, activeJudges.length, y, 8)
+  const { cellPadding: stagePad, minRowHeight: stageRowH } = calcTableLayout(filtered.length, activeJudges.length, y)
 
   autoTable(doc, {
     startY: y,
@@ -587,7 +588,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
     margin: { left: MARGIN, right: MARGIN },
     styles: {
       fontSize: 8,
-      cellPadding: stageCellPad,
+      cellPadding: stagePad,
       lineColor: CLR_BORDER,
       lineWidth: 0.2,
     },
@@ -600,10 +601,11 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
       valign: 'middle',
       minCellHeight: 10,
     },
+    bodyStyles: { minCellHeight: stageRowH },
     columnStyles: {
       0: { halign: 'center', cellWidth: 16 },
-      1: { halign: 'left',   cellWidth: 40 },
-      2: { halign: 'left',   cellWidth: 32 },
+      1: { halign: 'left', cellWidth: 40 },
+      2: { halign: 'left', cellWidth: 32 },
       [stageKids.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: CLR_TOTAL_BG },
     },
     alternateRowStyles: { fillColor: CLR_ALT_ROW },
@@ -618,24 +620,24 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function printPageantOverallRankings({ category, topCandidates, judges }) {
-  const doc      = newDoc()
+  const doc = newDoc()
   const candidatesToShow = topCandidates.slice(0, 6)
   const divLabel = category === 'ginoo' ? 'GINOO' : 'BINIBINI'
   const rankLabels = ['RANK 1 — PRELIMINARY LEADER', 'RANK 2', 'RANK 3', 'RANK 4', 'RANK 5', 'RANK 6']
 
   let y = drawHeader(doc, {
     sysTitle: 'Binibining Palayan — 50% Preliminary Competition',
-    title:    `${divLabel} — Official Preliminary Standings Sheet`,
+    title: `${divLabel} — Official Preliminary Standings Sheet`,
     subtitle: `Preliminary Phase (50% Overall): Tourism Video (10%), Talent (20%), Festival-Inspired Costume (20%)`,
   })
 
   y += 4
 
   candidatesToShow.forEach((c, idx) => {
-    const isLead  = idx === 0
-    const boxH    = isLead ? 32 : 24
-    const boxX    = MARGIN
-    const boxW    = PAGE_W - MARGIN * 2
+    const isLead = idx === 0
+    const boxH = isLead ? 32 : 24
+    const boxX = MARGIN
+    const boxW = PAGE_W - MARGIN * 2
 
     if (isLead) {
       doc.setFillColor(255, 252, 220)
@@ -692,9 +694,9 @@ export function printPageantOverallRankings({ category, topCandidates, judges })
 export function printPageantOverallTabulation({ category, candidates, criteria, scores, judges, selectedJudgeId }) {
   const doc = newDoc()
 
-  const divLabel     = category === 'ginoo' ? 'GINOO' : 'BINIBINI'
-  const catLabel     = category === 'ginoo' ? 'Ginoo Division' : 'Binibini Division'
-  const filtered     = candidates.filter(c => c.category === category)
+  const divLabel = category === 'ginoo' ? 'GINOO' : 'BINIBINI'
+  const catLabel = category === 'ginoo' ? 'Ginoo Division' : 'Binibini Division'
+  const filtered = candidates.filter(c => c.category === category)
   const parentStages = criteria
     .filter(c => c.competition_type === 'pageant' && !c.parent_id)
     .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
@@ -709,7 +711,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
 
   let y = drawHeader(doc, {
     sysTitle: 'Binibining Palayan — Official Pageant Tabulation Report',
-    title:    `${divLabel} — Combined Preliminary Tabulation Sheet`,
+    title: `${divLabel} — Combined Preliminary Tabulation Sheet`,
     subtitle: `Category: ${catLabel}   |   ${judgeNote}`,
   })
 
@@ -776,7 +778,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
     { content: `${(r.overallTotal % 1 === 0 ? r.overallTotal.toString() : r.overallTotal.toFixed(2))}%`, styles: { fontStyle: 'bold', halign: 'center' } }
   ])
 
-  const overallCellPad = calcCellPadding(filtered.length, activeJudges.length, y, 8)
+  const { cellPadding: overallPad, minRowHeight: overallRowH } = calcTableLayout(filtered.length, activeJudges.length, y)
 
   autoTable(doc, {
     startY: y,
@@ -785,7 +787,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
     margin: { left: MARGIN, right: MARGIN },
     styles: {
       fontSize: 8,
-      cellPadding: overallCellPad,
+      cellPadding: overallPad,
       lineColor: CLR_BORDER,
       lineWidth: 0.2,
     },
@@ -798,10 +800,11 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
       valign: 'middle',
       minCellHeight: 10,
     },
+    bodyStyles: { minCellHeight: overallRowH },
     columnStyles: {
       0: { halign: 'center', cellWidth: 12 },
-      1: { halign: 'left',   cellWidth: 44 },
-      2: { halign: 'left',   cellWidth: 30 },
+      1: { halign: 'left', cellWidth: 44 },
+      2: { halign: 'left', cellWidth: 30 },
       [stageColMeta.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: CLR_TOTAL_BG },
     },
     alternateRowStyles: { fillColor: CLR_ALT_ROW },
@@ -818,15 +821,15 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
 export function printPageantCoronationTransferSheet({ category, candidates, criteria, scores, judges }) {
   const doc = newDoc()
 
-  const divLabel     = category === 'ginoo' ? 'GINOO' : 'BINIBINI'
-  const filtered     = candidates.filter(c => c.category === category)
+  const divLabel = category === 'ginoo' ? 'GINOO' : 'BINIBINI'
+  const filtered = candidates.filter(c => c.category === category)
   const parentStages = criteria
     .filter(c => c.competition_type === 'pageant' && !c.parent_id)
     .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
 
   let y = drawHeader(doc, {
     sysTitle: 'Binibining Palayan — Coronation Night Tabulation Transfer',
-    title:    `${divLabel} — 50% PRELIMINARY SCORES (CORONATION NIGHT / AU SYSTEM ENCODING SHEET)`,
+    title: `${divLabel} — 50% PRELIMINARY SCORES (CORONATION NIGHT / AU SYSTEM ENCODING SHEET)`,
     subtitle: `Official Certified Transfer Scores for AU Coronation System Entry   |   50% Overall Preliminary Weight`,
   })
 
@@ -904,7 +907,7 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
     }
   ])
 
-  const coronCellPad = calcCellPadding(filtered.length, judges.length, y, 8.5)
+  const { cellPadding: coronPad, minRowHeight: coronRowH } = calcTableLayout(filtered.length, judges.length, y)
 
   autoTable(doc, {
     startY: y,
@@ -913,7 +916,7 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
     margin: { left: MARGIN, right: MARGIN },
     styles: {
       fontSize: 8.5,
-      cellPadding: coronCellPad,
+      cellPadding: coronPad,
       lineColor: CLR_BORDER,
       lineWidth: 0.2,
     },
@@ -926,10 +929,11 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
       valign: 'middle',
       minCellHeight: 12,
     },
+    bodyStyles: { minCellHeight: coronRowH },
     columnStyles: {
       0: { halign: 'center', cellWidth: 16 },
-      1: { halign: 'left',   cellWidth: 44 },
-      2: { halign: 'left',   cellWidth: 36 },
+      1: { halign: 'left', cellWidth: 44 },
+      2: { halign: 'left', cellWidth: 36 },
       [stageColMeta.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: [254, 243, 199] },
     },
     alternateRowStyles: { fillColor: CLR_ALT_ROW },
