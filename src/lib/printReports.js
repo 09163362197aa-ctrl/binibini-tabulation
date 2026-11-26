@@ -35,14 +35,18 @@ const PAGE_W = 215.9
 const PAGE_H = 330.2
 const MARGIN = 14   // mm
 
-// ─── Colour tokens ───────────────────────────────────────────────────────────
-const CLR_HEADING = [15, 23, 42]      // dark navy
-const CLR_SUBTEXT = [100, 116, 139]   // slate-500
-const CLR_TABLE_HEADER_BG = [30, 41, 59]   // slate-800
+// ─── Colour tokens (Royal Emerald Green + Gold + White Glitter) ─────────────
+const CLR_EMERALD_DARK = [10, 39, 30]     // deep emerald shadow
+const CLR_EMERALD      = [14, 52, 41]     // royal emerald green
+const CLR_HEADING      = [14, 46, 36]     // deep emerald-ink
+const CLR_SUBTEXT      = [82, 107, 98]    // muted emerald-slate
+const CLR_TABLE_HEADER_BG = [14, 52, 41]  // royal emerald green
 const CLR_TABLE_HEADER_FG = [255, 255, 255]
-const CLR_TOTAL_BG = [241, 245, 249]  // slate-100
-const CLR_GOLD = [180, 130, 20]
-const CLR_BORDER = [203, 213, 225]
+const CLR_TOTAL_BG     = [254, 249, 231]  // soft champagne gold tint
+const CLR_GOLD         = [212, 175, 55]   // metallic gold
+const CLR_GOLD_DARK    = [166, 124, 20]   // deep gold for text
+const CLR_BORDER       = [206, 222, 215]  // soft emerald-gray border
+const CLR_ALT_ROW      = [246, 250, 248]  // subtle mint-white zebra row
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -61,8 +65,22 @@ function openPdf(doc, filename) {
 }
 
 /**
- * Draw the official report header block with Palayan Logo + Crown (top-left),
- * centered Binibining Palayan 2026 Title image, and report/verification labels.
+ * Draw a delicate 4-point sparkle star at (cx, cy) with radius r.
+ */
+function drawSparkle(doc, cx, cy, r, color) {
+  doc.setDrawColor(...color)
+  doc.setLineWidth(0.28)
+  doc.line(cx - r, cy, cx + r, cy)
+  doc.line(cx, cy - r, cx, cy + r)
+  const d = r * 0.45
+  doc.setLineWidth(0.18)
+  doc.line(cx - d, cy - d, cx + d, cy + d)
+  doc.line(cx - d, cy + d, cx + d, cy - d)
+}
+
+/**
+ * Draw the official report header block in Royal Emerald Green, Gold & White Glitter:
+ * Palayan Logo (top-left), centered Binibining Palayan 2026 Title image, Crown (top-right).
  * Returns the Y position after the header (where content should start).
  */
 function drawHeader(doc, { sysTitle, title, subtitle }) {
@@ -70,26 +88,74 @@ function drawHeader(doc, { sysTitle, title, subtitle }) {
   const bannerY = MARGIN
   const bannerH = 30
 
-  // Dark royal navy banner so the silver metallic Title.png pops cleanly
-  doc.setFillColor(18, 25, 43)
+  // Deep Emerald Green banner
+  doc.setFillColor(...CLR_EMERALD)
   doc.roundedRect(MARGIN, bannerY, usableW, bannerH, 2.5, 2.5, 'F')
 
+  // Subtle darker emerald corner depth accents
+  doc.setFillColor(...CLR_EMERALD_DARK)
+  doc.triangle(MARGIN, bannerY, MARGIN + 34, bannerY, MARGIN, bannerY + 14, 'F')
+  doc.triangle(MARGIN + usableW, bannerY + bannerH - 1.2, MARGIN + usableW - 38, bannerY + bannerH - 1.2, MARGIN + usableW, bannerY + bannerH - 15, 'F')
+
+  // Delicate gold & white glitter dots + sparkles (kept out of the center title area)
+  const glitterDots = [
+    // Left glitter cluster
+    [MARGIN + 22, bannerY + 5, 0.45, [255, 255, 255]],
+    [MARGIN + 27, bannerY + 9, 0.35, [245, 215, 110]],
+    [MARGIN + 31, bannerY + 4, 0.30, [255, 255, 255]],
+    [MARGIN + 36, bannerY + 11, 0.40, [212, 175, 55]],
+    [MARGIN + 24, bannerY + 18, 0.35, [245, 215, 110]],
+    [MARGIN + 18, bannerY + 23, 0.50, [212, 175, 55]],
+    [MARGIN + 29, bannerY + 24, 0.30, [255, 255, 255]],
+    [MARGIN + 42, bannerY + 7, 0.30, [255, 255, 255]],
+    [MARGIN + 47, bannerY + 21, 0.35, [245, 215, 110]],
+    [MARGIN + 54, bannerY + 6, 0.25, [255, 255, 255]],
+    // Right glitter cluster
+    [MARGIN + usableW - 24, bannerY + 5, 0.45, [255, 255, 255]],
+    [MARGIN + usableW - 30, bannerY + 9, 0.35, [245, 215, 110]],
+    [MARGIN + usableW - 36, bannerY + 4, 0.30, [255, 255, 255]],
+    [MARGIN + usableW - 41, bannerY + 12, 0.40, [212, 175, 55]],
+    [MARGIN + usableW - 26, bannerY + 21, 0.45, [212, 175, 55]],
+    [MARGIN + usableW - 34, bannerY + 24, 0.35, [255, 255, 255]],
+    [MARGIN + usableW - 46, bannerY + 22, 0.35, [245, 215, 110]],
+    [MARGIN + usableW - 52, bannerY + 7, 0.28, [255, 255, 255]],
+  ]
+  glitterDots.forEach(([gx, gy, gr, col]) => {
+    doc.setFillColor(...col)
+    doc.circle(gx, gy, gr, 'F')
+  })
+
+  // 4-point white & gold sparkles
+  drawSparkle(doc, MARGIN + 26, bannerY + 6.5, 1.5, [255, 255, 255])
+  drawSparkle(doc, MARGIN + 40, bannerY + 19,  1.2, [245, 215, 110])
+  drawSparkle(doc, MARGIN + 56, bannerY + 9,   1.0, [255, 255, 255])
+  drawSparkle(doc, MARGIN + usableW - 28, bannerY + 6.5, 1.5, [255, 255, 255])
+  drawSparkle(doc, MARGIN + usableW - 42, bannerY + 19,  1.3, [245, 215, 110])
+  drawSparkle(doc, MARGIN + usableW - 55, bannerY + 10,  1.0, [255, 255, 255])
+
+  // Subtle gold inner border around banner
+  doc.setDrawColor(...CLR_GOLD)
+  doc.setLineWidth(0.35)
+  doc.roundedRect(MARGIN + 0.8, bannerY + 0.8, usableW - 1.6, bannerH - 1.6, 2, 2, 'S')
+
   // Gold accent bar at bottom of banner
-  doc.setFillColor(212, 175, 55)
+  doc.setFillColor(...CLR_GOLD)
   doc.rect(MARGIN, bannerY + bannerH - 1.2, usableW, 1.2, 'F')
 
-  // Top-left: small Palayan City logo + small Crown
-  const logoSize = 8.5
-  const logoX = MARGIN + 4
-  const logoY = bannerY + 3.5
+  // Top-left: small Palayan City logo
+  const logoSize = 11
+  const logoX = MARGIN + 5
+  const logoY = bannerY + 4
   if (isImgReady(IMG_PALAYAN)) {
     doc.addImage(IMG_PALAYAN, 'PNG', logoX, logoY, logoSize, logoSize)
   }
+
+  // Top-right: small Crown (moved to right side)
   if (isImgReady(IMG_CROWN)) {
-    const crownW = 10.5
-    const crownH = crownW * (329 / 500) // preserve exact 500x329 aspect ratio
-    const crownX = logoX + logoSize + 2
-    const crownY = logoY + (logoSize - crownH) / 2
+    const crownW = 13.5
+    const crownH = crownW * (329 / 500) // preserve exact 500x329 aspect ratio (~8.88mm)
+    const crownX = MARGIN + usableW - crownW - 5
+    const crownY = bannerY + 4.5
     doc.addImage(IMG_CROWN, 'PNG', crownX, crownY, crownW, crownH)
   }
 
@@ -115,7 +181,7 @@ function drawHeader(doc, { sysTitle, title, subtitle }) {
   if (sysTitle) {
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(7.2)
-    doc.setTextColor(...CLR_SUBTEXT)
+    doc.setTextColor(...CLR_GOLD_DARK)
     doc.text(sysTitle.toUpperCase(), PAGE_W / 2, y, { align: 'center' })
     y += 3.8
   }
@@ -129,9 +195,9 @@ function drawHeader(doc, { sysTitle, title, subtitle }) {
     y += 3.8
   }
 
-  // Divider
-  doc.setDrawColor(...CLR_BORDER)
-  doc.setLineWidth(0.35)
+  // Gold & emerald divider
+  doc.setDrawColor(...CLR_GOLD)
+  doc.setLineWidth(0.45)
   doc.line(MARGIN, y, PAGE_W - MARGIN, y)
   y += 3.5
 
@@ -156,9 +222,9 @@ function drawSignatureBlock(doc, judges, roleLabel) {
     rows.push(judges.slice(i, i + maxCols))
   }
 
-  const rowSpacing    = 17
+  const rowSpacing    = 20
   const footerHeight  = 9
-  const blockH        = 11 + (rows.length * rowSpacing) + footerHeight
+  const blockH        = 13 + (rows.length * rowSpacing) + footerHeight
   const tableEndY     = doc.lastAutoTable?.finalY || 0
   const minAfterTable = tableEndY + 8
 
@@ -170,20 +236,33 @@ function drawSignatureBlock(doc, judges, roleLabel) {
     startY = Math.max(minAfterTable, PAGE_H - MARGIN - blockH)
   }
 
-  // Section label
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(7.5)
-  doc.setTextColor(...CLR_SUBTEXT)
+  // Gold-flanked Emerald Pill Header: "CERTIFIED CORRECT — BOARD OF JUDGES"
   const labelText = 'CERTIFIED CORRECT — BOARD OF JUDGES'
-  doc.text(labelText, PAGE_W / 2, startY, { align: 'center' })
-
-  // Thin rule under label
-  doc.setDrawColor(...CLR_BORDER)
-  doc.setLineWidth(0.3)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7.2)
   const lblW = doc.getTextWidth(labelText)
-  doc.line(PAGE_W / 2 - lblW / 2 - 2, startY + 1.5, PAGE_W / 2 + lblW / 2 + 2, startY + 1.5)
+  const pillW = lblW + 10
+  const pillH = 5.2
+  const pillX = (PAGE_W - pillW) / 2
+  const pillY = startY - 3.6
 
-  const sigStartY = startY + 10
+  // Gold horizontal lines flanking the pill
+  doc.setDrawColor(...CLR_GOLD)
+  doc.setLineWidth(0.4)
+  doc.line(MARGIN, startY - 1, pillX - 3, startY - 1)
+  doc.line(pillX + pillW + 3, startY - 1, PAGE_W - MARGIN, startY - 1)
+
+  // Emerald pill with gold border
+  doc.setFillColor(...CLR_EMERALD)
+  doc.setDrawColor(...CLR_GOLD)
+  doc.setLineWidth(0.35)
+  doc.roundedRect(pillX, pillY, pillW, pillH, 2.5, 2.5, 'FD')
+
+  // Pill text in crisp white/gold
+  doc.setTextColor(254, 243, 199)
+  doc.text(labelText, PAGE_W / 2, startY + 0.1, { align: 'center' })
+
+  const sigStartY = startY + 6
 
   rows.forEach((rowJudges, rIdx) => {
     const k = rowJudges.length
@@ -192,30 +271,44 @@ function drawSignatureBlock(doc, judges, roleLabel) {
     const cy = sigStartY + (rIdx * rowSpacing)
 
     rowJudges.forEach((j, cIdx) => {
-      const cx = rowStartX + cIdx * colW + colW / 2
+      const cardX = rowStartX + cIdx * colW + 1.5
+      const cardW = colW - 3
+      const cardH = 16.5
+      const cx = cardX + cardW / 2
 
-      // Signature line
-      doc.setDrawColor(...CLR_HEADING)
-      doc.setLineWidth(0.45)
-      doc.line(cx - colW / 2 + 3, cy, cx + colW / 2 - 3, cy)
+      // Elegant signature card with soft mint-ivory fill & border
+      doc.setFillColor(247, 251, 249)
+      doc.setDrawColor(...CLR_BORDER)
+      doc.setLineWidth(0.25)
+      doc.roundedRect(cardX, cy, cardW, cardH, 1.5, 1.5, 'FD')
 
-      // Judge name
+      // Subtle gold top accent bar on each judge card
+      doc.setFillColor(...CLR_GOLD)
+      doc.rect(cardX, cy, cardW, 0.7, 'F')
+
+      // Signature line inside card
+      const sigLineY = cy + 8.5
+      doc.setDrawColor(...CLR_EMERALD)
+      doc.setLineWidth(0.35)
+      doc.line(cardX + 3.5, sigLineY, cardX + cardW - 3.5, sigLineY)
+
+      // Judge name (bold deep emerald)
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(7.5)
       doc.setTextColor(...CLR_HEADING)
-      doc.text(j.name || '—', cx, cy + 3.6, { align: 'center' })
+      doc.text(j.name || '—', cx, sigLineY + 3.4, { align: 'center' })
 
-      // Role
+      // Role (gold-amber italic)
       doc.setFont('helvetica', 'italic')
-      doc.setFontSize(6.5)
-      doc.setTextColor(...CLR_SUBTEXT)
-      doc.text(roleLabel, cx, cy + 7.2, { align: 'center' })
+      doc.setFontSize(6.2)
+      doc.setTextColor(...CLR_GOLD_DARK)
+      doc.text(roleLabel, cx, sigLineY + 6.5, { align: 'center' })
     })
   })
 
   // Footer below judges: small ICT logo + "Powered by ICT Division"
-  const lastRowY = sigStartY + (rows.length - 1) * rowSpacing + 12
-  const footerY  = Math.max(lastRowY + 3, PAGE_H - MARGIN - 2)
+  const lastRowY = sigStartY + (rows.length - 1) * rowSpacing + 18
+  const footerY  = Math.max(lastRowY + 2, PAGE_H - MARGIN - 2)
   const footerText = 'Powered by ICT Division'
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
@@ -320,7 +413,7 @@ export function printCheerdanceTabulation({ teams, criteria, scores, judges, sel
       1: { halign: 'left', cellWidth: 36 },
       [criteria.length + 2]: { halign: 'center', fontStyle: 'bold', fillColor: CLR_TOTAL_BG },
     },
-    alternateRowStyles: { fillColor: [248, 250, 252] },
+    alternateRowStyles: { fillColor: CLR_ALT_ROW },
   })
 
   drawSignatureBlock(doc, activeJudges, 'Official Cheerdance Judge')
@@ -354,7 +447,7 @@ export function printCheerdanceRankings({ rankedTeams, judges }) {
     if (isChamp) {
       doc.setFillColor(255, 252, 220)
     } else {
-      doc.setFillColor(248, 250, 252)
+      doc.setFillColor(...CLR_ALT_ROW)
     }
     doc.roundedRect(boxX, y, boxW, boxH, 3, 3, 'F')
 
@@ -492,7 +585,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
       2: { halign: 'left',   cellWidth: 32 },
       [stageKids.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: CLR_TOTAL_BG },
     },
-    alternateRowStyles: { fillColor: [248, 250, 252] },
+    alternateRowStyles: { fillColor: CLR_ALT_ROW },
   })
 
   drawSignatureBlock(doc, activeJudges, 'Official Pageant Judge')
@@ -526,7 +619,7 @@ export function printPageantOverallRankings({ category, topCandidates, judges })
     if (isLead) {
       doc.setFillColor(255, 252, 220)
     } else {
-      doc.setFillColor(248, 250, 252)
+      doc.setFillColor(...CLR_ALT_ROW)
     }
     doc.roundedRect(boxX, y, boxW, boxH, 3, 3, 'F')
     doc.setDrawColor(isLead ? 180 : 203, isLead ? 130 : 213, isLead ? 20 : 225)
@@ -688,7 +781,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
       2: { halign: 'left',   cellWidth: 30 },
       [stageColMeta.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: CLR_TOTAL_BG },
     },
-    alternateRowStyles: { fillColor: [248, 250, 252] },
+    alternateRowStyles: { fillColor: CLR_ALT_ROW },
   })
 
   drawSignatureBlock(doc, activeJudges, 'Official Pageant Judge')
@@ -800,7 +893,7 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
       lineWidth: 0.2,
     },
     headStyles: {
-      fillColor: [30, 41, 59],
+      fillColor: CLR_EMERALD,
       textColor: [255, 255, 255],
       fontStyle: 'bold',
       fontSize: 7.5,
@@ -814,7 +907,7 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
       2: { halign: 'left',   cellWidth: 36 },
       [stageColMeta.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: [254, 243, 199] },
     },
-    alternateRowStyles: { fillColor: [248, 250, 252] },
+    alternateRowStyles: { fillColor: CLR_ALT_ROW },
   })
 
   drawSignatureBlock(doc, judges, 'Official Pageant Judge')
