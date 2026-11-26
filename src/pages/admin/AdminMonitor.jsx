@@ -93,7 +93,7 @@ export default function AdminMonitor() {
         { data: criteriaData }
       ] = await Promise.all([
         supabase.from('profiles').select('id, name, allowed_competitions').eq('role', 'judge').order('name'),
-        supabase.from('team_entries').select('id, competition_type, team:teams(id, name, logo_url), candidates(id, category, name, candidate_number, photo_url)').order('competition_type'),
+        supabase.from('team_entries').select('id, competition_type, team:teams(id, name), candidates(id, category, name, candidate_number)').order('competition_type'),
         supabase.from('scores').select('id, judge_id, team_entry_id, candidate_id, criterion_id, value, is_locked, updated_at'),
         supabase.from('criteria').select('id, key, label, max_score, parent_id, display_order, competition_type').order('display_order')
       ])
@@ -168,8 +168,6 @@ export default function AdminMonitor() {
               candidateId: c.id,
               label: c.name,
               sub: entry.team?.name,
-              logoUrl: entry.team?.logo_url,
-              photoUrl: c.photo_url,
               number: c.candidate_number,
               type: c.category
             })
@@ -669,13 +667,6 @@ export default function AdminMonitor() {
                                 borderRadius: 4,
                                 border: '1px solid var(--border)'
                               }}>
-                                {s.logoUrl && (
-                                  <img
-                                    src={s.logoUrl}
-                                    alt="Logo"
-                                    style={{ width: 12, height: 12, borderRadius: '50%', objectFit: 'cover' }}
-                                  />
-                                )}
                                 <span>{s.sub}</span>
                               </div>
                             )}
