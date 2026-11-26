@@ -1,0 +1,18 @@
+{
+  "name": "Binibining Palayan 2026",
+  "short_name": "Binibini 2026",
+  "description": "Binibining Palayan Official Tabulation & Scoring System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A271E",
+  "theme_color": "#0A271E",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/palayan.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
