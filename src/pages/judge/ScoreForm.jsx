@@ -790,38 +790,6 @@ export default function ScoreForm() {
                     <span>Barangay {subject.team}</span>
                   </div>
                 )}
-
-                {/* Unlock Button if Locked */}
-                {isLocked && (
-                  <div style={{ marginTop: 6, paddingTop: 8, borderTop: '1px solid var(--border)', width: '100%' }}>
-                    <button
-                      type="button"
-                      className="btn btn-sm"
-                      style={{
-                        width: '100%',
-                        maxWidth: 240,
-                        margin: '0 auto',
-                        fontSize: '0.8rem',
-                        fontWeight: 800,
-                        padding: '7px 12px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6,
-                        background: hasPendingRequest ? '#fef3c7' : 'rgba(242, 183, 5, 0.12)',
-                        color: hasPendingRequest ? '#92400e' : '#B45309',
-                        border: hasPendingRequest ? '1px solid #fde68a' : '1px solid rgba(242, 183, 5, 0.35)',
-                        borderRadius: 8,
-                        cursor: hasPendingRequest ? 'default' : 'pointer'
-                      }}
-                      disabled={requesting || hasPendingRequest}
-                      onClick={requestUnlock}
-                    >
-                      <LockOpen size={13} color="#D97706" strokeWidth={2.2} />
-                      {requesting ? 'Sending…' : hasPendingRequest ? 'Unlock Pending' : 'Request Stage Unlock'}
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -1133,24 +1101,26 @@ export default function ScoreForm() {
               marginTop: 14,
               padding: 20,
               borderRadius: 14,
-              border: '1.5px solid rgba(245, 200, 66, 0.35)',
-              background: 'linear-gradient(180deg, rgba(254, 243, 199, 0.25) 0%, var(--bg-surface) 100%)',
+              border: '1.5px solid rgba(212, 175, 55, 0.45)',
+              background: 'linear-gradient(180deg, rgba(254, 243, 199, 0.22) 0%, #FFFFFF 100%)',
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'stretch',
               gap: 14,
-              boxShadow: '0 4px 16px rgba(245, 200, 66, 0.08)'
+              boxShadow: '0 4px 16px rgba(14, 52, 41, 0.08)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
                 <div style={{
                   padding: 8,
-                  background: 'linear-gradient(135deg, #FDE047 0%, #F5C842 100%)',
+                  background: 'linear-gradient(135deg, #0A271E 0%, #0E3429 100%)',
+                  border: '1px solid #D4AF37',
                   borderRadius: 8,
-                  color: '#1A1A1A',
+                  color: '#FDE68A',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(245, 200, 66, 0.3)'
+                  boxShadow: '0 2px 8px rgba(14, 52, 41, 0.22)',
+                  flexShrink: 0
                 }}>
                   <ShieldCheck size={22} strokeWidth={2.2} />
                 </div>
@@ -1161,6 +1131,36 @@ export default function ScoreForm() {
                   </div>
                 </div>
               </div>
+
+              <button
+                type="button"
+                className="btn btn-sm"
+                style={{
+                  width: '100%',
+                  fontSize: '0.86rem',
+                  fontWeight: 800,
+                  padding: '10px 16px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  background: hasPendingRequest
+                    ? 'rgba(14, 52, 41, 0.08)'
+                    : 'linear-gradient(135deg, #0A271E 0%, #0E3429 100%)',
+                  color: hasPendingRequest ? '#0E3429' : '#FEF3C7',
+                  border: hasPendingRequest
+                    ? '1.5px solid rgba(14, 52, 41, 0.25)'
+                    : '1.5px solid #D4AF37',
+                  borderRadius: 10,
+                  cursor: hasPendingRequest ? 'default' : 'pointer',
+                  boxShadow: hasPendingRequest ? 'none' : '0 3px 10px rgba(10, 39, 30, 0.2)'
+                }}
+                disabled={requesting || hasPendingRequest}
+                onClick={requestUnlock}
+              >
+                <LockOpen size={15} color={hasPendingRequest ? '#0E3429' : '#FDE68A'} strokeWidth={2.2} />
+                {requesting ? 'Sending Unlock Request…' : hasPendingRequest ? 'Unlock Request Pending Approval' : 'Request Stage Unlock'}
+              </button>
             </div>
           )}
 
