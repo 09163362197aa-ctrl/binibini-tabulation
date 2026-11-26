@@ -61,12 +61,12 @@ const CLR_ALT_ROW = [246, 250, 248]  // subtle mint-white zebra row
  * @returns {{ cellPadding: number, minRowHeight: number }}
  */
 function calcTableLayout(numDataRows, numJudges, tableStartY) {
-  const judgeRows  = Math.ceil(Math.max(numJudges, 1) / 5)
-  const sigBlockH  = 13 + judgeRows * 20 + 9 + 14   // pill + cards + ICT footer
-  const usableH    = PAGE_H - MARGIN - tableStartY - sigBlockH - 12  // 12mm gaps
-  const headerH    = 13   // estimated header row height
-  const availData  = usableH - headerH
-  const minRowH    = Math.max(7.5, Math.min(16, availData / numDataRows))
+  const judgeRows = Math.ceil(Math.max(numJudges, 1) / 5)
+  const sigBlockH = 13 + judgeRows * 20 + 9 + 14   // pill + cards + ICT footer
+  const usableH = PAGE_H - MARGIN - tableStartY - sigBlockH - 12  // 12mm gaps
+  const headerH = 13   // estimated header row height
+  const availData = usableH - headerH
+  const minRowH = Math.max(7.5, Math.min(16, availData / numDataRows))
   return { cellPadding: 1.5, minRowHeight: minRowH }
 }
 
@@ -326,9 +326,9 @@ function drawSignatureBlock(doc, judges, roleLabel) {
     })
   })
 
-  // Footer below judges: small ICT logo + "Powered by ICT Division"
+  // Footer pinned to page bottom: small ICT logo + "Powered by ICT Division"
   const lastRowY = sigStartY + (rows.length - 1) * rowSpacing + 18
-  const footerY = lastRowY + 4
+  const footerY = Math.max(lastRowY + 4, PAGE_H - MARGIN - 2)
   const footerText = 'Powered by ICT Division'
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
