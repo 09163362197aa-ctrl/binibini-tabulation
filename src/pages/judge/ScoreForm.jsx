@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -74,6 +74,18 @@ export default function ScoreForm() {
   const [candidateList, setCandidateList] = useState([])
   const candidateId = competition === 'pageant' ? id : null
   const teamEntryId = competition === 'cheerdance' ? id : null
+  const savedRef = useRef({})
+  const inFlightSavesRef = useRef({})
+  const toastTimerRef = useRef(null)
+
+  useEffect(() => {
+    savedRef.current = savedScores
+  }, [savedScores])
+
+  useEffect(() => {
+    savedRef.current = {}
+    inFlightSavesRef.current = {}
+  }, [competition, id])
 
   function resetScrollTop() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
@@ -92,8 +104,9 @@ export default function ScoreForm() {
   }, [id])
 
   function showToast(msg, type = 'success') {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
     setToast({ msg, type })
-    setTimeout(() => setToast(null), 3000)
+    toastTimerRef.current = setTimeout(() => setToast(null), 3000)
   }
 
   useEffect(() => {
@@ -237,19 +250,71 @@ export default function ScoreForm() {
     }
     load()
 
+    async function refreshStatusSilently() {
+      const sQuery = supabase
+        .from('scores')
+        .select('id, criterion_id, value, is_locked')
+        .eq('judge_id', user.id)
+      if (competition === 'cheerdance') sQuery.eq('team_entry_id', id)
+      if (competition === 'pageant') sQuery.eq('candidate_id', targetCandId)
+
+      const rQuery = supabase
+        .from('unlock_requests')
+        .select('id, status')
+        .eq('judge_id', user.id)
+        .eq('status', 'pending')
+      if (competition === 'cheerdance') rQuery.eq('team_entry_id', id)
+      if (competition === 'pageant') rQuery.eq('candidate_id', targetCandId)
+
+      const [{ data: scoreRows }, { data: reqRows }] = await Promise.all([sQuery, rQuery])
+      if (!isCurrent) return
+
+      if (scoreRows) {
+        const nextSaved = {}
+        scoreRows.forEach(row => {
+          nextSaved[row.criterion_id] = { id: row.id, is_locked: row.is_locked }
+        })
+        savedRef.current = nextSaved
+        setSaved(nextSaved)
+      }
+      setHasPendingRequest((reqRows || []).length > 0)
+    }
+
     const channel = supabase
       .channel(`scoreform-rt-${competition}-${id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, (payload) => {
-        if (payload.new && payload.new.judge_id === user.id) {
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'scores', filter: `judge_id=eq.${user.id}` },
+        (payload) => {
+          const row = payload.new
+          if (!row) return
+          const matchesTarget = competition === 'pageant'
+            ? row.candidate_id === targetCandId
+            : row.team_entry_id === id
+          if (!matchesTarget) return
+
+          const nextEntry = { id: row.id, is_locked: row.is_locked }
+          savedRef.current = { ...savedRef.current, [row.criterion_id]: nextEntry }
           setSaved(prev => ({
             ...prev,
-            [payload.new.criterion_id]: { id: payload.new.id, is_locked: payload.new.is_locked }
+            [row.criterion_id]: nextEntry
           }))
         }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'unlock_requests' }, () => {
-        load()
-      })
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'unlock_requests', filter: `judge_id=eq.${user.id}` },
+        (payload) => {
+          const row = payload.new || payload.old
+          if (row) {
+            const matchesTarget = competition === 'pageant'
+              ? row.candidate_id === targetCandId
+              : row.team_entry_id === id
+            if (!matchesTarget) return
+          }
+          refreshStatusSilently()
+        }
+      )
       .subscribe()
 
     return () => {
@@ -312,20 +377,42 @@ export default function ScoreForm() {
 
   async function saveScore(criterionId, rawValue) {
     if (isLocked) return
-    // Direct scoring: store exactly what the judge typed
-    const existing = savedScores[criterionId]
-    if (existing) {
-      await supabase.from('scores').update({ value: rawValue }).eq('id', existing.id)
-    } else {
-      const row = {
-        judge_id: user.id,
-        criterion_id: criterionId,
-        value: rawValue,
-        is_locked: false,
-        ...(teamEntryId ? { team_entry_id: teamEntryId } : { candidate_id: candidateId }),
+    const runSave = async () => {
+      if (inFlightSavesRef.current[criterionId]) {
+        await inFlightSavesRef.current[criterionId].catch(() => {})
       }
-      const { data } = await supabase.from('scores').insert(row).select().single()
-      if (data) setSaved(prev => ({ ...prev, [criterionId]: { id: data.id, is_locked: false } }))
+      const existing = savedRef.current[criterionId]
+      if (existing) {
+        const { error } = await supabase.from('scores').update({ value: rawValue }).eq('id', existing.id)
+        if (error) throw error
+      } else {
+        const row = {
+          judge_id: user.id,
+          criterion_id: criterionId,
+          value: rawValue,
+          is_locked: false,
+          ...(teamEntryId ? { team_entry_id: teamEntryId } : { candidate_id: candidateId }),
+        }
+        const { data, error } = await supabase.from('scores').insert(row).select().single()
+        if (error) throw error
+        if (data) {
+          const entry = { id: data.id, is_locked: false }
+          savedRef.current = { ...savedRef.current, [criterionId]: entry }
+          setSaved(prev => ({ ...prev, [criterionId]: entry }))
+        }
+      }
+    }
+
+    const promise = runSave()
+    inFlightSavesRef.current[criterionId] = promise
+    try {
+      await promise
+    } catch (err) {
+      showToast('Auto-save failed: ' + err.message, 'error')
+    } finally {
+      if (inFlightSavesRef.current[criterionId] === promise) {
+        delete inFlightSavesRef.current[criterionId]
+      }
     }
   }
 
@@ -349,12 +436,19 @@ export default function ScoreForm() {
 
     setLocking(true)
     try {
+      // Wait for any in-flight blur auto-saves to settle so we never insert duplicate rows
+      const pendingSaves = Object.values(inFlightSavesRef.current)
+      if (pendingSaves.length > 0) {
+        await Promise.allSettled(pendingSaves)
+      }
+
       const savePromises = activeCriteriaIds.map(async cid => {
         const rawVal = scores[cid] ?? 0
-        const existing = savedScores[cid]
+        const existing = savedRef.current[cid]
 
         if (existing) {
-          await supabase.from('scores').update({ value: rawVal, is_locked: true }).eq('id', existing.id)
+          const { error } = await supabase.from('scores').update({ value: rawVal, is_locked: true }).eq('id', existing.id)
+          if (error) throw error
           return { cid, id: existing.id }
         } else {
           const row = {
@@ -364,7 +458,8 @@ export default function ScoreForm() {
             is_locked: true,
             ...(teamEntryId ? { team_entry_id: teamEntryId } : { candidate_id: candidateId }),
           }
-          const { data } = await supabase.from('scores').insert(row).select().single()
+          const { data, error } = await supabase.from('scores').insert(row).select().single()
+          if (error) throw error
           return { cid, id: data?.id }
         }
       })
@@ -376,6 +471,7 @@ export default function ScoreForm() {
         results.forEach(r => {
           if (r?.cid) next[r.cid] = { id: r.id, is_locked: true }
         })
+        savedRef.current = next
         return next
       })
 
