@@ -686,22 +686,20 @@ export function printPageantRawScoreTabulation({ category, candidates, criteria,
       candidate:        c.candidate,
       team:             c.team,
       stageBreakdown,
-      grandTotal,
-      grandMax
+      grandTotal: stageColMeta.length > 0 ? grandTotal / stageColMeta.length : 0,
+      grandMax:   stageColMeta.length > 0 ? grandMax   / stageColMeta.length : 0
     }
   })
 
-  // Sort highest raw total first
+  // Sort highest raw average first
   computed.sort((a, b) => b.grandTotal - a.grandTotal)
-
-  const totalMax = computed[0]?.grandMax || 0
 
   const head = [[
     '#',
     'Candidate Name',
     'Barangay',
     ...stageColMeta.map(s => s.header),
-    `TOTAL RAW SCORE\n(Max: ${totalMax} pts)`
+    `AVERAGE RAW SCORE\n(÷ ${stageColMeta.length} stages)`
   ]]
 
   const body = computed.map((r, idx) => [
@@ -710,7 +708,7 @@ export function printPageantRawScoreTabulation({ category, candidates, criteria,
     r.team,
     ...r.stageBreakdown.map(s => ({ content: s.text, styles: { halign: 'center' } })),
     {
-      content: `${r.grandTotal % 1 === 0 ? r.grandTotal : r.grandTotal.toFixed(2)} / ${r.grandMax}`,
+      content: `${r.grandTotal % 1 === 0 ? r.grandTotal : r.grandTotal.toFixed(2)}`,
       styles:  { fontStyle: 'bold', halign: 'center', fontSize: 9.5, textColor: [180, 83, 9] }
     }
   ])
