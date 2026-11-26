@@ -49,7 +49,7 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 400px 1fr;
+  grid-template-columns: 440px 1fr;
   gap: 18px;
   height: 100%;
   max-height: 100%;
@@ -96,7 +96,7 @@
 .candidate-spotlight-photo {
   position: relative;
   width: 100%;
-  max-width: 400px;        /* matches fixed card column width */
+  max-width: 440px;        /* matches card column width */
   aspect-ratio: 3 / 4;
   flex: 0 1 auto;
   min-height: 0;
@@ -195,11 +195,11 @@
   background: rgba(212, 175, 55, 0.6);
 }
 
-/* When vertical screen length is getting smaller, make card thinner and scale down proportionally */
+/* When vertical screen length is getting smaller, keep card comfortably wide while scaling padding */
 @media (max-height: 650px) {
   .scoring-layout-split {
-    grid-template-columns: 230px 1fr;
-    gap: 12px;
+    grid-template-columns: 320px 1fr;
+    gap: 14px;
   }
   .candidate-spotlight-card {
     padding: 10px;
@@ -215,8 +215,8 @@
 
 @media (max-height: 520px) {
   .scoring-layout-split {
-    grid-template-columns: 190px 1fr;
-    gap: 10px;
+    grid-template-columns: 270px 1fr;
+    gap: 12px;
   }
   .candidate-spotlight-card {
     padding: 8px;
@@ -232,8 +232,8 @@
 
 @media (max-height: 420px) {
   .scoring-layout-split {
-    grid-template-columns: 160px 1fr;
-    gap: 8px;
+    grid-template-columns: 230px 1fr;
+    gap: 10px;
   }
   .candidate-spotlight-card {
     padding: 6px;
@@ -250,7 +250,7 @@
 /* Tablet Portrait Mode (iPad & Android Tablets in Portrait e.g. 640px to 960px) */
 @media (min-width: 641px) and (max-width: 960px) {
   .scoring-layout-split {
-    grid-template-columns: 290px 1fr;
+    grid-template-columns: 340px 1fr;
     gap: 14px;
   }
   .candidate-spotlight-card {
