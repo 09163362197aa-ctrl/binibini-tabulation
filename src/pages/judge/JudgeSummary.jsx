@@ -394,7 +394,7 @@ export default function JudgeSummary() {
                   onClick={() => setActivePageantTab('overall')}
                 >
                   <Trophy size={15} color={activePageantTab === 'overall' ? '#FDE68A' : 'currentColor'} />
-                  <span>Overall Combined Total</span>
+                  <span>Overall</span>
                 </button>
               </div>
             </div>
