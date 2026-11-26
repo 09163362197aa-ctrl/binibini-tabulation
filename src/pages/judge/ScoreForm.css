@@ -35,7 +35,7 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: clamp(230px, 26vw, 300px) 1fr;
+  grid-template-columns: clamp(260px, 30vw, 360px) 1fr;
   gap: 18px;
   height: 100%;
   max-height: 100%;
@@ -232,7 +232,7 @@
 /* Tablet Portrait Mode (iPad & Android Tablets in Portrait e.g. 640px to 960px) */
 @media (min-width: 641px) and (max-width: 960px) {
   .scoring-layout-split {
-    grid-template-columns: 250px 1fr;
+    grid-template-columns: 290px 1fr;
     gap: 14px;
   }
   .candidate-spotlight-card {
