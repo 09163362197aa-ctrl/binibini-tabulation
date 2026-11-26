@@ -244,24 +244,75 @@ export default function JudgeSummary() {
   }
 
   return (
-    <div className="js-page" style={{ maxWidth: 1120, margin: '0 auto' }}>
+    <div className="js-page">
       {/* Header */}
-      <div className="page-header" style={{ marginBottom: 24 }}>
-        <div className="page-header-left">
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 8px', marginBottom: 8 }}
-            onClick={() => navigate('/judge')}
-          >
-            <ArrowLeft size={14} /> Back to Scoring
-          </button>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', background: 'rgba(217,119,6,0.1)', borderRadius: 6, border: '1px solid rgba(217,119,6,0.25)', marginBottom: 8 }}>
-            <Crown size={14} color="#D97706" />
-            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Binibining Palayan
-            </span>
+      <div className="page-header" style={{ marginBottom: 22 }}>
+        <div className="page-header-left" style={{ width: '100%' }}>
+          {/* Top Navigation & Status Bar */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 12,
+            marginBottom: 14
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => navigate('/judge')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '7px 16px',
+                  background: 'var(--bg-surface)',
+                  border: '1.5px solid rgba(212, 175, 55, 0.5)',
+                  borderRadius: 8,
+                  fontWeight: 800,
+                  fontSize: '0.84rem',
+                  color: '#B45309',
+                  boxShadow: '0 1px 4px rgba(180, 130, 30, 0.1)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <ArrowLeft size={16} strokeWidth={2.4} />
+                <span>Back to Scoring</span>
+              </button>
+
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 14px',
+                background: 'rgba(217, 119, 6, 0.08)',
+                borderRadius: 8,
+                border: '1px solid rgba(212, 175, 55, 0.35)'
+              }}>
+                <Crown size={14} color="#D97706" />
+                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#B45309', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  Binibining Palayan
+                </span>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              color: '#B45309',
+              background: 'rgba(217, 119, 6, 0.08)',
+              padding: '6px 14px',
+              borderRadius: 20,
+              border: '1px solid rgba(212, 175, 55, 0.35)'
+            }}>
+              <span>{candidates.length} Official Candidates</span>
+            </div>
           </div>
+
           <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Score Verification &amp; Summary
           </h1>
@@ -283,20 +334,20 @@ export default function JudgeSummary() {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
               flexWrap: 'wrap',
-              gap: 12,
-              marginBottom: 20
+              gap: 8,
+              marginBottom: 18
             }}>
               {/* Stage Sub-Tabs */}
               <div style={{
                 display: 'inline-flex',
                 background: 'var(--bg-elevated)',
                 padding: 4,
-                borderRadius: 10,
+                borderRadius: 12,
                 border: '1px solid var(--border)',
-                gap: 4,
-                flexWrap: 'wrap'
+                gap: 5,
+                flexWrap: 'wrap',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
               }}>
                 {parentStages.map(stage => {
                   const isActive = activePageantTab === stage.id || activePageantTab === stage.key
@@ -305,15 +356,16 @@ export default function JudgeSummary() {
                       key={stage.id}
                       type="button"
                       style={{
-                        padding: '7px 16px',
+                        padding: '8px 18px',
                         borderRadius: 8,
                         border: 'none',
-                        background: isActive ? 'var(--pageant-primary)' : 'transparent',
+                        background: isActive ? 'linear-gradient(135deg, #B45309 0%, #92400E 100%)' : 'transparent',
                         color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
-                        fontWeight: isActive ? 800 : 600,
+                        fontWeight: isActive ? 800 : 700,
                         fontSize: '0.85rem',
                         cursor: 'pointer',
-                        transition: 'all 0.15s ease'
+                        transition: 'all 0.15s ease',
+                        boxShadow: isActive ? '0 2px 8px rgba(180, 83, 9, 0.25)' : 'none'
                       }}
                       onClick={() => setActivePageantTab(stage.id)}
                     >
@@ -328,25 +380,23 @@ export default function JudgeSummary() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 6,
-                    padding: '7px 18px',
+                    padding: '8px 18px',
                     borderRadius: 8,
                     border: 'none',
-                    background: activePageantTab === 'overall' ? 'var(--pageant-primary)' : 'transparent',
+                    background: activePageantTab === 'overall' ? 'linear-gradient(135deg, #B45309 0%, #92400E 100%)' : 'transparent',
                     color: activePageantTab === 'overall' ? '#FFFFFF' : 'var(--text-secondary)',
-                    fontWeight: activePageantTab === 'overall' ? 800 : 600,
+                    fontWeight: activePageantTab === 'overall' ? 800 : 700,
                     fontSize: '0.85rem',
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    transition: 'all 0.15s ease',
+                    boxShadow: activePageantTab === 'overall' ? '0 2px 8px rgba(180, 83, 9, 0.25)' : 'none'
                   }}
                   onClick={() => setActivePageantTab('overall')}
                 >
-                  <Trophy size={14} /> Overall Combined Total
+                  <Trophy size={15} color={activePageantTab === 'overall' ? '#FDE68A' : 'currentColor'} />
+                  <span>Overall Combined Total</span>
                 </button>
               </div>
-
-              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--pageant-primary)', background: 'var(--bg-surface)', padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border)' }}>
-                {candidates.length} Official Candidates
-              </span>
             </div>
 
             {/* ── STAGE SPECIFIC TAB (Sportswear, Talent, Q&A) ────────── */}
@@ -390,12 +440,12 @@ export default function JudgeSummary() {
                     <thead>
                       <tr style={{ background: 'var(--bg-surface)' }}>
                         <th style={{
-                          padding: '10px 14px',
-                          minWidth: 240,
+                          padding: '12px 16px',
+                          minWidth: 220,
                           fontSize: '0.75rem',
                           textTransform: 'uppercase',
                           color: 'var(--text-muted)',
-                          fontWeight: 700,
+                          fontWeight: 800,
                           letterSpacing: '0.04em',
                           position: 'sticky',
                           left: 0,
@@ -407,21 +457,35 @@ export default function JudgeSummary() {
                         }}>
                           Candidate
                         </th>
-                        <th style={{ padding: '10px 12px', minWidth: 110, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>Barangay</th>
+                        <th style={{
+                          padding: '12px 14px',
+                          minWidth: 120,
+                          fontSize: '0.75rem',
+                          textTransform: 'uppercase',
+                          color: 'var(--text-muted)',
+                          fontWeight: 800,
+                          letterSpacing: '0.04em',
+                          borderRight: '1px solid var(--border)',
+                          borderBottom: '1px solid var(--border)'
+                        }}>
+                          Barangay
+                        </th>
                         {stageKids.map(k => (
                           <th
                             key={k.id}
                             style={{
-                              padding: '8px 8px',
-                              minWidth: 105,
-                              fontSize: '0.75rem',
+                              padding: '12px 12px',
+                              minWidth: 140,
+                              fontSize: '0.74rem',
                               color: 'var(--text-secondary)',
-                              fontWeight: 700,
+                              fontWeight: 800,
                               textAlign: 'center',
-                              lineHeight: 1.25,
+                              lineHeight: 1.35,
                               verticalAlign: 'middle',
                               whiteSpace: 'normal',
-                              wordBreak: 'break-word',
+                              wordBreak: 'normal',
+                              overflowWrap: 'normal',
+                              hyphens: 'none',
                               borderRight: '1px solid var(--border)',
                               borderBottom: '1px solid var(--border)'
                             }}
@@ -429,8 +493,35 @@ export default function JudgeSummary() {
                             {formatHeaderLabel(k.label)}
                           </th>
                         ))}
-                        <th style={{ padding: '8px 10px', minWidth: 90, fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textAlign: 'center', lineHeight: 1.2, verticalAlign: 'middle', whiteSpace: 'normal', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>Stage Total</th>
-                        <th style={{ padding: '8px 12px', minWidth: 110, fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textAlign: 'center', lineHeight: 1.2, verticalAlign: 'middle', whiteSpace: 'normal', borderBottom: '1px solid var(--border)' }}>Status</th>
+                        <th style={{
+                          padding: '12px 14px',
+                          minWidth: 105,
+                          fontSize: '0.74rem',
+                          color: 'var(--text-secondary)',
+                          fontWeight: 800,
+                          textAlign: 'center',
+                          lineHeight: 1.35,
+                          verticalAlign: 'middle',
+                          whiteSpace: 'nowrap',
+                          borderRight: '1px solid var(--border)',
+                          borderBottom: '1px solid var(--border)'
+                        }}>
+                          Stage Total
+                        </th>
+                        <th style={{
+                          padding: '12px 14px',
+                          minWidth: 110,
+                          fontSize: '0.74rem',
+                          color: 'var(--text-secondary)',
+                          fontWeight: 800,
+                          textAlign: 'center',
+                          lineHeight: 1.35,
+                          verticalAlign: 'middle',
+                          whiteSpace: 'nowrap',
+                          borderBottom: '1px solid var(--border)'
+                        }}>
+                          Status
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -662,12 +753,12 @@ export default function JudgeSummary() {
                     <thead>
                       <tr style={{ background: 'var(--bg-surface)' }}>
                         <th style={{
-                          padding: '10px 14px',
-                          minWidth: 240,
+                          padding: '12px 16px',
+                          minWidth: 220,
                           fontSize: '0.75rem',
                           textTransform: 'uppercase',
                           color: 'var(--text-muted)',
-                          fontWeight: 700,
+                          fontWeight: 800,
                           letterSpacing: '0.04em',
                           position: 'sticky',
                           left: 0,
@@ -679,21 +770,35 @@ export default function JudgeSummary() {
                         }}>
                           Candidate
                         </th>
-                        <th style={{ padding: '10px 12px', minWidth: 110, fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.04em', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>Barangay</th>
+                        <th style={{
+                          padding: '12px 14px',
+                          minWidth: 120,
+                          fontSize: '0.75rem',
+                          textTransform: 'uppercase',
+                          color: 'var(--text-muted)',
+                          fontWeight: 800,
+                          letterSpacing: '0.04em',
+                          borderRight: '1px solid var(--border)',
+                          borderBottom: '1px solid var(--border)'
+                        }}>
+                          Barangay
+                        </th>
                         {parentStages.map(stage => (
                           <th
                             key={stage.id}
                             style={{
-                              padding: '8px 8px',
-                              minWidth: 105,
-                              fontSize: '0.75rem',
+                              padding: '12px 12px',
+                              minWidth: 140,
+                              fontSize: '0.74rem',
                               color: 'var(--text-secondary)',
-                              fontWeight: 700,
+                              fontWeight: 800,
                               textAlign: 'center',
-                              lineHeight: 1.25,
+                              lineHeight: 1.35,
                               verticalAlign: 'middle',
                               whiteSpace: 'normal',
-                              wordBreak: 'break-word',
+                              wordBreak: 'normal',
+                              overflowWrap: 'normal',
+                              hyphens: 'none',
                               borderRight: '1px solid var(--border)',
                               borderBottom: '1px solid var(--border)'
                             }}
@@ -701,8 +806,35 @@ export default function JudgeSummary() {
                             {formatHeaderLabel(stage.label)}
                           </th>
                         ))}
-                        <th style={{ padding: '8px 10px', minWidth: 90, fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textAlign: 'center', lineHeight: 1.2, verticalAlign: 'middle', whiteSpace: 'normal', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>Overall Score</th>
-                        <th style={{ padding: '8px 12px', minWidth: 90, fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textAlign: 'center', lineHeight: 1.2, verticalAlign: 'middle', whiteSpace: 'normal', borderBottom: '1px solid var(--border)' }}>Progress</th>
+                        <th style={{
+                          padding: '12px 14px',
+                          minWidth: 115,
+                          fontSize: '0.74rem',
+                          color: 'var(--text-secondary)',
+                          fontWeight: 800,
+                          textAlign: 'center',
+                          lineHeight: 1.35,
+                          verticalAlign: 'middle',
+                          whiteSpace: 'nowrap',
+                          borderRight: '1px solid var(--border)',
+                          borderBottom: '1px solid var(--border)'
+                        }}>
+                          Overall Score
+                        </th>
+                        <th style={{
+                          padding: '12px 14px',
+                          minWidth: 105,
+                          fontSize: '0.74rem',
+                          color: 'var(--text-secondary)',
+                          fontWeight: 800,
+                          textAlign: 'center',
+                          lineHeight: 1.35,
+                          verticalAlign: 'middle',
+                          whiteSpace: 'nowrap',
+                          borderBottom: '1px solid var(--border)'
+                        }}>
+                          Progress
+                        </th>
                       </tr>
                     </thead>
                     <tbody>

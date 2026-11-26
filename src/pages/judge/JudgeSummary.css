@@ -1,9 +1,11 @@
 /* ── JudgeSummary.css ─────────────────────────────────────────── */
 
 .js-page {
-  max-width: 800px;
+  max-width: 1140px;
   margin: 0 auto;
   padding-bottom: 80px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Competition tabs — scoped under .js-page to avoid conflict with JudgeHome.css */
