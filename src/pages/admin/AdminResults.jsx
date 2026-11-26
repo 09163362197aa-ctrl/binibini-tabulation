@@ -21,8 +21,8 @@ import {
   printPageantStageTabulation,
   printPageantOverallRankings,
   printPageantOverallTabulation,
-  printPageantCoronationTransferSheet,
-  printPageantRawScoreTabulation
+  printPageantCoronationTransferSheet
+
 } from '../../lib/printReports'
 
 export default function AdminResults() {
@@ -457,27 +457,6 @@ export default function AdminResults() {
     }))
   }
 
-  function handleGenerateRawScoreTabulation() {
-    const currentCategory = tab
-    const pageantCandidates = (candidatesData || []).map(c => ({
-      candidate_id: c.id,
-      candidate: c.name || '?',
-      candidate_number: c.candidate_number,
-      category: c.category,
-      team: c.team_entry?.team?.name || '?'
-    }))
-    const pageantScores = rawScores.filter(s => pageantJudges.some(j => j.id === s.judge_id))
-    generateWithCheck(buildPageantOverallWarnings(currentCategory, 'all'), () =>
-      printPageantRawScoreTabulation({
-        category: currentCategory,
-        candidates: pageantCandidates,
-        criteria: rawCriteria,
-        scores: pageantScores,
-        judges: pageantJudges
-      })
-    )
-  }
-
   function handleGenerateCoronationTransferSheet() {
     const currentCategory = tab // 'binibini'
     const pageantCandidates = (candidatesData || []).map(c => ({
@@ -491,8 +470,7 @@ export default function AdminResults() {
     const pageantScores = rawScores.filter(s => pageantJudges.some(j => j.id === s.judge_id))
 
     generateWithCheck(buildPageantOverallWarnings(currentCategory, 'all'), () =>
-      printPageantCoronationTransferSheet,
-  printPageantRawScoreTabulation({
+      printPageantCoronationTransferSheet({
         category: currentCategory,
         candidates: pageantCandidates,
         criteria: rawCriteria,
@@ -639,27 +617,6 @@ export default function AdminResults() {
                   : 'Print Stage Tabulation Sheet (PDF)'
                 }
               </span>
-            </button>
-
-            {/* Raw (non-converted) preliminary score tabulation */}
-            <button
-              type="button"
-              className="btn btn-gold btn-sm"
-              onClick={handleGenerateRawScoreTabulation}
-              title="Print preliminary scores as raw totals (not converted to 50%)"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 7,
-                fontSize: '0.86rem',
-                fontWeight: 800,
-                padding: '10px 20px',
-                borderRadius: 10,
-                boxShadow: '0 3px 10px rgba(180,130,30,0.22)'
-              }}
-            >
-              <FileSpreadsheet size={16} />
-              <span>Print Raw Score Tabulation (PDF)</span>
             </button>
 
             <button
