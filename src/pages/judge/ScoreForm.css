@@ -69,10 +69,10 @@
   box-sizing: border-box;
 }
 
-/* Candidate Spotlight Showcase Card (Left Column) - Fills available screen height responsively */
+/* Candidate Spotlight Showcase Card (Left Column) - Fits content cleanly without stretching photo */
 .candidate-spotlight-card {
   width: 100%;
-  height: 100%;
+  height: auto;
   max-height: 100%;
   margin: 0;
   padding: 16px;
@@ -85,19 +85,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   text-align: center;
   gap: 12px;
   box-sizing: border-box;
   overflow: hidden; /* Strictly locked and non-scrollable */
 }
 
-/* Candidate Portrait Photo - Flexibly scales down and shrinks when screen height is thin */
+/* Candidate Portrait Photo - Maintains 3:4 portrait aspect ratio on tall screens, shrinks on short screens */
 .candidate-spotlight-photo {
   position: relative;
   width: 100%;
   max-width: 400px;        /* matches fixed card column width */
-  flex: 1 1 0;
+  aspect-ratio: 3 / 4;
+  flex: 0 1 auto;
   min-height: 0;
   max-height: 100%;
   margin: 0 auto;          /* keeps it centered when card column is wider */
