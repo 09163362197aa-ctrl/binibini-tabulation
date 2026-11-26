@@ -616,3 +616,142 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
   openPdf(doc, `Pageant_Overall_${divLabel}_Tabulation_Sheet`)
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. OFFICIAL 50% CORONATION NIGHT / AU SYSTEM ENCODING TRANSFER SHEET
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function printPageantCoronationTransferSheet({ category, candidates, criteria, scores, judges }) {
+  const doc = newDoc()
+
+  const divLabel     = category === 'ginoo' ? 'GINOO' : 'BINIBINI'
+  const filtered     = candidates.filter(c => c.category === category)
+  const parentStages = criteria
+    .filter(c => c.competition_type === 'pageant' && !c.parent_id)
+    .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+
+  let y = drawHeader(doc, {
+    sysTitle: 'Binibining Palayan — Coronation Night Tabulation Transfer',
+    title:    `${divLabel} — 50% PRELIMINARY SCORES (CORONATION NIGHT / AU SYSTEM ENCODING SHEET)`,
+    subtitle: `Official Certified Transfer Scores for AU Coronation System Entry   |   50% Overall Preliminary Weight`,
+  })
+
+  // Build stage column titles with weights (10%, 20%, 20%)
+  const stageColMeta = parentStages.map(stage => {
+    const kids = criteria.filter(c => c.parent_id === stage.id)
+    const maxPts = kids.reduce((sum, k) => sum + (Number(k.max_score) || 0), 0) || 100
+    const weight = Number(stage.max_score) || maxPts
+    return {
+      stage,
+      kids,
+      maxPts,
+      weight,
+      header: `${stage.label}\n(${weight}% Max)`
+    }
+  })
+
+  // Compute all candidate 50% scores
+  const computed = filtered.map(c => {
+    let overall50Total = 0
+    const stageBreakdown = stageColMeta.map(({ kids, maxPts, weight }) => {
+      let stageSubtotal = 0
+      let hasAnyScore = false
+
+      kids.forEach(kid => {
+        const matchScores = scores.filter(s =>
+          s.candidate_id === c.candidate_id && s.criterion_id === kid.id
+        )
+        if (matchScores.length > 0) {
+          hasAnyScore = true
+          const sumDirect = matchScores.reduce((acc, s) => acc + Number(s.value || 0), 0)
+          stageSubtotal += (sumDirect / matchScores.length)
+        }
+      })
+
+      if (!hasAnyScore) return { weighted: 0, text: '—' }
+      const stageWeighted = (stageSubtotal / maxPts) * weight
+      overall50Total += stageWeighted
+      return {
+        weighted: stageWeighted,
+        text: `${stageWeighted.toFixed(2)}%`
+      }
+    })
+
+    return {
+      candidate_id: c.candidate_id,
+      candidate_number: c.candidate_number != null ? Number(c.candidate_number) : 9999,
+      numLabel: c.candidate_number != null ? `#${c.candidate_number}` : '—',
+      candidate: c.candidate,
+      team: c.team,
+      stageBreakdown,
+      overall50Total
+    }
+  })
+
+  // Calculate preliminary rank (sorted by score descending)
+  const sortedByScore = [...computed].sort((a, b) => b.overall50Total - a.overall50Total)
+  const rankMap = new Map()
+  sortedByScore.forEach((item, idx) => {
+    rankMap.set(item.candidate_id, idx + 1)
+  })
+
+  // Sort by Candidate Number (#1, #2, #3...) for effortless row-by-row typing into AU software
+  computed.sort((a, b) => a.candidate_number - b.candidate_number)
+
+  const head = [[
+    'Candidate #',
+    'Candidate Name',
+    'Barangay',
+    ...stageColMeta.map(s => s.header),
+    '50% PRELIMINARY SCORE\n(FOR AU ENCODING)',
+    'Prelim Rank'
+  ]]
+
+  const body = computed.map(r => {
+    const rank = rankMap.get(r.candidate_id) || '—'
+    return [
+      { content: r.numLabel, styles: { fontStyle: 'bold', halign: 'center' } },
+      r.candidate,
+      r.team,
+      ...r.stageBreakdown.map(s => ({ content: s.text, styles: { halign: 'center' } })),
+      {
+        content: `${r.overall50Total.toFixed(3)}%`,
+        styles: { fontStyle: 'bold', halign: 'center', fontSize: 9.5, textColor: [180, 83, 9] }
+      },
+      { content: `Rank ${rank}`, styles: { halign: 'center', fontStyle: 'bold' } }
+    ]
+  })
+
+  autoTable(doc, {
+    startY: y,
+    head,
+    body,
+    margin: { left: MARGIN, right: MARGIN },
+    styles: {
+      fontSize: 8.5,
+      cellPadding: 4,
+      lineColor: CLR_BORDER,
+      lineWidth: 0.2,
+    },
+    headStyles: {
+      fillColor: [30, 41, 59],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 7.5,
+      halign: 'center',
+      valign: 'middle',
+      minCellHeight: 12,
+    },
+    columnStyles: {
+      0: { halign: 'center', cellWidth: 22 },
+      1: { halign: 'left',   cellWidth: 38 },
+      2: { halign: 'left',   cellWidth: 32 },
+      [stageColMeta.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: [254, 243, 199] },
+      [stageColMeta.length + 4]: { halign: 'center', cellWidth: 22 },
+    },
+    alternateRowStyles: { fillColor: [248, 250, 252] },
+  })
+
+  drawSignatureBlock(doc, judges, 'Official Pageant Judge')
+  openPdf(doc, `Binibining_Palayan_Coronation_50Percent_Transfer_Sheet`)
+}
+

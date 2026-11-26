@@ -20,7 +20,8 @@ import {
   printCheerdanceRankings,
   printPageantStageTabulation,
   printPageantOverallRankings,
-  printPageantOverallTabulation
+  printPageantOverallTabulation,
+  printPageantCoronationTransferSheet
 } from '../../lib/printReports'
 
 export default function AdminResults() {
@@ -455,6 +456,29 @@ export default function AdminResults() {
     }))
   }
 
+  function handleGenerateCoronationTransferSheet() {
+    const currentCategory = tab // 'binibini'
+    const pageantCandidates = (candidatesData || []).map(c => ({
+      candidate_id: c.id,
+      candidate: c.name || '?',
+      candidate_number: c.candidate_number,
+      category: c.category,
+      team: c.team_entry?.team?.name || '?'
+    }))
+
+    const pageantScores = rawScores.filter(s => pageantJudges.some(j => j.id === s.judge_id))
+
+    generateWithCheck(buildPageantOverallWarnings(currentCategory, 'all'), () =>
+      printPageantCoronationTransferSheet({
+        category: currentCategory,
+        candidates: pageantCandidates,
+        criteria: rawCriteria,
+        scores: pageantScores,
+        judges: pageantJudges
+      })
+    )
+  }
+
   const pageantParents = rawCriteria.filter(c => c.competition_type === 'pageant' && !c.parent_id)
 
   return (
@@ -592,6 +616,31 @@ export default function AdminResults() {
                   : 'Print Stage Tabulation Sheet (PDF)'
                 }
               </span>
+            </button>
+
+            {/* Official 50% Preliminary Scores Transfer Sheet for Coronation Night AU System */}
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={handleGenerateCoronationTransferSheet}
+              title="Print official 50% preliminary transfer sheet for encoding into the AU Coronation software"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 7,
+                fontSize: '0.86rem',
+                fontWeight: 800,
+                padding: '10px 18px',
+                borderRadius: 10,
+                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                color: '#FDE68A',
+                border: '1.5px solid rgba(212, 175, 55, 0.45)',
+                boxShadow: '0 3px 10px rgba(0,0,0,0.18)',
+                cursor: 'pointer'
+              }}
+            >
+              <Crown size={16} color="#FDE68A" />
+              <span>Print AU Coronation 50% Transfer Sheet (PDF)</span>
             </button>
 
             <button
