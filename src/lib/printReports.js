@@ -638,7 +638,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
       if (!hasAnyScore) return '—'
       const stageWeighted = (stageSubtotal / maxPts) * weight
       overallTotal += stageWeighted
-      return `${stageWeighted.toFixed(2)}%\n(${stageSubtotal.toFixed(1)}/100)`
+      return `${stageWeighted.toFixed(2)}%`
     })
 
     const numLabel = c.candidate_number != null ? `#${c.candidate_number}` : '—'
