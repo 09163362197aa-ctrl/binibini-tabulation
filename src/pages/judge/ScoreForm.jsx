@@ -1373,6 +1373,7 @@ export default function ScoreForm() {
           <ScoreKeypadModal
             criterion={keypadTarget.criterion}
             initialValue={keypadTarget.value}
+            subject={subject}
             hasNext={Boolean(nextCriterion)}
             onClose={() => setKeypadTarget(null)}
             onApply={(val) => {
@@ -1399,7 +1400,7 @@ export default function ScoreForm() {
   )
 }
 
-function ScoreKeypadModal({ criterion, initialValue, hasNext, onClose, onApply, onApplyAndNext }) {
+function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, onClose, onApply, onApplyAndNext }) {
   const maxScore = Number(criterion.max_score) || 100
   const [valStr, setValStr] = useState(initialValue != null && initialValue > 0 ? String(initialValue) : '')
 
@@ -1446,6 +1447,60 @@ function ScoreKeypadModal({ criterion, initialValue, hasNext, onClose, onApply, 
   return (
     <div className="score-keypad-overlay" onClick={onClose}>
       <div className="score-keypad-modal" onClick={e => e.stopPropagation()}>
+        {subject && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '8px 10px',
+            borderRadius: 12,
+            background: 'linear-gradient(135deg, #0A271E 0%, #0E3429 100%)',
+            border: '1px solid rgba(212, 175, 55, 0.55)',
+            color: '#FFFFFF'
+          }}>
+            {subject.photoUrl && (
+              <img
+                src={subject.photoUrl}
+                alt={subject.name || 'Candidate'}
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  objectPosition: 'center top',
+                  border: '1.5px solid #D4AF37',
+                  flexShrink: 0
+                }}
+              />
+            )}
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{
+                fontSize: '0.84rem',
+                fontWeight: 800,
+                color: '#FEF3C7',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>
+                {subject.candidateNumber != null ? `#${subject.candidateNumber} • ` : ''}
+                {subject.name || 'Candidate'}
+              </div>
+              {subject.team && (
+                <div style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  color: 'rgba(255, 255, 255, 0.78)',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
+                  Barangay {subject.team}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="score-keypad-header">
           <div>
             <div className="score-keypad-title">{criterion.label}</div>
