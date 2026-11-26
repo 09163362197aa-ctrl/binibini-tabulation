@@ -281,7 +281,7 @@
 
   .score-form-top-bar {
     position: sticky;
-    top: 66px;
+    top: 0;
     z-index: 90;
   }
 
