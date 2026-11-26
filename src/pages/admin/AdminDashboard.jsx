@@ -15,17 +15,83 @@ import {
 import './AdminDashboard.css'
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ candidates: 0, judges: 0, locked: 0, total: 0 })
+  const [stats, setStats] = useState({
+    candidates: 0,
+    judges: 0,
+    locked: 0,
+    draft: 0,
+    notStarted: 0,
+    total: 0
+  })
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
-    const [{ count: candidates }, { count: judges }, { count: locked }, { count: total }] = await Promise.all([
-      supabase.from('candidates').select('*', { count: 'exact', head: true }),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'judge'),
-      supabase.from('scores').select('*', { count: 'exact', head: true }).eq('is_locked', true),
-      supabase.from('scores').select('*', { count: 'exact', head: true }),
+    const [
+      { data: candidatesData },
+      { data: judgesData },
+      { data: criteriaData },
+      { data: scoresData },
+    ] = await Promise.all([
+      supabase.from('candidates').select('id, category'),
+      supabase.from('profiles').select('id, allowed_competitions').eq('role', 'judge'),
+      supabase.from('criteria').select('id, parent_id, competition_type').eq('competition_type', 'pageant'),
+      supabase.from('scores').select('judge_id, candidate_id, criterion_id, is_locked'),
     ])
-    setStats({ candidates: candidates ?? 0, judges: judges ?? 0, locked: locked ?? 0, total: total ?? 0 })
+
+    const activeCandidates = (candidatesData || []).filter(c => c.category === 'binibini')
+    const activeJudges = (judgesData || []).filter(j => (j.allowed_competitions || ['pageant']).includes('pageant'))
+    const stages = (criteriaData || []).filter(c => !c.parent_id)
+    const childCriteria = (criteriaData || []).filter(c => c.parent_id != null)
+    const scores = scoresData || []
+
+    // Build quick lookup map: `${judge_id}:${candidate_id}:${criterion_id}` -> is_locked
+    const scoreMap = new Map()
+    for (const s of scores) {
+      if (s.judge_id && s.candidate_id && s.criterion_id) {
+        scoreMap.set(`${s.judge_id}:${s.candidate_id}:${s.criterion_id}`, Boolean(s.is_locked))
+      }
+    }
+
+    // Count expected (candidate × judge × stage) evaluations accurately
+    const totalExpected = activeCandidates.length * activeJudges.length * stages.length
+    let lockedCount = 0
+    let draftCount = 0
+
+    for (const stg of stages) {
+      const stageKids = childCriteria.filter(c => c.parent_id === stg.id)
+      const targetCritIds = stageKids.length > 0 ? stageKids.map(c => c.id) : [stg.id]
+
+      for (const cand of activeCandidates) {
+        for (const judge of activeJudges) {
+          let foundAny = false
+          let allLocked = targetCritIds.length > 0
+
+          for (const cid of targetCritIds) {
+            const val = scoreMap.get(`${judge.id}:${cand.id}:${cid}`)
+            if (val !== undefined) {
+              foundAny = true
+              if (!val) allLocked = false
+            } else {
+              allLocked = false
+            }
+          }
+
+          if (foundAny && allLocked) lockedCount++
+          else if (foundAny) draftCount++
+        }
+      }
+    }
+
+    const notStartedCount = Math.max(0, totalExpected - lockedCount - draftCount)
+
+    setStats({
+      candidates: activeCandidates.length,
+      judges: activeJudges.length,
+      locked: lockedCount,
+      draft: draftCount,
+      notStarted: notStartedCount,
+      total: totalExpected
+    })
     setLoading(false)
   }, [])
 
@@ -44,6 +110,7 @@ export default function AdminDashboard() {
       .channel('admin-dashboard-live')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'candidates' }, debouncedLoad)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, debouncedLoad)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'criteria' }, debouncedLoad)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'scores' }, debouncedLoad)
       .subscribe()
 
@@ -131,14 +198,21 @@ export default function AdminDashboard() {
         <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
           <StatCard icon={Users2} label="Official Candidates" value={stats.candidates} iconColor="#B45309" borderColor="#D4AF37" />
           <StatCard icon={Gavel} label="Board of Judges" value={stats.judges} iconColor="#D97706" borderColor="#D97706" />
-          <StatCard icon={Lock} label="Certified Scores" value={stats.locked} iconColor="#15803D" borderColor="#16A34A" />
+          <StatCard
+            icon={Lock}
+            label="Certified Stage Scores"
+            value={stats.locked}
+            iconColor="#15803D"
+            borderColor="#16A34A"
+            sub={`of ${stats.total} stage evaluations`}
+          />
           <StatCard
             icon={Activity}
             label="Locking Progress"
             value={`${lockPct}%`}
             iconColor="#D97706"
             borderColor="#B45309"
-            sub={`${stats.locked} of ${stats.total} total scores`}
+            sub={`${stats.locked} locked • ${stats.draft} draft • ${stats.notStarted} pending`}
           />
         </div>
       )}
@@ -165,7 +239,7 @@ export default function AdminDashboard() {
             />
           </div>
           <p style={{ marginTop: 10, marginBottom: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            <strong>{stats.locked}</strong> scores certified and locked &bull; <strong>{stats.total - stats.locked}</strong> scores still in draft or awaiting judge submission
+            <strong>{stats.locked}</strong> stage evaluations certified and locked &bull; <strong>{stats.draft}</strong> in draft &bull; <strong>{stats.notStarted}</strong> awaiting judge submission
           </p>
         </div>
       )}
