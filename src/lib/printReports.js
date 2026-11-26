@@ -10,6 +10,25 @@
 
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import palayanLogoUrl from '../assets/pdf/palayan-logo.png'
+import crownUrl from '../assets/pdf/crown.png'
+import titleUrl from '../assets/pdf/title.png'
+import ictLogoUrl from '../assets/ict.png'
+
+// Preload PDF brand images so synchronous jsPDF calls can embed them immediately
+function preloadImg(src) {
+  const img = new Image()
+  img.src = src
+  return img
+}
+const IMG_PALAYAN = preloadImg(palayanLogoUrl)
+const IMG_CROWN   = preloadImg(crownUrl)
+const IMG_TITLE   = preloadImg(titleUrl)
+const IMG_ICT     = preloadImg(ictLogoUrl)
+
+function isImgReady(img) {
+  return Boolean(img && img.complete && img.naturalWidth > 0)
+}
 
 // Long Bond Paper (8.5" × 13") in mm
 const PAGE_W = 215.9
@@ -42,48 +61,78 @@ function openPdf(doc, filename) {
 }
 
 /**
- * Draw the standard report header block.
+ * Draw the official report header block with Palayan Logo + Crown (top-left),
+ * centered Binibining Palayan 2026 Title image, and report/verification labels.
  * Returns the Y position after the header (where content should start).
  */
 function drawHeader(doc, { sysTitle, title, subtitle }) {
-  const x = MARGIN
-  let y = MARGIN + 4
+  const usableW = PAGE_W - MARGIN * 2
+  const bannerY = MARGIN
+  const bannerH = 38
 
-  // System title (small caps, muted)
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(7.5)
-  doc.setTextColor(...CLR_SUBTEXT)
-  doc.text(sysTitle.toUpperCase(), PAGE_W / 2, y, { align: 'center' })
-  y += 5.5
+  // Dark royal navy banner so the silver metallic Title.png pops cleanly
+  doc.setFillColor(18, 25, 43)
+  doc.roundedRect(MARGIN, bannerY, usableW, bannerH, 2.5, 2.5, 'F')
 
-  // Main title
+  // Gold accent bar at bottom of banner
+  doc.setFillColor(212, 175, 55)
+  doc.rect(MARGIN, bannerY + bannerH - 1.2, usableW, 1.2, 'F')
+
+  // Top-left: small Palayan City logo + small Crown
+  const logoSize = 9.5
+  const logoX = MARGIN + 4.5
+  const logoY = bannerY + 4
+  if (isImgReady(IMG_PALAYAN)) {
+    doc.addImage(IMG_PALAYAN, 'PNG', logoX, logoY, logoSize, logoSize)
+  }
+  if (isImgReady(IMG_CROWN)) {
+    const crownW = 11.5
+    const crownH = crownW * (329 / 500) // preserve exact 500x329 aspect ratio (~7.57mm)
+    const crownX = logoX + logoSize + 2.5
+    const crownY = logoY + (logoSize - crownH) / 2
+    doc.addImage(IMG_CROWN, 'PNG', crownX, crownY, crownW, crownH)
+  }
+
+  // Center: Big Title image (Binibining Palayan 2026)
+  if (isImgReady(IMG_TITLE)) {
+    const titleW = 64
+    const titleH = titleW * (536 / 1200) // preserve exact 1200x536 aspect ratio (~28.59mm)
+    const titleX = (PAGE_W - titleW) / 2
+    const titleY = bannerY + (bannerH - 1.2 - titleH) / 2
+    doc.addImage(IMG_TITLE, 'PNG', titleX, titleY, titleW, titleH)
+  }
+
+  let y = bannerY + bannerH + 5.5
+
+  // Report title
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(16)
+  doc.setFontSize(11.5)
   doc.setTextColor(...CLR_HEADING)
   doc.text(title, PAGE_W / 2, y, { align: 'center' })
-  y += 7
+  y += 4.8
 
-  // Subtitle
+  // Small system title (e.g. BINIBINING PALAYAN — OFFICIAL PAGEANT TABULATION REPORT)
+  if (sysTitle) {
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(7.5)
+    doc.setTextColor(...CLR_SUBTEXT)
+    doc.text(sysTitle.toUpperCase(), PAGE_W / 2, y, { align: 'center' })
+    y += 4.2
+  }
+
+  // Small subtitle (e.g. Official Verification Sheet — All Scoring Judges)
   if (subtitle) {
     doc.setFont('helvetica', 'normal')
-    doc.setFontSize(9.5)
+    doc.setFontSize(8)
     doc.setTextColor(...CLR_SUBTEXT)
     doc.text(subtitle, PAGE_W / 2, y, { align: 'center' })
-    y += 6
+    y += 4.5
   }
 
   // Divider
   doc.setDrawColor(...CLR_BORDER)
   doc.setLineWidth(0.4)
   doc.line(MARGIN, y, PAGE_W - MARGIN, y)
-  y += 4
-
-  // Timestamp right-aligned
-  const ts = new Date().toLocaleString('en-PH', { dateStyle: 'full', timeStyle: 'short' })
-  doc.setFont('helvetica', 'italic')
-  doc.setFontSize(7)
-  doc.setTextColor(...CLR_SUBTEXT)
-  doc.text(`Generated: ${ts}`, PAGE_W - MARGIN, y, { align: 'right' })
   y += 5
 
   return y
@@ -163,6 +212,27 @@ function drawSignatureBlock(doc, judges, roleLabel) {
       doc.text(roleLabel, cx, cy + 8, { align: 'center' })
     })
   })
+
+  // Footer below judges: small ICT logo + "Powered by ICT Division"
+  const lastRowY = sigStartY + (rows.length - 1) * rowSpacing + 14
+  const footerY  = Math.max(lastRowY + 4, PAGE_H - MARGIN - 4)
+  const footerText = 'Powered by ICT Division'
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(7.5)
+  doc.setTextColor(...CLR_SUBTEXT)
+
+  const ictSize = 5.5
+  const textW = doc.getTextWidth(footerText)
+  const gap = 2
+  const totalFooterW = (isImgReady(IMG_ICT) ? ictSize + gap : 0) + textW
+  const fx = (PAGE_W - totalFooterW) / 2
+
+  if (isImgReady(IMG_ICT)) {
+    doc.addImage(IMG_ICT, 'PNG', fx, footerY - 4.2, ictSize, ictSize)
+    doc.text(footerText, fx + ictSize + gap, footerY)
+  } else {
+    doc.text(footerText, PAGE_W / 2, footerY, { align: 'center' })
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
