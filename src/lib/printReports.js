@@ -50,6 +50,25 @@ const CLR_ALT_ROW      = [246, 250, 248]  // subtle mint-white zebra row
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+/**
+ * Calculate optimal cellPadding so the table + signature block fill the page.
+ * @param {number} numDataRows  - number of body rows in the table
+ * @param {number} numJudges    - number of judges (affects signature block height)
+ * @param {number} tableStartY  - Y position (mm) where the table starts
+ * @param {number} fontSize     - body font size in pt (default 8)
+ * @returns {number} cellPadding in mm (clamped 1.2 – 5.5)
+ */
+function calcCellPadding(numDataRows, numJudges, tableStartY, fontSize = 8) {
+  const judgeRows     = Math.ceil(Math.max(numJudges, 1) / 5)
+  const sigBlockH     = 13 + judgeRows * 20 + 9 + 14   // pill + cards + ICT footer
+  const usableH       = PAGE_H - MARGIN - tableStartY - sigBlockH - 12  // 12mm gaps
+  const totalRows     = numDataRows + 1   // body rows + 1 header row
+  const fontHeightMm  = fontSize * 0.352778
+  const perRowH       = usableH / totalRows
+  const pad           = (perRowH - fontHeightMm) / 2
+  return Math.max(1.2, Math.min(5.5, pad))
+}
+
 function newDoc() {
   return new jsPDF({ unit: 'mm', format: [PAGE_W, PAGE_H], orientation: 'portrait' })
 }
@@ -559,14 +578,16 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
     ]
   })
 
+  const stageCellPad = calcCellPadding(filtered.length, activeJudges.length, y, 8)
+
   autoTable(doc, {
     startY: y,
     head,
     body,
     margin: { left: MARGIN, right: MARGIN },
     styles: {
-      fontSize: 8.5,
-      cellPadding: 3,
+      fontSize: 8,
+      cellPadding: stageCellPad,
       lineColor: CLR_BORDER,
       lineWidth: 0.2,
     },
@@ -574,10 +595,10 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
       fillColor: CLR_TABLE_HEADER_BG,
       textColor: CLR_TABLE_HEADER_FG,
       fontStyle: 'bold',
-      fontSize: 7.5,
+      fontSize: 7.2,
       halign: 'center',
       valign: 'middle',
-      minCellHeight: 12,
+      minCellHeight: 10,
     },
     columnStyles: {
       0: { halign: 'center', cellWidth: 16 },
@@ -755,6 +776,8 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
     { content: `${(r.overallTotal % 1 === 0 ? r.overallTotal.toString() : r.overallTotal.toFixed(2))}%`, styles: { fontStyle: 'bold', halign: 'center' } }
   ])
 
+  const overallCellPad = calcCellPadding(filtered.length, activeJudges.length, y, 8)
+
   autoTable(doc, {
     startY: y,
     head,
@@ -762,7 +785,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
     margin: { left: MARGIN, right: MARGIN },
     styles: {
       fontSize: 8,
-      cellPadding: 2.3,
+      cellPadding: overallCellPad,
       lineColor: CLR_BORDER,
       lineWidth: 0.2,
     },
@@ -881,6 +904,8 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
     }
   ])
 
+  const coronCellPad = calcCellPadding(filtered.length, judges.length, y, 8.5)
+
   autoTable(doc, {
     startY: y,
     head,
@@ -888,7 +913,7 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
     margin: { left: MARGIN, right: MARGIN },
     styles: {
       fontSize: 8.5,
-      cellPadding: 4,
+      cellPadding: coronCellPad,
       lineColor: CLR_BORDER,
       lineWidth: 0.2,
     },
