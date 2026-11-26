@@ -33,7 +33,7 @@ function isImgReady(img) {
 // Long Bond Paper (8.5" × 13") in mm
 const PAGE_W = 215.9
 const PAGE_H = 330.2
-const MARGIN = 14   // mm
+const MARGIN = 8    // mm
 
 // ─── Colour tokens (Royal Emerald Green + Gold + White Glitter) ─────────────
 const CLR_EMERALD_DARK = [10, 39, 30]     // deep emerald shadow
@@ -233,7 +233,7 @@ function drawSignatureBlock(doc, judges, roleLabel) {
     doc.addPage()
     startY = MARGIN + 10
   } else {
-    startY = Math.max(minAfterTable, PAGE_H - MARGIN - blockH)
+    startY = minAfterTable
   }
 
   // Gold-flanked Emerald Pill Header: "CERTIFIED CORRECT — BOARD OF JUDGES"
@@ -308,7 +308,7 @@ function drawSignatureBlock(doc, judges, roleLabel) {
 
   // Footer below judges: small ICT logo + "Powered by ICT Division"
   const lastRowY = sigStartY + (rows.length - 1) * rowSpacing + 18
-  const footerY  = Math.max(lastRowY + 2, PAGE_H - MARGIN - 2)
+  const footerY  = lastRowY + 4
   const footerText = 'Powered by ICT Division'
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
