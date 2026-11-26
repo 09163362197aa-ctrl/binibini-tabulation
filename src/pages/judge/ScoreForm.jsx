@@ -73,6 +73,8 @@ export default function ScoreForm() {
   const [pageantCandidates, setPageantCandidates] = useState([])
   const [candidateList, setCandidateList] = useState([])
   const [keypadTarget, setKeypadTarget] = useState(null) // { criterion, value }
+  const [canScrollMore, setCanScrollMore] = useState(false)
+  const rightColRef = useRef(null)
   const candidateId = competition === 'pageant' ? id : null
   const teamEntryId = competition === 'cheerdance' ? id : null
   const savedRef = useRef({})
@@ -103,6 +105,32 @@ export default function ScoreForm() {
     }, 40)
     return () => clearTimeout(timer)
   }, [id])
+
+  useEffect(() => {
+    function checkScrollMore() {
+      const isMobile = window.innerWidth <= 640
+      const el = rightColRef.current
+      if (!isMobile && el && el.scrollHeight > el.clientHeight + 4) {
+        setCanScrollMore(el.scrollHeight - el.scrollTop - el.clientHeight > 24)
+      } else {
+        const doc = document.documentElement
+        const scrollTop = window.scrollY || doc.scrollTop || 0
+        setCanScrollMore(doc.scrollHeight - scrollTop - window.innerHeight > 24)
+      }
+    }
+
+    const timer = setTimeout(checkScrollMore, 80)
+    const el = rightColRef.current
+    if (el) el.addEventListener('scroll', checkScrollMore, { passive: true })
+    window.addEventListener('scroll', checkScrollMore, { passive: true })
+    window.addEventListener('resize', checkScrollMore)
+    return () => {
+      clearTimeout(timer)
+      if (el) el.removeEventListener('scroll', checkScrollMore)
+      window.removeEventListener('scroll', checkScrollMore)
+      window.removeEventListener('resize', checkScrollMore)
+    }
+  }, [loading, id, selectedStageId, isLocked])
 
   function showToast(msg, type = 'success') {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
@@ -799,7 +827,7 @@ export default function ScoreForm() {
         </div>
 
         {/* ── RIGHT COLUMN: Active Stage Rubric & Scoring Inputs ── */}
-        <div className="scoring-right-col">
+        <div className="scoring-right-col" ref={rightColRef}>
           {/* Active Stage Banner */}
           {competition === 'pageant' && !loading && (() => {
             const activeStage = parents.find(p => p.id === selectedStageId)
@@ -1315,26 +1343,69 @@ export default function ScoreForm() {
         </div>
       )}
 
-      {/* ── Built-in On-Screen Keypad Modal (Prevents device virtual keyboard and URL bar popup) ── */}
-      {keypadTarget && (
-        <ScoreKeypadModal
-          criterion={keypadTarget.criterion}
-          initialValue={keypadTarget.value}
-          onClose={() => setKeypadTarget(null)}
-          onApply={(val) => {
-            handleScoreChange(keypadTarget.criterion.id, val)
-            handleBlur(keypadTarget.criterion.id, val)
-            setKeypadTarget(null)
+      {/* ── Scroll Indicator Pill when more criteria/actions exist below ── */}
+      {canScrollMore && !loading && (
+        <button
+          type="button"
+          className="scoring-scroll-indicator"
+          onClick={() => {
+            const isMobile = window.innerWidth <= 640
+            if (!isMobile && rightColRef.current && rightColRef.current.scrollHeight > rightColRef.current.clientHeight + 4) {
+              rightColRef.current.scrollBy({ top: 240, behavior: 'smooth' })
+            } else {
+              window.scrollBy({ top: 240, behavior: 'smooth' })
+            }
           }}
-        />
+        >
+          <span>Scroll for more</span>
+          <span>↓</span>
+        </button>
       )}
+
+      {/* ── Built-in On-Screen Keypad Modal (Prevents device virtual keyboard and URL bar popup) ── */}
+      {keypadTarget && (() => {
+        const keypadIdx = activeCriteria.findIndex(c => c.id === keypadTarget.criterion.id)
+        const nextCriterion = keypadIdx >= 0 && keypadIdx + 1 < activeCriteria.length
+          ? activeCriteria[keypadIdx + 1]
+          : null
+
+        return (
+          <ScoreKeypadModal
+            criterion={keypadTarget.criterion}
+            initialValue={keypadTarget.value}
+            hasNext={Boolean(nextCriterion)}
+            onClose={() => setKeypadTarget(null)}
+            onApply={(val) => {
+              handleScoreChange(keypadTarget.criterion.id, val)
+              handleBlur(keypadTarget.criterion.id, val)
+              setKeypadTarget(null)
+            }}
+            onApplyAndNext={(val) => {
+              handleScoreChange(keypadTarget.criterion.id, val)
+              handleBlur(keypadTarget.criterion.id, val)
+              if (nextCriterion) {
+                setKeypadTarget({
+                  criterion: nextCriterion,
+                  value: Number(scores[nextCriterion.id]) || 0
+                })
+              } else {
+                setKeypadTarget(null)
+              }
+            }}
+          />
+        )
+      })()}
     </div>
   )
 }
 
-function ScoreKeypadModal({ criterion, initialValue, onClose, onApply }) {
+function ScoreKeypadModal({ criterion, initialValue, hasNext, onClose, onApply, onApplyAndNext }) {
   const maxScore = Number(criterion.max_score) || 100
   const [valStr, setValStr] = useState(initialValue != null && initialValue > 0 ? String(initialValue) : '')
+
+  useEffect(() => {
+    setValStr(initialValue != null && initialValue > 0 ? String(initialValue) : '')
+  }, [criterion.id, initialValue])
 
   function handleDigit(d) {
     setValStr(prev => {
@@ -1354,11 +1425,22 @@ function ScoreKeypadModal({ criterion, initialValue, onClose, onApply }) {
     setValStr('')
   }
 
-  function handleDone() {
+  function getClampedScore() {
     let parsed = parseInt(valStr, 10)
     if (isNaN(parsed) || parsed < 0) parsed = 0
-    const clamped = Math.min(maxScore, Math.max(0, parsed))
-    onApply(clamped)
+    return Math.min(maxScore, Math.max(0, parsed))
+  }
+
+  function handleDone() {
+    onApply(getClampedScore())
+  }
+
+  function handleNext() {
+    if (onApplyAndNext) {
+      onApplyAndNext(getClampedScore())
+    } else {
+      handleDone()
+    }
   }
 
   return (
@@ -1418,14 +1500,34 @@ function ScoreKeypadModal({ criterion, initialValue, onClose, onApply }) {
           </button>
         </div>
 
-        <button
-          type="button"
-          className="score-keypad-btn done-btn"
-          style={{ width: '100%', height: 48 }}
-          onClick={handleDone}
-        >
-          ✓ Set Score ({valStr || '0'})
-        </button>
+        {hasNext ? (
+          <div className="score-keypad-actions">
+            <button
+              type="button"
+              className="score-keypad-btn done-btn"
+              style={{ flex: 1, height: 48 }}
+              onClick={handleDone}
+            >
+              ✓ Done ({valStr || '0'})
+            </button>
+            <button
+              type="button"
+              className="score-keypad-btn next-btn"
+              onClick={handleNext}
+            >
+              Next →
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="score-keypad-btn done-btn"
+            style={{ width: '100%', height: 48 }}
+            onClick={handleDone}
+          >
+            ✓ Set Score ({valStr || '0'})
+          </button>
+        )}
       </div>
     </div>
   )
