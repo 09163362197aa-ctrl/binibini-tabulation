@@ -68,7 +68,7 @@ function openPdf(doc, filename) {
 function drawHeader(doc, { sysTitle, title, subtitle }) {
   const usableW = PAGE_W - MARGIN * 2
   const bannerY = MARGIN
-  const bannerH = 38
+  const bannerH = 30
 
   // Dark royal navy banner so the silver metallic Title.png pops cleanly
   doc.setFillColor(18, 25, 43)
@@ -79,61 +79,61 @@ function drawHeader(doc, { sysTitle, title, subtitle }) {
   doc.rect(MARGIN, bannerY + bannerH - 1.2, usableW, 1.2, 'F')
 
   // Top-left: small Palayan City logo + small Crown
-  const logoSize = 9.5
-  const logoX = MARGIN + 4.5
-  const logoY = bannerY + 4
+  const logoSize = 8.5
+  const logoX = MARGIN + 4
+  const logoY = bannerY + 3.5
   if (isImgReady(IMG_PALAYAN)) {
     doc.addImage(IMG_PALAYAN, 'PNG', logoX, logoY, logoSize, logoSize)
   }
   if (isImgReady(IMG_CROWN)) {
-    const crownW = 11.5
-    const crownH = crownW * (329 / 500) // preserve exact 500x329 aspect ratio (~7.57mm)
-    const crownX = logoX + logoSize + 2.5
+    const crownW = 10.5
+    const crownH = crownW * (329 / 500) // preserve exact 500x329 aspect ratio
+    const crownX = logoX + logoSize + 2
     const crownY = logoY + (logoSize - crownH) / 2
     doc.addImage(IMG_CROWN, 'PNG', crownX, crownY, crownW, crownH)
   }
 
   // Center: Big Title image (Binibining Palayan 2026)
   if (isImgReady(IMG_TITLE)) {
-    const titleW = 64
-    const titleH = titleW * (536 / 1200) // preserve exact 1200x536 aspect ratio (~28.59mm)
+    const titleW = 54
+    const titleH = titleW * (536 / 1200) // preserve exact 1200x536 aspect ratio (~24.1mm)
     const titleX = (PAGE_W - titleW) / 2
     const titleY = bannerY + (bannerH - 1.2 - titleH) / 2
     doc.addImage(IMG_TITLE, 'PNG', titleX, titleY, titleW, titleH)
   }
 
-  let y = bannerY + bannerH + 5.5
+  let y = bannerY + bannerH + 4.5
 
   // Report title
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(11.5)
+  doc.setFontSize(11)
   doc.setTextColor(...CLR_HEADING)
   doc.text(title, PAGE_W / 2, y, { align: 'center' })
-  y += 4.8
+  y += 4.2
 
   // Small system title (e.g. BINIBINING PALAYAN — OFFICIAL PAGEANT TABULATION REPORT)
   if (sysTitle) {
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7.5)
+    doc.setFontSize(7.2)
     doc.setTextColor(...CLR_SUBTEXT)
     doc.text(sysTitle.toUpperCase(), PAGE_W / 2, y, { align: 'center' })
-    y += 4.2
+    y += 3.8
   }
 
   // Small subtitle (e.g. Official Verification Sheet — All Scoring Judges)
   if (subtitle) {
     doc.setFont('helvetica', 'normal')
-    doc.setFontSize(8)
+    doc.setFontSize(7.8)
     doc.setTextColor(...CLR_SUBTEXT)
     doc.text(subtitle, PAGE_W / 2, y, { align: 'center' })
-    y += 4.5
+    y += 3.8
   }
 
   // Divider
   doc.setDrawColor(...CLR_BORDER)
-  doc.setLineWidth(0.4)
+  doc.setLineWidth(0.35)
   doc.line(MARGIN, y, PAGE_W - MARGIN, y)
-  y += 5
+  y += 3.5
 
   return y
 }
@@ -146,20 +146,21 @@ function drawHeader(doc, { sysTitle, title, subtitle }) {
 function drawSignatureBlock(doc, judges, roleLabel) {
   if (!judges || judges.length === 0) return
 
-  const maxCols = 4
+  // Fit up to 5 judges on a single row so 5-judge panels never wrap onto a 2nd page
+  const maxCols = 5
   const usableW = PAGE_W - MARGIN * 2
-  const colW    = usableW / maxCols
+  const colW    = usableW / Math.min(maxCols, Math.max(judges.length, 4))
 
-  // Split judges into rows of at most maxCols (e.g. 4 on first row, remainder on next row)
   const rows = []
   for (let i = 0; i < judges.length; i += maxCols) {
     rows.push(judges.slice(i, i + maxCols))
   }
 
-  const rowSpacing = 20
-  const blockH     = 14 + (rows.length * rowSpacing)
-  const tableEndY  = doc.lastAutoTable?.finalY || 0
-  const minAfterTable = tableEndY + 12
+  const rowSpacing    = 17
+  const footerHeight  = 9
+  const blockH        = 11 + (rows.length * rowSpacing) + footerHeight
+  const tableEndY     = doc.lastAutoTable?.finalY || 0
+  const minAfterTable = tableEndY + 8
 
   let startY
   if (minAfterTable + blockH > PAGE_H - MARGIN) {
@@ -171,7 +172,7 @@ function drawSignatureBlock(doc, judges, roleLabel) {
 
   // Section label
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(8)
+  doc.setFontSize(7.5)
   doc.setTextColor(...CLR_SUBTEXT)
   const labelText = 'CERTIFIED CORRECT — BOARD OF JUDGES'
   doc.text(labelText, PAGE_W / 2, startY, { align: 'center' })
@@ -182,11 +183,10 @@ function drawSignatureBlock(doc, judges, roleLabel) {
   const lblW = doc.getTextWidth(labelText)
   doc.line(PAGE_W / 2 - lblW / 2 - 2, startY + 1.5, PAGE_W / 2 + lblW / 2 + 2, startY + 1.5)
 
-  const sigStartY = startY + 11
+  const sigStartY = startY + 10
 
   rows.forEach((rowJudges, rIdx) => {
     const k = rowJudges.length
-    // Center this row within the page
     const rowW = k * colW
     const rowStartX = (PAGE_W - rowW) / 2
     const cy = sigStartY + (rIdx * rowSpacing)
@@ -194,28 +194,28 @@ function drawSignatureBlock(doc, judges, roleLabel) {
     rowJudges.forEach((j, cIdx) => {
       const cx = rowStartX + cIdx * colW + colW / 2
 
-      // Signature line (width: colW - 8mm)
+      // Signature line
       doc.setDrawColor(...CLR_HEADING)
-      doc.setLineWidth(0.5)
-      doc.line(cx - colW / 2 + 4, cy, cx + colW / 2 - 4, cy)
+      doc.setLineWidth(0.45)
+      doc.line(cx - colW / 2 + 3, cy, cx + colW / 2 - 3, cy)
 
       // Judge name
       doc.setFont('helvetica', 'bold')
-      doc.setFontSize(8)
+      doc.setFontSize(7.5)
       doc.setTextColor(...CLR_HEADING)
-      doc.text(j.name || '—', cx, cy + 4, { align: 'center' })
+      doc.text(j.name || '—', cx, cy + 3.6, { align: 'center' })
 
       // Role
       doc.setFont('helvetica', 'italic')
-      doc.setFontSize(7)
+      doc.setFontSize(6.5)
       doc.setTextColor(...CLR_SUBTEXT)
-      doc.text(roleLabel, cx, cy + 8, { align: 'center' })
+      doc.text(roleLabel, cx, cy + 7.2, { align: 'center' })
     })
   })
 
   // Footer below judges: small ICT logo + "Powered by ICT Division"
-  const lastRowY = sigStartY + (rows.length - 1) * rowSpacing + 14
-  const footerY  = Math.max(lastRowY + 4, PAGE_H - MARGIN - 4)
+  const lastRowY = sigStartY + (rows.length - 1) * rowSpacing + 12
+  const footerY  = Math.max(lastRowY + 3, PAGE_H - MARGIN - 2)
   const footerText = 'Powered by ICT Division'
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(7.5)
@@ -668,8 +668,8 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
     body,
     margin: { left: MARGIN, right: MARGIN },
     styles: {
-      fontSize: 8.5,
-      cellPadding: 3.5,
+      fontSize: 8,
+      cellPadding: 2.3,
       lineColor: CLR_BORDER,
       lineWidth: 0.2,
     },
@@ -677,14 +677,14 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
       fillColor: CLR_TABLE_HEADER_BG,
       textColor: CLR_TABLE_HEADER_FG,
       fontStyle: 'bold',
-      fontSize: 7.5,
+      fontSize: 7.2,
       halign: 'center',
       valign: 'middle',
-      minCellHeight: 12,
+      minCellHeight: 10,
     },
     columnStyles: {
-      0: { halign: 'center', cellWidth: 16 },
-      1: { halign: 'left',   cellWidth: 38 },
+      0: { halign: 'center', cellWidth: 12 },
+      1: { halign: 'left',   cellWidth: 44 },
       2: { halign: 'left',   cellWidth: 30 },
       [stageColMeta.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: CLR_TOTAL_BG },
     },
