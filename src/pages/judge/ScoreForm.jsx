@@ -979,18 +979,18 @@ export default function ScoreForm() {
                 style={{
                   background: (competition === 'pageant' && stageDisplayScore < 80)
                     ? 'var(--bg-elevated)'
-                    : 'linear-gradient(135deg, #D4AF37 0%, #B45309 100%)',
-                  color: (competition === 'pageant' && stageDisplayScore < 80) ? 'var(--text-muted)' : '#FFFFFF',
+                    : 'linear-gradient(135deg, #0E3429 0%, #0A271E 100%)',
+                  color: (competition === 'pageant' && stageDisplayScore < 80) ? 'var(--text-muted)' : '#FEF3C7',
                   fontWeight: 800,
                   padding: '12px 30px',
                   borderRadius: 10,
-                  border: (competition === 'pageant' && stageDisplayScore < 80) ? '1.5px dashed var(--border)' : 'none',
+                  border: (competition === 'pageant' && stageDisplayScore < 80) ? '1.5px dashed var(--border)' : '1.5px solid #D4AF37',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
                   fontSize: '0.94rem',
                   cursor: (competition === 'pageant' && stageDisplayScore < 80) ? 'not-allowed' : 'pointer',
-                  boxShadow: (competition === 'pageant' && stageDisplayScore < 80) ? 'none' : '0 3px 12px rgba(180, 130, 30, 0.28)',
+                  boxShadow: (competition === 'pageant' && stageDisplayScore < 80) ? 'none' : '0 4px 14px rgba(10, 39, 30, 0.25)',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -1047,14 +1047,14 @@ export default function ScoreForm() {
                     width: '100%',
                     padding: '12px 18px',
                     borderRadius: 12,
-                    background: 'linear-gradient(135deg, #FFFDF8 0%, #FAF6ED 100%)',
-                    border: '1.5px solid rgba(212, 175, 55, 0.55)',
-                    color: '#B45309',
+                    background: 'linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 100%)',
+                    border: '1.5px solid rgba(14, 52, 41, 0.22)',
+                    color: '#0E3429',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     cursor: 'pointer',
-                    boxShadow: '0 3px 10px rgba(180, 130, 30, 0.1)',
+                    boxShadow: '0 3px 10px rgba(14, 52, 41, 0.08)',
                     transition: 'all 0.15s ease'
                   }}
                 >
@@ -1062,7 +1062,7 @@ export default function ScoreForm() {
                     <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 700 }}>
                       Next Evaluation
                     </div>
-                    <div style={{ fontSize: '0.96rem', fontWeight: 900, color: 'var(--text-primary)' }}>
+                    <div style={{ fontSize: '0.96rem', fontWeight: 900, color: '#0A271E' }}>
                       Candidate #{nextCandidate.candidate_number != null ? nextCandidate.candidate_number : ''} — {nextCandidate.name}
                     </div>
                   </div>
@@ -1070,8 +1070,9 @@ export default function ScoreForm() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 5,
-                    background: 'linear-gradient(135deg, #FDE68A 0%, #D97706 100%)',
-                    color: '#78350F',
+                    background: 'linear-gradient(135deg, #0E3429 0%, #0A271E 100%)',
+                    border: '1px solid #D4AF37',
+                    color: '#FEF3C7',
                     padding: '7px 14px',
                     borderRadius: 8,
                     fontWeight: 800,

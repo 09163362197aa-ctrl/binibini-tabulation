@@ -553,9 +553,9 @@
 }
 
 .jh-stage-status-badge.inprogress {
-  background: rgba(245, 158, 11, 0.12);
-  color: #B45309;
-  border: 1px solid rgba(245, 158, 11, 0.28);
+  background: rgba(14, 52, 41, 0.08);
+  color: #0E3429;
+  border: 1px solid rgba(212, 175, 55, 0.45);
 }
 
 .jh-stage-status-badge.ready {

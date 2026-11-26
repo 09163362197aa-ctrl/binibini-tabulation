@@ -650,11 +650,11 @@ tbody td {
   border-top: 3px solid #86EFAC;
 }
 
-/* Binibini Hanging Ribbon (Royal Amber Gold with Radiant Gold Foil Trim) */
+/* Binibini Hanging Ribbon (Royal Emerald Green with Gold Foil Trim) */
 .candidate-ribbon.binibini {
-  background: linear-gradient(180deg, #F59E0B 0%, #D97706 48%, #92400E 100%);
+  background: linear-gradient(180deg, #134E3C 0%, #0E3429 55%, #082018 100%);
   color: #FFFFFF;
-  border-top: 3px solid #FEF08A;
+  border-top: 3px solid #D4AF37;
 }
 
 .candidate-ribbon-icon {
@@ -730,13 +730,13 @@ tbody td {
 }
 
 .candidate-ribbon-pill.binibini {
-  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-  color: #92400E;
-  border: 1.5px solid #FCD34D;
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  color: #064E3B;
+  border: 1.5px solid #D4AF37;
 }
 
 .candidate-ribbon-pill .pill-crown-icon {
-  color: #D97706;
+  color: #A67C14;
   filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
 }
 .candidate-ribbon-pill.ginoo .pill-crown-icon {

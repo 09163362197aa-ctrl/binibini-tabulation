@@ -315,7 +315,7 @@ export default function JudgeHome() {
                   <div>
                     <div className="jh-stage-card-header">
                       <div className="jh-stage-icon-wrap">
-                        <Layers size={20} color="#D97706" />
+                        <Layers size={20} color="#0E3429" />
                       </div>
 
                       {isCompleted ? (
@@ -346,7 +346,7 @@ export default function JudgeHome() {
                           width: `${pct}%`,
                           background: isCompleted
                             ? 'linear-gradient(90deg, #16A34A, #22C55E)'
-                            : 'linear-gradient(90deg, #D97706, #F59E0B)'
+                            : 'linear-gradient(90deg, #0E3429, #D4AF37)'
                         }}
                       />
                     </div>
@@ -366,7 +366,7 @@ export default function JudgeHome() {
                         <span className="jh-stage-stat-lbl">Locked</span>
                       </div>
                       <div className="jh-stage-stat-item">
-                        <span className="jh-stage-stat-val" style={{ color: '#B45309' }}>
+                        <span className="jh-stage-stat-val" style={{ color: '#0E3429' }}>
                           {stats.draft}
                         </span>
                         <span className="jh-stage-stat-lbl">Draft</span>
@@ -539,13 +539,13 @@ export default function JudgeHome() {
                   width: 18,
                   height: 18,
                   borderRadius: '50%',
-                  background: 'rgba(217,119,6,0.15)',
+                  background: 'rgba(14, 52, 41, 0.10)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '0.62rem',
                   fontWeight: 800,
-                  color: '#b45309',
+                  color: '#0E3429',
                   flexShrink: 0
                 }}>
                   {team.name.charAt(0)}

@@ -1,9 +1,9 @@
-/* Judge Shell - Royal Emerald Green, Gold & White Glitter Theme */
+/* Judge Shell - Royal Emerald Green, Gold & Silver-White Gradient Theme */
 .judge-shell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-main, #F7FAF8);
+  background: linear-gradient(180deg, #F8FAFC 0%, #EEF2F6 55%, #E6ECF2 100%);
 }
 
 .judge-shell.scoring-mode {
