@@ -108,8 +108,17 @@ function drawSignatureBlock(doc, judges, roleLabel) {
   }
 
   const rowSpacing = 20
-  const blockH   = 14 + (rows.length * rowSpacing)
-  const startY   = PAGE_H - MARGIN - blockH
+  const blockH     = 14 + (rows.length * rowSpacing)
+  const tableEndY  = doc.lastAutoTable?.finalY || 0
+  const minAfterTable = tableEndY + 12
+
+  let startY
+  if (minAfterTable + blockH > PAGE_H - MARGIN) {
+    doc.addPage()
+    startY = MARGIN + 10
+  } else {
+    startY = Math.max(minAfterTable, PAGE_H - MARGIN - blockH)
+  }
 
   // Section label
   doc.setFont('helvetica', 'bold')
