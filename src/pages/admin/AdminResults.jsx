@@ -618,27 +618,6 @@ export default function AdminResults() {
                 }
               </span>
             </button>
-
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={handleGenerateBinibiniRankings}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 7,
-                fontSize: '0.86rem',
-                fontWeight: 700,
-                padding: '10px 18px',
-                borderRadius: 10,
-                background: 'var(--bg-surface)',
-                border: '1px solid rgba(180,130,30,0.3)',
-                color: '#B45309'
-              }}
-            >
-              <Trophy size={16} color="#D97706" />
-              <span>Print Preliminary Standings (PDF)</span>
-            </button>
           </div>
         </div>
       </div>
