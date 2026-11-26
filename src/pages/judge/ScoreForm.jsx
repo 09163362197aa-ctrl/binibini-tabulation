@@ -106,32 +106,6 @@ export default function ScoreForm() {
     return () => clearTimeout(timer)
   }, [id])
 
-  useEffect(() => {
-    function checkScrollMore() {
-      const isMobile = window.innerWidth <= 640
-      const el = rightColRef.current
-      if (!isMobile && el && el.scrollHeight > el.clientHeight + 4) {
-        setCanScrollMore(el.scrollHeight - el.scrollTop - el.clientHeight > 24)
-      } else {
-        const doc = document.documentElement
-        const scrollTop = window.scrollY || doc.scrollTop || 0
-        setCanScrollMore(doc.scrollHeight - scrollTop - window.innerHeight > 24)
-      }
-    }
-
-    const timer = setTimeout(checkScrollMore, 80)
-    const el = rightColRef.current
-    if (el) el.addEventListener('scroll', checkScrollMore, { passive: true })
-    window.addEventListener('scroll', checkScrollMore, { passive: true })
-    window.addEventListener('resize', checkScrollMore)
-    return () => {
-      clearTimeout(timer)
-      if (el) el.removeEventListener('scroll', checkScrollMore)
-      window.removeEventListener('scroll', checkScrollMore)
-      window.removeEventListener('resize', checkScrollMore)
-    }
-  }, [loading, id, selectedStageId, isLocked])
-
   function showToast(msg, type = 'success') {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
     setToast({ msg, type })
@@ -379,6 +353,32 @@ export default function ScoreForm() {
 
   const activeCriteriaIds = activeCriteria.map(c => c.id)
   const isLocked = activeCriteriaIds.length > 0 && activeCriteriaIds.every(cid => savedScores[cid]?.is_locked)
+
+  useEffect(() => {
+    function checkScrollMore() {
+      const isMobile = window.innerWidth <= 640
+      const el = rightColRef.current
+      if (!isMobile && el && el.scrollHeight > el.clientHeight + 4) {
+        setCanScrollMore(el.scrollHeight - el.scrollTop - el.clientHeight > 24)
+      } else {
+        const doc = document.documentElement
+        const scrollTop = window.scrollY || doc.scrollTop || 0
+        setCanScrollMore(doc.scrollHeight - scrollTop - window.innerHeight > 24)
+      }
+    }
+
+    const timer = setTimeout(checkScrollMore, 80)
+    const el = rightColRef.current
+    if (el) el.addEventListener('scroll', checkScrollMore, { passive: true })
+    window.addEventListener('scroll', checkScrollMore, { passive: true })
+    window.addEventListener('resize', checkScrollMore)
+    return () => {
+      clearTimeout(timer)
+      if (el) el.removeEventListener('scroll', checkScrollMore)
+      window.removeEventListener('scroll', checkScrollMore)
+      window.removeEventListener('resize', checkScrollMore)
+    }
+  }, [loading, id, selectedStageId, isLocked])
 
   async function requestUnlock() {
     setRequesting(true)
