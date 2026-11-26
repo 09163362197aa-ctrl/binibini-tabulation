@@ -284,14 +284,16 @@ export default function ScoreForm() {
       setHasPendingRequest((reqRows || []).length > 0)
     }
 
+    let unlockRefreshTimer = null
+
     const channel = supabase
       .channel(`scoreform-rt-${competition}-${id}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'scores', filter: `judge_id=eq.${user.id}` },
+        { event: '*', schema: 'public', table: 'scores' },
         (payload) => {
           const row = payload.new
-          if (!row) return
+          if (!row || row.judge_id !== user.id) return
           const matchesTarget = competition === 'pageant'
             ? row.candidate_id === targetCandId
             : row.team_entry_id === id
@@ -307,25 +309,67 @@ export default function ScoreForm() {
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'unlock_requests', filter: `judge_id=eq.${user.id}` },
+        { event: '*', schema: 'public', table: 'unlock_requests' },
         (payload) => {
           const row = payload.new || payload.old
-          if (row) {
+          if (row && row.judge_id && row.judge_id !== user.id) return
+          if (row && (row.candidate_id || row.team_entry_id)) {
             const matchesTarget = competition === 'pageant'
               ? row.candidate_id === targetCandId
               : row.team_entry_id === id
             if (!matchesTarget) return
           }
           refreshStatusSilently()
+          if (unlockRefreshTimer) clearTimeout(unlockRefreshTimer)
+          unlockRefreshTimer = setTimeout(() => {
+            refreshStatusSilently()
+          }, 450)
         }
       )
       .subscribe()
 
     return () => {
       isCurrent = false
+      if (unlockRefreshTimer) clearTimeout(unlockRefreshTimer)
       supabase.removeChannel(channel)
     }
   }, [competition, id, user])
+
+  // Fallback poll ONLY while waiting for an unlock approval on this candidate
+  useEffect(() => {
+    if (!hasPendingRequest || !user?.id || !id) return
+    const targetCandId = competition === 'pageant' ? id : null
+
+    const interval = setInterval(async () => {
+      const sQuery = supabase
+        .from('scores')
+        .select('id, criterion_id, is_locked')
+        .eq('judge_id', user.id)
+      if (competition === 'cheerdance') sQuery.eq('team_entry_id', id)
+      if (competition === 'pageant') sQuery.eq('candidate_id', targetCandId)
+
+      const rQuery = supabase
+        .from('unlock_requests')
+        .select('id, status')
+        .eq('judge_id', user.id)
+        .eq('status', 'pending')
+      if (competition === 'cheerdance') rQuery.eq('team_entry_id', id)
+      if (competition === 'pageant') rQuery.eq('candidate_id', targetCandId)
+
+      const [{ data: scoreRows }, { data: reqRows }] = await Promise.all([sQuery, rQuery])
+      if (scoreRows) {
+        const nextSaved = {}
+        scoreRows.forEach(row => {
+          nextSaved[row.criterion_id] = { id: row.id, is_locked: row.is_locked }
+        })
+        savedRef.current = nextSaved
+        setSaved(nextSaved)
+      }
+      setHasPendingRequest((reqRows || []).length > 0)
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [hasPendingRequest, competition, id, user?.id])
 
   const parents = criteria.filter(c => !c.parent_id)
   const children = criteria.filter(c => c.parent_id)
