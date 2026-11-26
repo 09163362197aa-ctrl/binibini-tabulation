@@ -72,6 +72,7 @@ export default function ScoreForm() {
   const [requesting, setRequesting] = useState(false)
   const [pageantCandidates, setPageantCandidates] = useState([])
   const [candidateList, setCandidateList] = useState([])
+  const [keypadTarget, setKeypadTarget] = useState(null) // { criterion, value }
   const candidateId = competition === 'pageant' ? id : null
   const teamEntryId = competition === 'cheerdance' ? id : null
   const savedRef = useRef({})
@@ -926,6 +927,7 @@ export default function ScoreForm() {
                         criterion={c}
                         value={scores[c.id] ?? 0}
                         locked={isLocked}
+                        onOpenKeypad={(crit, val) => setKeypadTarget({ criterion: crit, value: val })}
                         onChangeScore={v => handleScoreChange(c.id, v)}
                         onBlurScore={v => handleBlur(c.id, v)}
                       />
@@ -946,6 +948,7 @@ export default function ScoreForm() {
                           criterion={c}
                           value={scores[c.id] ?? 0}
                           locked={isLocked}
+                          onOpenKeypad={(crit, val) => setKeypadTarget({ criterion: crit, value: val })}
                           onChangeScore={v => handleScoreChange(c.id, v)}
                           onBlurScore={v => handleBlur(c.id, v)}
                         />
@@ -1311,18 +1314,124 @@ export default function ScoreForm() {
           </div>
         </div>
       )}
+
+      {/* ── Built-in On-Screen Keypad Modal (Prevents device virtual keyboard and URL bar popup) ── */}
+      {keypadTarget && (
+        <ScoreKeypadModal
+          criterion={keypadTarget.criterion}
+          initialValue={keypadTarget.value}
+          onClose={() => setKeypadTarget(null)}
+          onApply={(val) => {
+            handleScoreChange(keypadTarget.criterion.id, val)
+            handleBlur(keypadTarget.criterion.id, val)
+            setKeypadTarget(null)
+          }}
+        />
+      )}
     </div>
   )
 }
 
-function cleanScoreStr(val) {
-  if (val === undefined || val === null || val === '') return '0'
-  const num = Number(val)
-  if (isNaN(num)) return '0'
-  return String(parseFloat(num.toFixed(4)))
+function ScoreKeypadModal({ criterion, initialValue, onClose, onApply }) {
+  const maxScore = Number(criterion.max_score) || 100
+  const [valStr, setValStr] = useState(initialValue != null && initialValue > 0 ? String(initialValue) : '')
+
+  function handleDigit(d) {
+    setValStr(prev => {
+      const next = prev + String(d)
+      const parsed = parseInt(next, 10)
+      if (isNaN(parsed)) return ''
+      if (parsed > maxScore) return String(maxScore)
+      return String(parsed)
+    })
+  }
+
+  function handleBackspace() {
+    setValStr(prev => prev.slice(0, -1))
+  }
+
+  function handleClear() {
+    setValStr('')
+  }
+
+  function handleDone() {
+    let parsed = parseInt(valStr, 10)
+    if (isNaN(parsed) || parsed < 0) parsed = 0
+    const clamped = Math.min(maxScore, Math.max(0, parsed))
+    onApply(clamped)
+  }
+
+  return (
+    <div className="score-keypad-overlay" onClick={onClose}>
+      <div className="score-keypad-modal" onClick={e => e.stopPropagation()}>
+        <div className="score-keypad-header">
+          <div>
+            <div className="score-keypad-title">{criterion.label}</div>
+            <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Tap numbers to score (Max: {maxScore})</div>
+          </div>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+            onClick={onClose}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="score-keypad-display-row">
+          <span className="score-keypad-val">{valStr || '0'}</span>
+          <span className="score-keypad-max">/ {maxScore} pts</span>
+        </div>
+
+        <div className="score-keypad-grid">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
+            <button
+              key={n}
+              type="button"
+              className="score-keypad-btn"
+              onClick={() => handleDigit(n)}
+            >
+              {n}
+            </button>
+          ))}
+          <button
+            type="button"
+            className="score-keypad-btn action-btn"
+            onClick={handleClear}
+          >
+            Clear
+          </button>
+          <button
+            type="button"
+            className="score-keypad-btn"
+            onClick={() => handleDigit(0)}
+          >
+            0
+          </button>
+          <button
+            type="button"
+            className="score-keypad-btn action-btn"
+            onClick={handleBackspace}
+          >
+            ⌫
+          </button>
+        </div>
+
+        <button
+          type="button"
+          className="score-keypad-btn done-btn"
+          style={{ width: '100%', height: 48 }}
+          onClick={handleDone}
+        >
+          ✓ Set Score ({valStr || '0'})
+        </button>
+      </div>
+    </div>
+  )
 }
 
-function CriterionRow({ criterion, value, locked, onChangeScore, onBlurScore }) {
+function CriterionRow({ criterion, value, locked, onChangeScore, onBlurScore, onOpenKeypad }) {
   const [localStr, setLocalStr] = useState(String(Math.round(Number(value) || 0)))
 
   useEffect(() => {
@@ -1330,40 +1439,6 @@ function CriterionRow({ criterion, value, locked, onChangeScore, onBlurScore }) 
   }, [value])
 
   const maxScore = criterion.max_score || 100
-
-  function handleKeyDown(e) {
-    // Block decimal point, minus, and 'e' (scientific notation)
-    if (e.key === '.' || e.key === ',' || e.key === '-' || e.key === 'e' || e.key === 'E') {
-      e.preventDefault()
-    }
-  }
-
-  function handleChange(e) {
-    const raw = e.target.value
-    if (raw === '') {
-      setLocalStr('')
-      onChangeScore(0)
-      return
-    }
-
-    // Strip any non-digit characters just in case
-    const digitsOnly = raw.replace(/[^0-9]/g, '')
-    let parsed = parseInt(digitsOnly, 10)
-    if (isNaN(parsed)) parsed = 0
-
-    // Clamp to this criterion's actual maximum
-    const clamped = Math.min(maxScore, Math.max(0, parsed))
-    setLocalStr(String(clamped))
-    onChangeScore(clamped)
-  }
-
-  function handleBlur() {
-    let parsed = parseInt(localStr, 10)
-    if (isNaN(parsed) || parsed < 0) parsed = 0
-    const clamped = Math.min(maxScore, Math.max(0, parsed))
-    setLocalStr(String(clamped))
-    onBlurScore(clamped)
-  }
 
   return (
     <div className="criterion-row-clean">
@@ -1373,17 +1448,19 @@ function CriterionRow({ criterion, value, locked, onChangeScore, onBlurScore }) 
       </div>
       <div className="criterion-right">
         <input
-          type="number"
+          type="text"
+          inputMode="none"
+          readOnly
           className="score-number-input-lg"
-          min={0}
-          max={maxScore}
-          step={1}
           value={localStr}
           disabled={locked}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          onBlur={handleBlur}
+          onClick={() => {
+            if (!locked && onOpenKeypad) {
+              onOpenKeypad(criterion, Number(localStr) || 0)
+            }
+          }}
           placeholder="0"
+          style={{ cursor: locked ? 'not-allowed' : 'pointer' }}
         />
         <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginLeft: 6, whiteSpace: 'nowrap' }}>/ {maxScore}</span>
       </div>
