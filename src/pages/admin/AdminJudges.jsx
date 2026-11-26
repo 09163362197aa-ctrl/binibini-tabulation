@@ -163,9 +163,16 @@ export default function AdminJudges() {
   // ── EDIT ─────────────────────────────────────────────────────────────────────
   async function handleEdit(e) {
     e.preventDefault()
+    if (form.password && form.password.length < 6) {
+      showToast('New password must be at least 6 characters.', 'error')
+      return
+    }
     setBusy(true)
     const username = form.username.trim().toLowerCase().replace(/\s+/g, '')
     try {
+      let authUpdated = false
+      let authErrorMsg = ''
+
       try {
         await callEdge('update', {
           judgeId:  editingJudge.id,
@@ -173,16 +180,31 @@ export default function AdminJudges() {
           username,
           password: form.password || undefined,
         })
+        authUpdated = true
       } catch (edgeErr) {
-        console.warn('Edge function update failed, updating profile directly:', edgeErr.message)
+        console.warn('Edge function update failed, trying DB RPC:', edgeErr.message)
+        authErrorMsg = edgeErr.message
       }
 
-      await supabase
+      if (!authUpdated && form.password) {
+        const { error: rpcErr } = await supabase.rpc('admin_update_judge_password', {
+          target_user_id: editingJudge.id,
+          new_password: form.password,
+        })
+        if (rpcErr) {
+          throw new Error(
+            `Password was NOT updated (${rpcErr.message || authErrorMsg}). Run supabase_update_judge_password_rpc.sql in Supabase SQL Editor.`
+          )
+        }
+      }
+
+      const { error: profileErr } = await supabase
         .from('profiles')
         .update({ name: form.name.trim(), username, allowed_competitions: ['pageant'] })
         .eq('id', editingJudge.id)
+      if (profileErr) throw profileErr
 
-      showToast(`Judge "${form.name}" updated!`)
+      showToast(form.password ? `Judge "${form.name}" & password updated!` : `Judge "${form.name}" updated!`)
       setEditingJudge(null)
       load()
     } catch (err) {
