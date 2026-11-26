@@ -40,17 +40,56 @@ async function createJudgeAccount({ name, username, password }) {
       data: { name, username }
     }
   })
-  if (error) throw error
+
+  // signUp may return an existing auth user if the email was previously deleted
+  // from profiles only (ghost auth user). Handle this gracefully.
+  if (error) {
+    // If email already registered, try signing in to retrieve the existing user ID
+    if (error.message?.toLowerCase().includes('already registered') ||
+        error.message?.toLowerCase().includes('user already exists') ||
+        error.status === 400) {
+      const { data: signInData, error: signInErr } = await tempClient.auth.signInWithPassword({ email, password })
+      if (signInErr) {
+        throw new Error(
+          `Username "${username}" already exists in the auth system but the profile was removed. ` +
+          `Please use a different username, or contact your system admin to fully remove the old account from Supabase Auth.`
+        )
+      }
+      if (!signInData?.user?.id) throw new Error('Could not retrieve existing user account.')
+      // Upsert (re-create) the profile for this ghost auth user
+      const { error: profileErr } = await supabase.from('profiles').upsert({
+        id: signInData.user.id,
+        name,
+        username,
+        role: 'judge',
+        allowed_competitions: ['pageant']
+      }, { onConflict: 'id' })
+      if (profileErr) throw profileErr
+      return signInData.user.id
+    }
+    throw error
+  }
+
   if (!data?.user?.id) throw new Error('Could not create user account.')
 
+  // Upsert in case the trigger already inserted a partial row
   const { error: profileErr } = await supabase.from('profiles').upsert({
     id: data.user.id,
     name,
     username,
     role: 'judge',
     allowed_competitions: ['pageant']
-  })
-  if (profileErr) throw profileErr
+  }, { onConflict: 'id' })
+  if (profileErr) {
+    // FK violation means auth.users row is in a broken/soft-deleted state
+    if (profileErr.code === '23503' || profileErr.message?.includes('foreign key')) {
+      throw new Error(
+        `Cannot restore judge "${username}" — their old auth account is in a broken state. ` +
+        `Please use a different username, or ask your system admin to remove the ghost entry from Supabase Auth (email: ${email}).`
+      )
+    }
+    throw profileErr
+  }
   return data.user.id
 }
 
@@ -156,19 +195,27 @@ export default function AdminJudges() {
   // ── DELETE ───────────────────────────────────────────────────────────────────
   async function handleDelete() {
     setBusy(true)
+    const name = deleting.name
     try {
       try {
         await callEdge('delete', { judgeId: deleting.id })
+        showToast(`Judge "${name}" removed.`)
       } catch (edgeErr) {
-        await supabase.from('profiles').delete().eq('id', deleting.id)
+        // Edge function failed — delete profile only; auth.users row may linger as a ghost.
+        // We warn the admin so they know re-adding the same username might not work.
+        const { error: delErr } = await supabase.from('profiles').delete().eq('id', deleting.id)
+        if (delErr) throw delErr
+        showToast(
+          `Judge "${name}" removed from profiles. If you re-add this exact username and get an error, use a different username or ask your admin to clean up the ghost auth account.`,
+          'warning'
+        )
       }
-      showToast(`Judge "${deleting.name}" removed.`)
       setDeleting(null)
       load()
     } catch (err) {
       const raw = err.message || ''
       const msg = raw.includes('submitted scores')
-        ? `Cannot remove "${deleting.name}" because they have already submitted and locked scores.`
+        ? `Cannot remove "${name}" because they have already submitted and locked scores.`
         : raw
       showToast(msg, 'error')
     } finally {
