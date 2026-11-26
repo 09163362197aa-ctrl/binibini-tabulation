@@ -344,7 +344,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
   // Build head / body with stage conversion weights
   const stageWeight = stage.max_score || 100
   const maxStageTotal = stageKids.reduce((sum, k) => sum + (k.max_score || 0), 0) || 100
-  const head = [['Rank', 'Candidate Name', 'Barangay', ...stageKids.map(k => `${k.label}\n(${k.max_score}%)`), `Stage Total (100%)\n(Converted: ${stageWeight}%)`]]
+  const head = [['#', 'Candidate Name', 'Barangay', ...stageKids.map(k => `${k.label}\n(${k.max_score}%)`), `Stage Total (100%)\n(Converted: ${stageWeight}%)`]]
 
   const rowData = filtered.map(c => {
     let stageTotal = 0
@@ -535,7 +535,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
   })
 
   const totalMaxPts = stageColMeta.reduce((sum, s) => sum + s.weight, 0)
-  const head = [['Rank', 'Candidate Name', 'Barangay', ...stageColMeta.map(s => s.header), `Preliminary Total\n(${totalMaxPts}% Max)`]]
+  const head = [['#', 'Candidate Name', 'Barangay', ...stageColMeta.map(s => s.header), `Preliminary Total\n(${totalMaxPts}% Max)`]]
 
   const rowData = filtered.map(c => {
     let overallTotal = 0
@@ -687,39 +687,27 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
     }
   })
 
-  // Calculate preliminary rank (sorted by score descending)
-  const sortedByScore = [...computed].sort((a, b) => b.overall50Total - a.overall50Total)
-  const rankMap = new Map()
-  sortedByScore.forEach((item, idx) => {
-    rankMap.set(item.candidate_id, idx + 1)
-  })
-
-  // Sort by Candidate Number (#1, #2, #3...) for effortless row-by-row typing into AU software
-  computed.sort((a, b) => a.candidate_number - b.candidate_number)
+  // Sort by 50% overall score descending (highest score first)
+  computed.sort((a, b) => b.overall50Total - a.overall50Total)
 
   const head = [[
-    'Candidate #',
+    '#',
     'Candidate Name',
     'Barangay',
     ...stageColMeta.map(s => s.header),
-    '50% PRELIMINARY SCORE\n(FOR AU ENCODING)',
-    'Prelim Rank'
+    '50% PRELIMINARY SCORE\n(FOR AU ENCODING)'
   ]]
 
-  const body = computed.map(r => {
-    const rank = rankMap.get(r.candidate_id) || '—'
-    return [
-      { content: r.numLabel, styles: { fontStyle: 'bold', halign: 'center' } },
-      r.candidate,
-      r.team,
-      ...r.stageBreakdown.map(s => ({ content: s.text, styles: { halign: 'center' } })),
-      {
-        content: `${r.overall50Total.toFixed(3)}%`,
-        styles: { fontStyle: 'bold', halign: 'center', fontSize: 9.5, textColor: [180, 83, 9] }
-      },
-      { content: `Rank ${rank}`, styles: { halign: 'center', fontStyle: 'bold' } }
-    ]
-  })
+  const body = computed.map((r, idx) => [
+    { content: (idx + 1).toString(), styles: { fontStyle: 'bold', halign: 'center' } },
+    r.candidate_number != null ? `#${r.candidate_number} — ${r.candidate}` : r.candidate,
+    r.team,
+    ...r.stageBreakdown.map(s => ({ content: s.text, styles: { halign: 'center' } })),
+    {
+      content: `${(r.overall50Total % 1 === 0 ? r.overall50Total.toString() : r.overall50Total.toFixed(3))}%`,
+      styles: { fontStyle: 'bold', halign: 'center', fontSize: 9.5, textColor: [180, 83, 9] }
+    }
+  ])
 
   autoTable(doc, {
     startY: y,
@@ -742,11 +730,10 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
       minCellHeight: 12,
     },
     columnStyles: {
-      0: { halign: 'center', cellWidth: 22 },
-      1: { halign: 'left',   cellWidth: 38 },
-      2: { halign: 'left',   cellWidth: 32 },
+      0: { halign: 'center', cellWidth: 16 },
+      1: { halign: 'left',   cellWidth: 44 },
+      2: { halign: 'left',   cellWidth: 36 },
       [stageColMeta.length + 3]: { halign: 'center', fontStyle: 'bold', fillColor: [254, 243, 199] },
-      [stageColMeta.length + 4]: { halign: 'center', cellWidth: 22 },
     },
     alternateRowStyles: { fillColor: [248, 250, 252] },
   })
