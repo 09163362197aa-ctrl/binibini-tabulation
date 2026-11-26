@@ -673,19 +673,23 @@ export default function JudgeSummary() {
             )
           })()}
 
-            {/* ── OVERALL TAB (Combined total across all stages) ─────── */}
+            {/* ── OVERALL TAB (Combined weighted 50% total across all stages) ─────── */}
             {activePageantTab === 'overall' && (() => {
+              const totalMaxWeight = parentStages.reduce((sum, st) => sum + Number(st.max_score || 0), 0)
+
               const overallCandidateList = displayCandidates.map(c => {
                 let combinedTotal = 0
                 let lockedCount = 0
 
                 const stageSummaries = parentStages.map(stage => {
                   const sData = getCandidateStageData(c.id, stage.id)
+                  const stageWeight = stage.max_score != null ? Number(stage.max_score) : (sData.stageMaxTotal || 100)
+                  const stageWeighted = (sData.stageSubtotal / (sData.stageMaxTotal || 100)) * stageWeight
                   if (sData.isLocked) {
                     lockedCount++
-                    combinedTotal += sData.stageSubtotal
+                    combinedTotal += stageWeighted
                   }
-                  return { stage, ...sData }
+                  return { stage, stageWeight, stageWeighted, ...sData }
                 })
 
                 const allLocked = lockedCount === parentStages.length
@@ -858,7 +862,7 @@ export default function JudgeSummary() {
                               {c.team_name}
                             </td>
 
-                            {stageSummaries.map(({ stage, isLocked, stageSubtotal, stageMaxTotal, hasPending }) => (
+                            {stageSummaries.map(({ stage, isLocked, stageSubtotal, stageMaxTotal, stageWeighted, hasPending }) => (
                               <td key={stage.id} style={{ padding: '12px 10px', textAlign: 'center', borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
                                 {isLocked ? (
                                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -866,6 +870,11 @@ export default function JudgeSummary() {
                                       {stageSubtotal % 1 === 0 ? stageSubtotal : stageSubtotal.toFixed(2)}
                                       <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', marginLeft: 2 }}>/ {stageMaxTotal}</span>
                                     </span>
+                                    {stage.max_score != null && (
+                                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#D97706' }}>
+                                        {stageWeighted.toFixed(2)}%
+                                      </span>
+                                    )}
                                     <span style={{ fontSize: '0.68rem', color: '#166534', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                                       <Lock size={10} strokeWidth={2.5} /> Locked
                                     </span>
@@ -884,7 +893,12 @@ export default function JudgeSummary() {
                               {lockedCount > 0 ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                   <span style={{ fontWeight: 800, fontSize: '1.05rem', color: allLocked ? 'var(--pageant-primary)' : 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
-                                    {combinedTotal % 1 === 0 ? combinedTotal : combinedTotal.toFixed(2)}
+                                    {combinedTotal.toFixed(2)}%
+                                    {totalMaxWeight > 0 && (
+                                      <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', marginLeft: 3 }}>
+                                        / {totalMaxWeight}%
+                                      </span>
+                                    )}
                                   </span>
                                   {!allLocked && (
                                     <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
