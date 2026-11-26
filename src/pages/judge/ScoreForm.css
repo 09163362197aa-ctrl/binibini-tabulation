@@ -8,7 +8,7 @@
   overflow: hidden;
   box-sizing: border-box;
   width: 100%;
-  max-width: 100%;
+  max-width: 1140px;
   margin: 0 auto;
 }
 
@@ -44,13 +44,13 @@
   color: #FFFFFF;
 }
 
-/* Two-Column Split Layout for Tablet & Desktop Judging - Candidate image/card is wider than scoring */
+/* Two-Column Split Layout for Tablet & Desktop Judging */
 .scoring-layout-split {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(480px, 55%) 1fr;
-  gap: 20px;
+  grid-template-columns: 400px 1fr;
+  gap: 18px;
   height: 100%;
   max-height: 100%;
   overflow: hidden;
@@ -69,10 +69,10 @@
   box-sizing: border-box;
 }
 
-/* Candidate Spotlight Showcase Card (Left Column) - Fits content cleanly without stretching photo */
+/* Candidate Spotlight Showcase Card (Left Column) - Fills available screen height responsively */
 .candidate-spotlight-card {
   width: 100%;
-  height: auto;
+  height: 100%;
   max-height: 100%;
   margin: 0;
   padding: 16px;
@@ -85,20 +85,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   text-align: center;
   gap: 12px;
   box-sizing: border-box;
   overflow: hidden; /* Strictly locked and non-scrollable */
 }
 
-/* Candidate Portrait Photo - Maintains 3:4 portrait aspect ratio on tall screens, shrinks on short screens */
+/* Candidate Portrait Photo - Flexibly scales down and shrinks when screen height is thin */
 .candidate-spotlight-photo {
   position: relative;
   width: 100%;
-  max-width: 100%;
-  aspect-ratio: 4 / 5;
-  flex: 0 1 auto;
+  max-width: 400px;        /* matches fixed card column width */
+  flex: 1 1 0;
   min-height: 0;
   max-height: 100%;
   margin: 0 auto;          /* keeps it centered when card column is wider */
@@ -195,11 +194,11 @@
   background: rgba(212, 175, 55, 0.6);
 }
 
-/* When vertical screen length is getting smaller, keep card comfortably wide while scaling padding */
+/* When vertical screen length is getting smaller, make card thinner and scale down proportionally */
 @media (max-height: 650px) {
   .scoring-layout-split {
-    grid-template-columns: minmax(360px, 52%) 1fr;
-    gap: 14px;
+    grid-template-columns: 230px 1fr;
+    gap: 12px;
   }
   .candidate-spotlight-card {
     padding: 10px;
@@ -215,8 +214,8 @@
 
 @media (max-height: 520px) {
   .scoring-layout-split {
-    grid-template-columns: minmax(320px, 50%) 1fr;
-    gap: 12px;
+    grid-template-columns: 190px 1fr;
+    gap: 10px;
   }
   .candidate-spotlight-card {
     padding: 8px;
@@ -232,8 +231,8 @@
 
 @media (max-height: 420px) {
   .scoring-layout-split {
-    grid-template-columns: minmax(260px, 48%) 1fr;
-    gap: 10px;
+    grid-template-columns: 160px 1fr;
+    gap: 8px;
   }
   .candidate-spotlight-card {
     padding: 6px;
@@ -250,7 +249,7 @@
 /* Tablet Portrait Mode (iPad & Android Tablets in Portrait e.g. 640px to 960px) */
 @media (min-width: 641px) and (max-width: 960px) {
   .scoring-layout-split {
-    grid-template-columns: minmax(340px, 52%) 1fr;
+    grid-template-columns: 290px 1fr;
     gap: 14px;
   }
   .candidate-spotlight-card {
@@ -309,136 +308,7 @@
   }
 }
 
-/* On-Screen Numeric Keypad Modal / Drawer for Tablets */
-.score-keypad-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background: rgba(10, 39, 30, 0.45);
-  backdrop-filter: blur(3px);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 16px;
-  animation: keypadFadeIn 0.15s ease-out;
-}
-
-@keyframes keypadFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.score-keypad-modal {
-  width: 100%;
-  max-width: 380px;
-  background: #FFFFFF;
-  border-radius: 20px;
-  border: 2px solid #D4AF37;
-  box-shadow: 0 16px 40px rgba(10, 39, 30, 0.35);
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  animation: keypadSlideUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes keypadSlideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.score-keypad-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(14, 52, 41, 0.12);
-  padding-bottom: 10px;
-}
-
-.score-keypad-title {
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: #0E3429;
-  letter-spacing: -0.01em;
-  max-width: 240px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.score-keypad-display-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px;
-  background: linear-gradient(135deg, #F8FAFC 0%, #EEF2F6 100%);
-  border-radius: 12px;
-  border: 1.5px solid rgba(212, 175, 55, 0.35);
-}
-
-.score-keypad-val {
-  font-size: 2.6rem;
-  font-weight: 900;
-  color: #0E3429;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.score-keypad-max {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.score-keypad-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.score-keypad-btn {
-  height: 54px;
-  font-size: 1.45rem;
-  font-weight: 800;
-  border-radius: 12px;
-  border: 1px solid rgba(14, 52, 41, 0.16);
-  background: #FFFFFF;
-  color: #0E3429;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(10, 39, 30, 0.08);
-  cursor: pointer;
-  transition: all 0.1s ease;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.score-keypad-btn:active {
-  transform: scale(0.95);
-  background: #EEF2F6;
-}
-
-.score-keypad-btn.action-btn {
-  background: #F8FAFC;
-  color: #475569;
-  font-size: 1.1rem;
-}
-
-.score-keypad-btn.done-btn {
-  background: linear-gradient(135deg, #0A271E 0%, #0E3429 100%);
-  color: #FEF3C7;
-  border-color: #D4AF37;
-  font-weight: 800;
-  font-size: 1.05rem;
-  box-shadow: 0 3px 10px rgba(10, 39, 30, 0.25);
-}
-
-.score-keypad-btn.done-btn:active {
-  transform: scale(0.95);
-  background: #0A271E;
-}
+/* Full-bleed stage spotlight header */
 .score-header {
   position: relative;
   display: flex;
