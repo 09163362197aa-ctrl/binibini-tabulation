@@ -74,13 +74,31 @@ function newDoc() {
   return new jsPDF({ unit: 'mm', format: [PAGE_W, PAGE_H], orientation: 'portrait' })
 }
 
+function sanitizeFilename(name) {
+  return String(name || 'Tabulation_Report')
+    .trim()
+    .replace(/[^a-zA-Z0-9_-]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
+function getJudgeFileSlug(selectedJudgeId, activeJudges) {
+  if (selectedJudgeId && selectedJudgeId !== 'all') {
+    const judgeName = activeJudges?.[0]?.name || 'Judge'
+    return `Judge_${judgeName}`
+  }
+  return 'All_Judges'
+}
+
 function openPdf(doc, filename) {
+  const safeName = sanitizeFilename(filename)
+  doc.setProperties({ title: safeName })
   const blob = doc.output('blob')
   const url = URL.createObjectURL(blob)
   const win = window.open(url, '_blank')
   if (!win) {
     // Fallback: direct download if popup blocked
-    doc.save(filename + '.pdf')
+    doc.save(`${safeName}.pdf`)
   }
 }
 
@@ -437,7 +455,7 @@ export function printCheerdanceTabulation({ teams, criteria, scores, judges, sel
   })
 
   drawSignatureBlock(doc, activeJudges, 'Official Cheerdance Judge')
-  openPdf(doc, 'Cheerdance_Tabulation_Sheet')
+  openPdf(doc, `Cheerdance_Tabulation_${getJudgeFileSlug(selectedJudgeId, activeJudges)}`)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -612,7 +630,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
   })
 
   drawSignatureBlock(doc, activeJudges, 'Official Pageant Judge')
-  openPdf(doc, `Pageant_${stage.key || stage.label}_${category}_Tabulation`)
+  openPdf(doc, `BBP_2026_${stage.label}_${catLabel}_${getJudgeFileSlug(selectedJudgeId, activeJudges)}_Tabulation`)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -684,7 +702,7 @@ export function printPageantOverallRankings({ category, topCandidates, judges })
   })
 
   drawSignatureBlock(doc, judges, 'Official Pageant Judge')
-  openPdf(doc, `Pageant_${divLabel}_Preliminary_Standings`)
+  openPdf(doc, `BBP_2026_${divLabel}_50Percent_Preliminary_Standings`)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -811,7 +829,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
   })
 
   drawSignatureBlock(doc, activeJudges, 'Official Pageant Judge')
-  openPdf(doc, `Pageant_Overall_${divLabel}_Tabulation_Sheet`)
+  openPdf(doc, `BBP_2026_${divLabel}_Combined_Preliminary_${getJudgeFileSlug(selectedJudgeId, activeJudges)}_Tabulation`)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -940,6 +958,6 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
   })
 
   drawSignatureBlock(doc, judges, 'Official Pageant Judge')
-  openPdf(doc, `Binibining_Palayan_Coronation_50Percent_Transfer_Sheet`)
+  openPdf(doc, `BBP_2026_${divLabel}_Coronation_50Percent_Transfer_Sheet`)
 }
 
