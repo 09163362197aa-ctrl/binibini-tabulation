@@ -397,7 +397,7 @@ export function printCheerdanceTabulation({ teams, criteria, scores, judges, sel
   })
 
   // Build table head & body with direct points cap
-  const head = [['#', 'Team', ...criteria.map(c => `${c.label}\n(Max: ${c.max_score} pts)`), 'Total Points']]
+  const head = [['Rank', 'Team', ...criteria.map(c => `${c.label}\n(Max: ${c.max_score} pts)`), 'Total Points']]
 
   // Compute rows and sort by total descending
   const rowData = teams.map((team) => {
@@ -425,8 +425,11 @@ export function printCheerdanceTabulation({ teams, criteria, scores, judges, sel
     }
   })
 
-  // Sort ranked teams from highest to lowest score
-  rowData.sort((a, b) => b.total - a.total)
+  // Sort ranked teams: highest score first; if all tied at 0, sort by team name ascending
+  rowData.sort((a, b) => {
+    if (a.total === 0 && b.total === 0) return (a.team || '').localeCompare(b.team || '')
+    return b.total - a.total
+  })
 
   const body = rowData.map((row, idx) => [
     idx + 1,
@@ -563,7 +566,7 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
   // Build head / body with stage conversion weights
   const stageWeight = stage.max_score || 100
   const maxStageTotal = stageKids.reduce((sum, k) => sum + (k.max_score || 0), 0) || 100
-  const head = [['#', 'Candidate Name', 'Barangay', ...stageKids.map(k => `${k.label}\n(${k.max_score}%)`), `Stage Total (100%)\n(Converted: ${stageWeight}%)`]]
+  const head = [['Rank', 'Candidate Name', 'Barangay', ...stageKids.map(k => `${k.label}\n(${k.max_score}%)`), `Stage Total (100%)\n(Converted: ${stageWeight}%)`]]
 
   const rowData = filtered.map(c => {
     let stageTotal = 0
@@ -592,8 +595,15 @@ export function printPageantStageTabulation({ stage, category, candidates, crite
     }
   })
 
-  // Sort by stage total descending
-  rowData.sort((a, b) => b.stageTotal - a.stageTotal)
+  // Sort by stage total descending; if all zero, sort by candidate number ascending
+  rowData.sort((a, b) => {
+    if (a.stageTotal === 0 && b.stageTotal === 0) {
+      const na = parseInt(String(a.numLabel).replace(/\D/g, ''), 10) || 9999
+      const nb = parseInt(String(b.numLabel).replace(/\D/g, ''), 10) || 9999
+      return na - nb
+    }
+    return b.stageTotal - a.stageTotal
+  })
 
   const body = rowData.map((r, idx) => {
     const converted = ((r.stageTotal / maxStageTotal) * stageWeight).toFixed(2)
@@ -757,7 +767,7 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
   })
 
   const totalMaxPts = stageColMeta.reduce((sum, s) => sum + s.weight, 0)
-  const head = [['#', 'Candidate Name', 'Barangay', ...stageColMeta.map(s => s.header), `Preliminary Total\n(${totalMaxPts}% Max)`]]
+  const head = [['Rank', 'Candidate Name', 'Barangay', ...stageColMeta.map(s => s.header), `Preliminary Total\n(${totalMaxPts}% Max)`]]
 
   const rowData = filtered.map(c => {
     let overallTotal = 0
@@ -794,8 +804,15 @@ export function printPageantOverallTabulation({ category, candidates, criteria, 
     }
   })
 
-  // Sort by overallTotal descending
-  rowData.sort((a, b) => b.overallTotal - a.overallTotal)
+  // Sort by overallTotal descending; if all zero, sort by candidate number ascending
+  rowData.sort((a, b) => {
+    if (a.overallTotal === 0 && b.overallTotal === 0) {
+      const na = parseInt(String(a.numLabel).replace(/\D/g, ''), 10) || 9999
+      const nb = parseInt(String(b.numLabel).replace(/\D/g, ''), 10) || 9999
+      return na - nb
+    }
+    return b.overallTotal - a.overallTotal
+  })
 
   const body = rowData.map((r, idx) => [
     idx + 1,
@@ -912,11 +929,14 @@ export function printPageantCoronationTransferSheet({ category, candidates, crit
     }
   })
 
-  // Sort by 50% overall score descending (highest score first)
-  computed.sort((a, b) => b.overall50Total - a.overall50Total)
+  // Sort by 50% overall score descending; if all zero, sort by candidate number ascending
+  computed.sort((a, b) => {
+    if (a.overall50Total === 0 && b.overall50Total === 0) return a.candidate_number - b.candidate_number
+    return b.overall50Total - a.overall50Total
+  })
 
   const head = [[
-    '#',
+    'Rank',
     'Candidate Name',
     'Barangay',
     ...stageColMeta.map(s => s.header),
