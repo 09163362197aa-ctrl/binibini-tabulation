@@ -45,10 +45,10 @@ export default function JudgeHome() {
       supabase
         .from('teams')
         .select(`
-          id, name, logo_url,
+          id, name,
           team_entries (
-            id, competition_type, photo_url,
-            candidates ( id, category, name, photo_url, candidate_number )
+            id, competition_type,
+            candidates ( id, category, name, candidate_number )
           )
         `)
         .order('name'),
@@ -463,23 +463,6 @@ export default function JudgeHome() {
           </div>
         )}
 
-        {/* Candidate Photo */}
-        <div style={{ position: 'relative', width: 48, height: 48, minWidth: 48, flexShrink: 0 }}>
-          <img
-            src={c.photo_url || '/palayan.png'}
-            alt={c.name}
-            loading="lazy"
-            decoding="async"
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: '50%',
-              objectFit: 'cover',
-              border: '1.5px solid var(--border)'
-            }}
-          />
-        </div>
-
         {/* Candidate Name & Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
@@ -510,49 +493,19 @@ export default function JudgeHome() {
               Binibini
             </span>
 
-            {/* Team Identity Pill (Logo + Name as one distinct unit) */}
+            {/* Barangay Pill (Text-only for fast rendering) */}
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 6,
-              padding: '2px 10px 2px 3px',
+              gap: 5,
+              padding: '3px 10px',
               borderRadius: 999,
               background: 'var(--bg-elevated)',
               border: '1px solid var(--border)',
               boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
             }}>
-              {team.logo_url ? (
-                <img
-                  src={team.logo_url}
-                  alt={team.name}
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    border: '1px solid var(--border)',
-                    flexShrink: 0
-                  }}
-                />
-              ) : (
-                <div style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: '50%',
-                  background: 'rgba(14, 52, 41, 0.10)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.62rem',
-                  fontWeight: 800,
-                  color: '#0E3429',
-                  flexShrink: 0
-                }}>
-                  {team.name.charAt(0)}
-                </div>
-              )}
               <span style={{
-                fontSize: '0.8rem',
+                fontSize: '0.78rem',
                 fontWeight: 700,
                 color: 'var(--text-primary)',
                 letterSpacing: '-0.01em',
