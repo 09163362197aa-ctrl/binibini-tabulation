@@ -1449,6 +1449,7 @@ export default function ScoreForm() {
 function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, hasPrev, allCriteria, allScores, onClose, onApply, onApplyAndNext, onApplyAndPrev }) {
   const maxScore = Number(criterion.max_score) || 100
   const [valStr, setValStr] = useState(initialValue != null && initialValue > 0 ? String(initialValue) : '')
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false)
 
   useEffect(() => {
     setValStr(initialValue != null && initialValue > 0 ? String(initialValue) : '')
@@ -1502,7 +1503,7 @@ function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, hasPrev, 
         {/* Close button */}
         <button
           type="button"
-          onClick={onClose}
+          onClick={() => setShowCloseConfirm(true)}
           style={{
             position: 'absolute',
             top: 12,
@@ -1526,6 +1527,70 @@ function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, hasPrev, 
         >
           ✕
         </button>
+
+        {/* Close confirmation overlay */}
+        {showCloseConfirm && (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: 20,
+            background: 'rgba(10, 39, 30, 0.72)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 16,
+            padding: 28,
+          }}>
+            <div style={{ fontSize: '1.5rem' }}>⚠️</div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#FEF3C7', marginBottom: 4 }}>
+                Close without saving?
+              </div>
+              <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.72)', fontWeight: 500 }}>
+                Your current score for this criterion will not be saved.
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, width: '100%' }}>
+              <button
+                type="button"
+                onClick={() => setShowCloseConfirm(false)}
+                style={{
+                  flex: 1,
+                  height: 44,
+                  borderRadius: 10,
+                  border: '1.5px solid rgba(255,255,255,0.35)',
+                  background: 'transparent',
+                  color: '#FEF3C7',
+                  fontWeight: 700,
+                  fontSize: '0.86rem',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => { onApply(getClampedScore()) }}
+                style={{
+                  flex: 1,
+                  height: 44,
+                  borderRadius: 10,
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #D4AF37 0%, #B8962E 100%)',
+                  color: '#0A271E',
+                  fontWeight: 800,
+                  fontSize: '0.86rem',
+                  cursor: 'pointer',
+                }}
+              >
+                ✓ Save & Close
+              </button>
+            </div>
+          </div>
+        )}
         {subject && (
           <div style={{
             display: 'flex',
