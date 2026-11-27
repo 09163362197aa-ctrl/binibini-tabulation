@@ -48,7 +48,7 @@ export default function JudgeHome() {
           id, name,
           team_entries (
             id, competition_type,
-            candidates ( id, category, name, candidate_number )
+            candidates ( id, category, name, photo_url, candidate_number )
           )
         `)
         .order('name'),
@@ -462,6 +462,23 @@ export default function JudgeHome() {
             —
           </div>
         )}
+
+        {/* Candidate Photo */}
+        <div style={{ position: 'relative', width: 48, height: 48, minWidth: 48, flexShrink: 0 }}>
+          <img
+            src={c.photo_url || '/palayan.png'}
+            alt={c.name}
+            loading="lazy"
+            decoding="async"
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '1.5px solid var(--border)'
+            }}
+          />
+        </div>
 
         {/* Candidate Name & Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
