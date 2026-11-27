@@ -1633,14 +1633,6 @@ function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, hasPrev, 
             <div className="score-keypad-title">{criterion.label}</div>
             <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Tap numbers to score (Max: {maxScore})</div>
           </div>
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm"
-            style={{ padding: '4px 8px', fontSize: '0.8rem' }}
-            onClick={onClose}
-          >
-            ✕
-          </button>
         </div>
 
         <div className="score-keypad-display-row">
