@@ -1393,6 +1393,9 @@ export default function ScoreForm() {
         const nextCriterion = keypadIdx >= 0 && keypadIdx + 1 < activeCriteria.length
           ? activeCriteria[keypadIdx + 1]
           : null
+        const prevCriterion = keypadIdx > 0
+          ? activeCriteria[keypadIdx - 1]
+          : null
 
         return (
           <ScoreKeypadModal
@@ -1400,6 +1403,7 @@ export default function ScoreForm() {
             initialValue={keypadTarget.value}
             subject={subject}
             hasNext={Boolean(nextCriterion)}
+            hasPrev={Boolean(prevCriterion)}
             allCriteria={activeCriteria}
             allScores={scores}
             onClose={() => setKeypadTarget(null)}
@@ -1425,6 +1429,16 @@ export default function ScoreForm() {
                 setKeypadTarget(null)
               }
             }}
+            onApplyAndPrev={(val) => {
+              handleScoreChange(keypadTarget.criterion.id, val)
+              handleBlur(keypadTarget.criterion.id, val)
+              if (prevCriterion) {
+                setKeypadTarget({
+                  criterion: prevCriterion,
+                  value: Number(scores[prevCriterion.id]) || 0
+                })
+              }
+            }}
           />
         )
       })()}
@@ -1432,7 +1446,7 @@ export default function ScoreForm() {
   )
 }
 
-function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, allCriteria, allScores, onClose, onApply, onApplyAndNext }) {
+function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, hasPrev, allCriteria, allScores, onClose, onApply, onApplyAndNext, onApplyAndPrev }) {
   const maxScore = Number(criterion.max_score) || 100
   const [valStr, setValStr] = useState(initialValue != null && initialValue > 0 ? String(initialValue) : '')
 
@@ -1476,9 +1490,42 @@ function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, allCriter
     }
   }
 
+  function handlePrev() {
+    if (onApplyAndPrev) {
+      onApplyAndPrev(getClampedScore())
+    }
+  }
+
   return (
-    <div className="score-keypad-overlay" onClick={onClose}>
-      <div className="score-keypad-modal" onClick={e => e.stopPropagation()}>
+    <div className="score-keypad-overlay">
+      <div className="score-keypad-modal">
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            width: 32,
+            height: 32,
+            borderRadius: '50%',
+            border: '1.5px solid rgba(14,52,41,0.18)',
+            background: '#F1F5F9',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1rem',
+            color: '#0E3429',
+            fontWeight: 700,
+            lineHeight: 1,
+            zIndex: 10,
+          }}
+          aria-label="Close"
+        >
+          ✕
+        </button>
         {subject && (
           <div style={{
             display: 'flex',
@@ -1637,31 +1684,44 @@ function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, allCriter
 
         {hasNext ? (
           <div className="score-keypad-actions">
-            <button
-              type="button"
-              className="score-keypad-btn done-btn"
-              style={{ flex: 1, height: 48 }}
-              onClick={handleDone}
-            >
-              ✓ Done ({valStr || '0'})
-            </button>
+            {hasPrev && (
+              <button
+                type="button"
+                className="score-keypad-btn next-btn"
+                onClick={handlePrev}
+              >
+                ← Prev
+              </button>
+            )}
             <button
               type="button"
               className="score-keypad-btn next-btn"
+              style={{ flex: 1 }}
               onClick={handleNext}
             >
               Next →
             </button>
           </div>
         ) : (
-          <button
-            type="button"
-            className="score-keypad-btn done-btn"
-            style={{ width: '100%', height: 48 }}
-            onClick={handleDone}
-          >
-            ✓ Set Score ({valStr || '0'})
-          </button>
+          <div className="score-keypad-actions">
+            {hasPrev && (
+              <button
+                type="button"
+                className="score-keypad-btn next-btn"
+                onClick={handlePrev}
+              >
+                ← Prev
+              </button>
+            )}
+            <button
+              type="button"
+              className="score-keypad-btn done-btn"
+              style={{ flex: 1, height: 48 }}
+              onClick={handleDone}
+            >
+              ✓ Set Score ({valStr || '0'})
+            </button>
+          </div>
         )}
       </div>
     </div>
