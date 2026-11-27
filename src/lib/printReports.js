@@ -95,8 +95,17 @@ function openPdf(doc, filename) {
   doc.setProperties({ title: safeName })
   const blob = doc.output('blob')
   const url = URL.createObjectURL(blob)
-  const win = window.open(url, '_blank')
-  if (!win) {
+  const win = window.open('', '_blank')
+  if (win) {
+    win.document.open()
+    win.document.write(
+      `<!DOCTYPE html><html><head><title>${safeName}</title>` +
+      `<style>html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#1e293b;}` +
+      `iframe{width:100%;height:100%;border:none;display:block;}</style></head>` +
+      `<body><iframe src="${url}" title="${safeName}"></iframe></body></html>`
+    )
+    win.document.close()
+  } else {
     // Fallback: direct download if popup blocked
     doc.save(`${safeName}.pdf`)
   }
