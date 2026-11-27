@@ -697,26 +697,6 @@ export default function ScoreForm() {
             </button>
           </div>
         )}
-
-        {/* Right Info: Logged-in Judge Tablet Identity */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {profile?.name && (
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: '0.78rem',
-              color: '#FEF3C7',
-              background: 'rgba(212, 175, 55, 0.16)',
-              padding: '4px 12px',
-              borderRadius: 20,
-              border: '1px solid rgba(212, 175, 55, 0.5)'
-            }}>
-              <Crown size={12} color="#FDE68A" />
-              <span>Judge: <strong style={{ color: '#FFFFFF', fontWeight: 800 }}>{profile.name}</strong></span>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Royal Crown Preloader while switching or loading contestant evaluation */}
