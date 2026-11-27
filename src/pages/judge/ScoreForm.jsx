@@ -1400,6 +1400,8 @@ export default function ScoreForm() {
             initialValue={keypadTarget.value}
             subject={subject}
             hasNext={Boolean(nextCriterion)}
+            allCriteria={activeCriteria}
+            allScores={scores}
             onClose={() => setKeypadTarget(null)}
             onApply={(val) => {
               handleScoreChange(keypadTarget.criterion.id, val)
@@ -1430,7 +1432,7 @@ export default function ScoreForm() {
   )
 }
 
-function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, onClose, onApply, onApplyAndNext }) {
+function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, allCriteria, allScores, onClose, onApply, onApplyAndNext }) {
   const maxScore = Number(criterion.max_score) || 100
   const [valStr, setValStr] = useState(initialValue != null && initialValue > 0 ? String(initialValue) : '')
 
@@ -1527,6 +1529,54 @@ function ScoreKeypadModal({ criterion, initialValue, subject, hasNext, onClose, 
                   Barangay {subject.team}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {allCriteria && allCriteria.length > 1 && (
+          <div style={{
+            background: 'linear-gradient(135deg, #F8FAFC 0%, #EEF2F6 100%)',
+            border: '1.5px solid rgba(212, 175, 55, 0.3)',
+            borderRadius: 12,
+            padding: '10px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 4,
+          }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0E3429', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>
+              Scores Overview
+            </div>
+            {allCriteria.map(c => {
+              const isActive = c.id === criterion.id
+              const val = isActive ? (parseInt(valStr, 10) || 0) : (Number(allScores?.[c.id]) || 0)
+              return (
+                <div key={c.id} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '3px 6px',
+                  borderRadius: 6,
+                  background: isActive ? 'rgba(14, 52, 41, 0.08)' : 'transparent',
+                  border: isActive ? '1px solid rgba(212, 175, 55, 0.4)' : '1px solid transparent',
+                }}>
+                  <span style={{ fontSize: '0.74rem', color: isActive ? '#0E3429' : 'var(--text-secondary)', fontWeight: isActive ? 800 : 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {isActive && '▶ '}{c.label}
+                  </span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, color: isActive ? '#0E3429' : 'var(--text-muted)', marginLeft: 8, flexShrink: 0 }}>
+                    {val} <span style={{ fontWeight: 500, color: 'var(--text-muted)', fontSize: '0.68rem' }}>/ {c.max_score}</span>
+                  </span>
+                </div>
+              )
+            })}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, paddingTop: 6, borderTop: '1px solid rgba(212, 175, 55, 0.3)' }}>
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#0E3429', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total</span>
+              <span style={{ fontSize: '0.88rem', fontWeight: 900, color: '#0A271E', fontVariantNumeric: 'tabular-nums' }}>
+                {allCriteria.reduce((sum, c) => {
+                  const v = c.id === criterion.id ? (parseInt(valStr, 10) || 0) : (Number(allScores?.[c.id]) || 0)
+                  return sum + Math.min(Number(c.max_score) || 0, v)
+                }, 0)}
+                {' '}<span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>/ {allCriteria.reduce((s, c) => s + (Number(c.max_score) || 0), 0)}</span>
+              </span>
             </div>
           </div>
         )}
