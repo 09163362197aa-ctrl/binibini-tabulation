@@ -98,7 +98,7 @@ export default function JudgeHome() {
       s.candidate_id === candidateId && stageCritIds.includes(s.criterion_id)
     )
     if (relevant.length === 0) return 'not-started'
-    if (stageCritIds.every(cid => relevant.some(s => s.criterion_id === cid && s.is_locked))) return 'locked'
+    if (relevant.every(s => s.is_locked)) return 'locked'
     return 'draft'
   }
 
@@ -115,11 +115,7 @@ export default function JudgeHome() {
       candidateId ? s.candidate_id === candidateId : s.team_entry_id === entryId
     )
     if (relevant.length === 0) return 'not-started'
-    const byCrit = new Map()
-    relevant.forEach(s => {
-      if (!byCrit.get(s.criterion_id)) byCrit.set(s.criterion_id, Boolean(s.is_locked))
-    })
-    if (Array.from(byCrit.values()).every(Boolean)) return 'locked'
+    if (relevant.every(s => s.is_locked)) return 'locked'
     return 'draft'
   }
 

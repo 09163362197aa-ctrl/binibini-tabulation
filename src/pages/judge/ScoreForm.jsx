@@ -521,14 +521,7 @@ export default function ScoreForm() {
         const existing = savedRef.current[cid]
 
         if (existing) {
-          const lockQuery = supabase
-            .from('scores')
-            .update({ value: rawVal, is_locked: true })
-            .eq('judge_id', user.id)
-            .eq('criterion_id', cid)
-          if (teamEntryId) lockQuery.eq('team_entry_id', teamEntryId)
-          else lockQuery.eq('candidate_id', candidateId)
-          const { error } = await lockQuery
+          const { error } = await supabase.from('scores').update({ value: rawVal, is_locked: true }).eq('id', existing.id)
           if (error) throw error
           return { cid, id: existing.id }
         } else {
